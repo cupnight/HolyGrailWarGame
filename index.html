@@ -7,6 +7,7 @@
 <meta property="og:title" content="성배가 차는 밤">
 <meta property="og:description" content="비공식 팬 제작 성배전쟁 시뮬레이션. 무작위로 태어나, 성배전쟁이 벌어지는 도시에서 한 사람의 일생을 살아 보는 게임.">
 <meta name="theme-color" content="#121019">
+<script data-goatcounter="https://jeonghun9206.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <title>성배가 차는 밤</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5630,8 +5631,8 @@ const len=40; let raf=null, last=0, shown=120, autoTimer=null;
 const ST_LABEL={mana:'마력',lore:'지식',will:'정신',bond:'관계',health:'건강'};
 
 /* ---- 시작 화면 ---- */
-$('#startBtn').onclick=()=>{ store.del(K_SAVE); Sim.newLife({len,name:$('#nameIn').value.trim()||undefined}); enterGame(true); Sim.start(); };
-$('#contBtn').onclick=()=>{ const d=store.get(K_SAVE); if(!d) return; Sim.load(d); enterGame(false); };
+$('#startBtn').onclick=()=>{ gcEvent('born','태어나기'); store.del(K_SAVE); Sim.newLife({len,name:$('#nameIn').value.trim()||undefined}); enterGame(true); Sim.start(); };
+$('#contBtn').onclick=()=>{ gcEvent('continue','이어하기'); const d=store.get(K_SAVE); if(!d) return; Sim.load(d); enterGame(false); };
 function showIntro(){
   $('#intro').classList.remove('hidden'); $('#game').classList.add('hidden'); $('#ending').classList.add('hidden'); $('#dlg').classList.add('hidden');
   const sv=store.get(K_SAVE); $('#contBtn').classList.toggle('hidden',!sv); if(sv) $('#contBtn').textContent=`이어하기 · ${sv.name}, ${sv.age}세`;
@@ -5880,6 +5881,8 @@ function choose(i){ clearTimeout(autoTimer); const d=Sim.S.pending; if(!d) retur
 
 /* ---- 끝 ---- */
 
+/* ---- 방문 통계 (배포판에서만 동작: GoatCounter) ---- */
+function gcEvent(path,title){ try{ if(window.goatcounter&&window.goatcounter.count) window.goatcounter.count({path,title:title||path,event:true}); }catch(e){} }
 /* ---- 지난 생 ---- */
 const K_COUNT='cupnight.count.v1', HIST_MAX=40;
 const WRK={'동맹과 함께 성배에 소원을 빌었다':'shared','성배를 손에 쥐었다':'victor','서번트를 잃고 살아남았다':'lost','끝까지 살아남았다':'survived','성배가 차지 않은 채 끝났다':'collapsed','성배를 양보하거나 물러났다':'withdrew','령주를 거부했다':'refused','전쟁 중에 죽었다':'dead','령주를 받지 않았다':'none'};
@@ -5971,7 +5974,7 @@ function showEnding(r,fromHistory){
   </div>
   ${warReport(r)}
   <div class="actions"><button class="btn primary" id="againBtn">다시 태어나기</button><button class="btn" id="copyBtn">기록 복사</button><button class="btn" id="homeBtn">처음으로</button></div>`;
-  $('#againBtn').onclick=()=>{ store.del(K_SAVE); Sim.newLife({len}); enterGame(true); Sim.start(); };
+  $('#againBtn').onclick=()=>{ gcEvent('born','태어나기'); store.del(K_SAVE); Sim.newLife({len}); enterGame(true); Sim.start(); };
   $('#homeBtn').onclick=showIntro;
   $('#copyBtn').onclick=()=>{ const t=`성배가 차는 밤 — ${r.name} (${r.born}–${r.died}, ${r.age}세)\n${r.origin}\n${r.warYear}년 겨울: ${r.hero?r.hero.cls+' '+wa(r.hero.name)+' 함께, ':''}${r.war}${r.wish?' · '+r.wish:''}${r.wd&&r.wd.bt?`\n전적: 교전 ${r.wd.bt.n} · 격파 ${r.wd.kills} · 령주 ${r.wd.seals.length}획`:''}\n떠난 이유: ${r.cause}${r.last?'\n'+(r.lastTo?r.lastTo+'에게: ':'')+'“'+r.last+'”':''}`;
     const ok=()=>toast('기록을 복사했습니다'); try{ navigator.clipboard.writeText(t).then(ok,()=>toast('복사할 수 없습니다. 직접 선택해 주세요')); }catch(e){ toast('복사할 수 없습니다. 직접 선택해 주세요'); } };
@@ -5986,7 +5989,7 @@ Sim.setHooks({
   change:()=>render(),
   phase:()=>render(),
   save:()=>{ const sv=Sim.snapshot(); if(sv) store.set(K_SAVE,sv); },
-  end:r=>{ store.del(K_SAVE); const h=store.get(K_HIST)||[]; const n=(store.get(K_COUNT)||h.length)+1; store.set(K_COUNT,n); r.n=n; h.unshift(r); store.set(K_HIST,h.slice(0,HIST_MAX)); showEnding(r,false); },
+  end:r=>{ store.del(K_SAVE); const h=store.get(K_HIST)||[]; const n=(store.get(K_COUNT)||h.length)+1; store.set(K_COUNT,n); r.n=n; h.unshift(r); { const k=r.warKey||'none'; gcEvent('end-'+k,'엔딩: '+(RLAB[k]||k)); if(r.hero&&Sim.S&&Sim.S.hero) gcEvent('servant-'+Sim.S.hero,'서번트: '+r.hero.cls+' '+r.hero.name); } store.set(K_HIST,h.slice(0,HIST_MAX)); showEnding(r,false); },
 });
 
 /* ---- 열려 있는 화면 유지 ---- */
