@@ -153,17 +153,24 @@ button.pair:hover{border-color:var(--gold)}
 .delta span{font-family:var(--f-mono);font-size:11.5px;font-variant-numeric:tabular-nums;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
 .delta span.up{color:var(--moss);border-color:rgba(134,171,146,.45)}
 .delta span.down{color:#e58b93;border-color:rgba(192,58,69,.45)}
+.delta span.grp{border:0;padding:1px 3px 1px 0;color:var(--dim);font-family:var(--f-ui);font-size:12px;font-weight:600;letter-spacing:.04em}
+.delta span.grp:not(:first-child){margin-left:8px}
+.delta span.foe{color:#e0b48a;border-color:rgba(224,180,138,.5);border-style:dashed}
 .delta.chk span{font-family:var(--f-ui);letter-spacing:0}
 .delta.chk span.ok{color:var(--gold2);border-color:rgba(201,164,92,.55);background:rgba(201,164,92,.10)}
 .delta.chk span.ok::before{content:'✦ '}
 .delta.chk span.ng{color:#f0a2a8;border-color:rgba(192,58,69,.6);background:rgba(192,58,69,.12)}
 .delta.chk span.ng::before{content:'✕ '}
+.delta.chk span.eq{color:#bdb8e6;border-color:rgba(138,134,201,.55);background:rgba(138,134,201,.10)}
+.delta.chk span.eq::before{content:'⇄ '}
 .more{margin-top:10px;background:transparent;border:1px dashed var(--line);color:var(--dim);border-radius:var(--r);padding:8px;font-size:13px}
 
 aside{display:grid;gap:18px;align-content:start}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
 .card h3{font-size:12px;letter-spacing:.14em;color:var(--dim);margin-bottom:12px;display:flex;justify-content:space-between;align-items:baseline}
 .card h3 small{letter-spacing:0;font-family:var(--f-mono);color:var(--faint)}
+.card h3 small#circ{font-family:var(--f-ui);font-size:12px;color:var(--gold2);border:1px solid rgba(201,164,92,.55);background:rgba(201,164,92,.10);border-radius:999px;padding:2px 10px;letter-spacing:.02em}
+.card h3 small#circ b{font-family:var(--f-display);font-size:14px;font-weight:600;margin-left:3px;color:var(--gold2)}
 .stat{display:grid;grid-template-columns:44px minmax(0,1fr) 30px;align-items:center;gap:10px;font-size:13px;margin-bottom:8px}
 .stat .lb{color:var(--dim)}
 .stat .v{font-family:var(--f-mono);font-size:12px;text-align:right;color:var(--text)}
@@ -231,7 +238,7 @@ aside{display:grid;gap:18px;align-content:start}
 .recent .rl{color:#cfc8ba}
 .recent .rl.war{color:#f1d9d6}.recent .rl.enemy{color:#e6a2a8}.recent .rl.voice{color:var(--gold2)}.recent .rl.me{color:var(--text);font-family:var(--f-ui);font-size:13px}.recent .rl.seal{color:#ff8c95}
 .recent .rl.pk{font-family:var(--f-ui);font-size:12.5px;color:var(--gold2)}
-.recent .rl.dl{font-family:var(--f-mono);font-size:11.5px;color:var(--faint)}
+.recent .rl.dl .delta{margin-top:0}
 .recent .rh{font-size:11px;letter-spacing:.12em;color:var(--faint);font-family:var(--f-ui)}
 .sheet h2{font-family:var(--f-display);font-size:26px}
 .sheet .body{font-family:var(--f-story);font-size:17px;line-height:1.8;margin:10px 0 16px;white-space:pre-line}
@@ -3512,7 +3519,7 @@ const Sim = (() => {
   function kidName(sex){ const L=NAMES[S.city.loc]; const g=pick(sex==='m'?L.m:L.f); return L.order==='sg'? S.sur+L.sp+g : g+L.sp+S.sur; }
   const cityN=()=>S&&S.city?S.city.n:'이 도시';
 
-  function newLife(opt={}){
+  function newLife(opt={}){ PRE=null; LASTWAR=null;
     const seed = opt.seed ?? Math.floor(Math.random()*2**31);
     R = mulberry(seed);
     const sex = ch(.5)?'m':'f';
@@ -3562,7 +3569,7 @@ const Sim = (() => {
     if(S.war&&S.phase==='war'){ if(/w\.trust|W\(\)\.trust/.test(src)) out.push({l:'신뢰',v:Math.round(S.war.trust)}); if(/w\.fort/.test(src)) out.push({l:'결계',v:Math.round(S.war.fort)}); if(/w\.sm\b|smCost|smUse/.test(src)) out.push({l:'서번트 마력',v:Math.round(S.war.sm)}); }
     return out;
   }
-  function decide(d){ for(const c of d.choices||[]){ if(!c.st){ const st=statsOf(c.f); if(st.length) c.st=st; } } S.pending=d; H.decide(d);}
+  function decide(d){ if(S&&(S.phase==='life'||S.phase==='epi')&&!S.pending) PRE=serial(); for(const c of d.choices||[]){ if(!c.st){ const st=statsOf(c.f); if(st.length) c.st=st; } } S.pending=d; H.decide(d);}
   const DL={mana:'마력',lore:'지식',will:'정신',bond:'관계',health:'건강',wealth:'재산',hp:'서번트 건강',sm:'서번트 마력',trust:'신뢰',exposure:'노출',fort:'결계',seals:'령주'};
   function snapD(){ const o={...S.st,wealth:S.wealth}; if(S.war&&S.phase==='war'){o.hp=S.war.heroAlive?S.war.hp:0;o.sm=S.war.sm;o.trust=S.war.trust;o.exposure=S.war.exposure;o.fort=S.war.fort;o.seals=S.war.seals;} return o; }
   // 능력치 판정 기록: 선택지 결과에 어떤 능력치가 영향을 줬는지 함께 보여 준다
@@ -3583,22 +3590,27 @@ const Sim = (() => {
     return pickNR([`${subj(items)} 한 끗 모자랐다`,`${subj(items)} 따라 주지 않았다`,`${subj(items)} 아직 부족했다`],'chkF');
   }
   function chkOut(){ if(!CHK||!CHK.length||!S||S.dead) return; const seen=new Set(), out=[];
-    for(const c of CHK){ const key=(c.txt||c.l)+c.ok; if(seen.has(key)) continue; seen.add(key); out.push((c.ok?'✓ ':'✗ ')+(c.txt||chkPhrase(c.l,c.ok))); }
+    for(const c of CHK){ const key=(c.txt||c.l)+c.ok; if(seen.has(key)) continue; seen.add(key); out.push((c.eq?'· ':c.ok?'✓ ':'✗ ')+(c.txt||chkPhrase(c.l,c.ok))); }
     log(out.join(' · '),'check'); }
   function tracked(fn){
-    const b=snapD(); const prevC=CHK; CHK=[]; let r; try{ r=fn(); } finally { if(S) chkOut(); CHK=prevC; } if(!S) return r;
+    const b=snapD(); const eB=S&&S.phase==='war'&&S.war&&S.war.battle?S.war.battle.e:null, eH0=eB?eB.hp:0, eS0=eB?(eB.seals||0):0;
+    const prevC=CHK; CHK=[]; let r; try{ r=fn(); } finally { if(S) chkOut(); CHK=prevC; } if(!S) return r;
     const a=snapD(); const out=[];
     for(const k in DL){ if(k in b && k in a){ const d=Math.round(a[k])-Math.round(b[k]); if(d) out.push(`${DL[k]} ${d>0?'+':'−'}${Math.abs(d)}`); } }
+    // 전투 중이었다면 상대 서번트의 변화도 함께
+    if(eB){ const dh=Math.round(eB.alive?eB.hp:0)-Math.round(eH0), ds=(eB.seals||0)-eS0;
+      if(dh) out.push(`적 서번트 건강 ${dh>0?'+':'−'}${Math.abs(dh)}`); if(ds) out.push(`적 령주 ${ds>0?'+':'−'}${Math.abs(ds)}`); }
     if(out.length && !S.dead) log(out.join(' · '),'delta');
     return r;
   }
   function resolve(i,text){
     const d=S.pending; if(!d) return;
     const c=d.choices[i]; if(!c||c.off) return;
-    S.pending=null;
+    S.pending=null; S.resumeEv=null; if(S.war) S.war.resumeAt=null;
     if(!d.input && !d.silent) log(d.qbody||d.body,'q',{title:d.title,pick:c.t});
     if(d.input){ const t=(text||'').trim(); if(t){ if(d.input==='last') S.lastWords=t; else if(d.input==='wish'){ if(c.wish){ S.flags.myWish=t; log(`당신의 소원: “${t}”`,'voice'); } } else {S.notes.push({a:S.age,q:d.body,t}); log('남긴 생각: “'+t+'”','note');} } }
     tracked(()=>{ const r=c.f?c.f(text):null; if(typeof r==='string'&&r) log(r,c.k||'ev'); });
+    if(S&&!S.dead&&!S.pending&&(S.phase==='life'||S.phase==='epi')) H.save();
     H.change();
   }
   function autoChoice(d){
@@ -3622,6 +3634,7 @@ const Sim = (() => {
 
   function tick(dt){
     if(!S||S.dead||S.pending||S.paused) return;
+    if(S._resume){ const r=S._resume; S._resume=null; resumeAt(r); if(S.pending) return; }
     const sp=dt*S.speed;
     if(S.phase==='life'){
       S.clock+=sp; const spy=LEN[S.len].spy;
@@ -4188,6 +4201,10 @@ const Sim = (() => {
     const elig=GROW.filter(e=>S.age>=e.a[0]&&S.age<=e.a[1]&&!S.once[e.id]&&(!e.c||e.c()));
     if(!elig.length) return;
     const e=wpick(elig,x=>x.w); S.once[e.id]=1; mark('event');
+    showGrow(e);
+  }
+  function showGrow(e){
+    S.resumeEv={src:'GROW',id:e.id};
     const fv=v=>typeof v==='function'?v():v;
     const choices=e.ch.map(c=>({t:c.t,d:c.d,st:fv(c.st),auto:fv(c.auto),off:c.off?c.off():false,f:()=>c.f()}));
     if(choices.every(c=>c.off)) choices[0].off=false;
@@ -4200,6 +4217,10 @@ const Sim = (() => {
     if(!elig.length || (!forced.length && !ch(rate))) return;
     const e=forced.length? forced[0] : wpick(elig,x=>x.w); if(!e) return;
     S.once[e.id]=1; mark('event');
+    showEv(e);
+  }
+  function showEv(e){
+    S.resumeEv={src:'EV',id:e.id};
     const body=orf(e.txt());
     const choices=e.ch.map(c=>({t:orf(c.t),d:c.d,auto:c.auto,k:c.k,off:c.off?c.off():false,f:()=>{ const r=c.f(); return typeof r==='string'?orf(r):r; }}));
     if(choices.every(c=>c.off)) choices[0].off=false;
@@ -4585,7 +4606,9 @@ const Sim = (() => {
       {t:'결계를 손본다',d:`지금 결계 ${Math.round(w.fort)}`,f:()=>w.queue.push(()=>{ const g=ri(8,14)+(h.cls==='caster'?8:0)+S.st.mana*.05; w.fort=clamp(w.fort+g); log('창틀과 문지방마다 표식을 새로 그렸다.'); })},
       {t:'성당교회에 들른다',d:'소식을 듣는다. 신부는 공짜로 말해 주지 않는다',f:()=>w.queue.push(()=>church())},
     ];
+    w.resumeAt=(w.queue.length||w.battle)?null:'day';
     decide({title:`제${w.day}일 · 낮`,body:statusBody('낮'),war:true,choices:ch_.map(c=>({...c,f:()=>{c.f(); w.queue.push(()=>dayEvent(),()=>masterEvent(false),()=>nightStart());}}))});
+    if(w.resumeAt){ LASTWAR=serial(); H.save(); }
   }
   function statusBody(t){
     const w=W(),h=hero();
@@ -5121,7 +5144,9 @@ const Sim = (() => {
     ch_.push({t:'숨죽이고 지낸다',d:'습격받을 확률이 줄고 상처와 마력이 빨리 회복된다',auto:w.sm<25,f:()=>{w.hid=true;w.queue.push(()=>{log('불을 끄고 결계 안에서 밤을 보냈다.');w.hp=clamp(w.hp+3+S.st.mana*.05);smRegen(4);})}});
     classActs(ch_);
     if(w.halt>0) ch_.forEach(c=>{ if(/^(습격한다|고지에서 저격한다|거처에 잠입한다|감독자의 령주)$/.test(c.t)){ c.off=true; c.auto=false; c.d='감독자의 령주에 묶여 있다'; } });
+    w.resumeAt=(w.queue.length||w.battle)?null:'night';
     decide({title:`제${w.day}일 · 밤`,body:statusBody('밤'),war:true,choices:ch_.map(c=>({...c,f:()=>{c.f();w.queue.push(()=>npcNight(),()=>threat(),()=>warEvent(),()=>dawn());}}))});
+    if(w.resumeAt){ LASTWAR=serial(); H.save(); }
   }
   /* ---------- 클래스 전용 밤 행동 ---------- */
   // 능력치 대결: 점수 차에 무작위 폭을 더해 대성공/성공/실패/대실패를 가른다
@@ -5492,7 +5517,15 @@ const Sim = (() => {
         if(w.heroAlive&&ch(.08-S.st.will/2000)) { add({health:-ri(4,10)}); log(pickNR(['파편이 당신 옆구리를 스쳤다.','튀어 오른 돌조각에 이마가 찢어졌다.','충격파에 당신도 바닥을 굴렀다.','깨진 유리가 팔을 긁고 지나갔다.'],'shr'),'war'); }
       }
     }
-    if(CHK&&!myNP&&!enNP&&Math.abs(d)>=8){ const won=d>0, t=roundFactor(won,{h,eh:eh2,MP,EP,w,e,b,bonus,kind}); if(t) CHK.push({txt:t,ok:won}); }
+    if(CHK){ const fx={h,eh:eh2,MP,EP,w,e,b,bonus,kind};
+      if(myNP||enNP){
+        if(myNP){ const a=artOf(h), an=a.n.split(' - ').pop(); const guard=skillsOf(eh2).filter(x=>x.k==='mr'||x.k==='evade').sort((x,y)=>RANKV[y.r]-RANKV[x.r])[0], red=SV(eh2,'mr')*.04+SV(eh2,'evade')*.02;
+          CHK.push(red>=.2&&guard? {txt:`상대의 '${guard.n}'${J(guard.n,이)} '${an}'의 위력을 깎아 냈다`,ok:false} : {txt:`'${an}'${J(an,이)} 상대를 휩쓸었다`,ok:true}); if(red>=.2&&guard) learnSkill(e,guard.n); }
+        if(enNP){ const fs=FORESEE[h.id]?(h.id==='solomon'?'천리안':'직감'):null;
+          CHK.push(eArtHit===2? {txt:fs&&!e.artKnown?`서번트의 '${fs}'${J(fs,이)} 보구를 미리 내다보았다`:`미리 알던 '보구'라 피해를 줄였다`,ok:true} : {txt:`상대의 '보구'를 정면으로 받아 냈다`,ok:false}); }
+      } else if(Math.abs(d)>=8){ const won=d>0; CHK.push({txt:roundFactor(won,fx),ok:won}); }
+      else CHK.push({txt:roundFactor(null,fx),eq:true});
+    }
     // 상대 령주는 합의 승패와 상관없이 흔적을 남긴다
     if(b.eSealHit){
       const x=Math.max(2,Math.round(ri(6,10)*(1-Math.min(.4,SV(h,'mr')*.04+SV(h,'evade')*.02))));
@@ -5528,24 +5561,30 @@ const Sim = (() => {
   function roundFactor(won,ctx){
     const {h,eh,MP,EP,w,e,b,bonus,kind}=ctx, pv=PV, f=[];
     const top=(hh,sk)=>{ const W={power:1.2,div:.8,mad:.8,rally:.8}; let best=null,bv=0,sum=0; for(const x of skillsOf(hh)){ const wt=W[x.k]; if(!wt) continue; const v=RANKV[x.r]*wt; sum+=v; if(v>bv){bv=v;best=x.n;} } return {n:best,sum}; };
-    f.push({v:(pv(MP[0])-pv(EP[2]))*2.5,pos:`서번트의 '근력'이 상대의 '내구'를 뚫었다`,neg:`상대의 '내구'를 뚫지 못했다`});
-    f.push({v:(pv(MP[2])-pv(EP[0]))*2.5,pos:`서번트의 '내구'가 버텨 냈다`,neg:`상대의 '근력'에 밀렸다`});
-    f.push({v:(pv(MP[1])-pv(EP[1]))*2.5,pos:`서번트의 '민첩'이 한발 앞섰다`,neg:`상대의 '민첩'을 따라잡지 못했다`});
-    f.push({v:(pv(MP[3])-pv(EP[3]))*1.4+clsBonus(h,MP)-clsBonus(eh,EP),pos:`서번트의 '마력'이 상대를 압도했다`,neg:`상대의 '마력'에 밀렸다`});
-    f.push({v:(pv(MP[4])-pv(EP[4]))*1.5,pos:`서번트에게 '행운'이 따랐다`,neg:`상대에게 '행운'이 따랐다`});
+    f.push({v:(pv(MP[0])-pv(EP[2]))*2.5,pos:`서번트의 '근력'이 상대의 '내구'를 뚫었다`,neg:`상대의 '내구'를 뚫지 못했다`,me:'근력',op:'내구'});
+    f.push({v:(pv(MP[2])-pv(EP[0]))*2.5,pos:`서번트의 '내구'가 버텨 냈다`,neg:`상대의 '근력'에 밀렸다`,me:'내구',op:'근력'});
+    f.push({v:(pv(MP[1])-pv(EP[1]))*2.5,pos:`서번트의 '민첩'이 한발 앞섰다`,neg:`상대의 '민첩'을 따라잡지 못했다`,me:'민첩',op:'민첩'});
+    f.push({v:(pv(MP[3])-pv(EP[3]))*1.4+clsBonus(h,MP)-clsBonus(eh,EP),pos:`서번트의 '마력'이 상대를 압도했다`,neg:`상대의 '마력'에 밀렸다`,me:'마력',op:'마력'});
+    f.push({v:(pv(MP[4])-pv(EP[4]))*1.5,pos:`서번트에게 '행운'이 따랐다`,neg:`상대에게 '행운'이 따랐다`,me:'행운',op:'행운'});
     const ts=top(h,0), te=top(eh,0);
-    if(ts.n||te.n) f.push({v:ts.sum-te.sum,pos:ts.n?`서번트의 '${ts.n}'${J(ts.n,이)} 빛을 발했다`:'',neg:te.n?`상대의 '${te.n}'에 밀렸다`:'',learn:te.n});
+    if(ts.n||te.n) f.push({v:ts.sum-te.sum,pos:ts.n?`서번트의 '${ts.n}'${J(ts.n,이)} 빛을 발했다`:'',neg:te.n?`상대의 '${te.n}'에 밀렸다`:'',learn:te.n,me:ts.n,op:te.n});
     const eM=edgeV(h,w.hp,b.round,b.ctx.defend), eE=edgeV(eh,e.hp,b.round,false);
-    if(eM) f.push({v:eM,pos:`서번트의 '${EDGE[h.id].n}'${J(EDGE[h.id].n,이)} 승부를 갈랐다`,neg:''});
-    if(eE) f.push({v:-eE,pos:'',neg:`상대의 '${EDGE[eh.id].n}'에 밀렸다`,learn:EDGE[eh.id].n});
+    if(eM) f.push({v:eM,pos:`서번트의 '${EDGE[h.id].n}'${J(EDGE[h.id].n,이)} 승부를 갈랐다`,neg:'',me:EDGE[h.id].n});
+    if(eE) f.push({v:-eE,pos:'',neg:`상대의 '${EDGE[eh.id].n}'에 밀렸다`,learn:EDGE[eh.id].n,op:EDGE[eh.id].n});
     f.push({v:(w.trust-50)*.15,pos:`당신과 서번트의 '신뢰'가 힘이 되었다`,neg:`'신뢰'가 따라 주지 않았다`});
     if(e.intel>=40) f.push({v:e.intel*.1-2,pos:`미리 모은 '정보'가 길을 열었다`,neg:''});
     if(w.sm<15) f.push({v:-(w.sm<=0?30:10),pos:'',neg:`바닥난 '서번트 마력'이 발목을 잡았다`});
     if(kind==='seal') f.push({v:bonus,pos:`'령주'의 힘이 승부를 갈랐다`,neg:''});
     if(kind==='weak') f.push({v:bonus+6,pos:`'약점'을 정확히 찔렀다`,neg:''});
     if(b.judgedNow) f.push({v:22,pos:`'판결'이 상대의 걸음을 묶었다`,neg:''});
+    if(won===null){ // 결판이 나지 않은 합
+      const c=f.filter(x=>Math.abs(x.v)>=3&&(x.v>0?x.me:x.op)).sort((a,c)=>Math.abs(c.v)-Math.abs(a.v))[0];
+      if(!c) return '두 서번트가 팽팽히 맞섰다';
+      if(c.v<0&&c.learn&&skillsOf(eh).some(x=>x.n===c.learn)) learnSkill(e,c.learn);
+      return c.v>0? `서번트의 '${c.me}'${J(c.me,이)} 앞섰지만 결판은 나지 않았다` : `상대의 '${c.op}'에 눌렸지만 버텨 냈다`;
+    }
     const cand=f.filter(x=>won?(x.v>=3&&x.pos):(x.v<=-3&&x.neg)).sort((a,c)=>won?c.v-a.v:a.v-c.v);
-    if(!cand.length) return null; if(!won&&cand[0].learn&&skillsOf(eh).some(x=>x.n===cand[0].learn)) learnSkill(e,cand[0].learn);
+    if(!cand.length) return won?'한 끗 차이로 앞섰다':'한 끗 차이로 밀렸다'; if(!won&&cand[0].learn&&skillsOf(eh).some(x=>x.n===cand[0].learn)) learnSkill(e,cand[0].learn);
     return won?cand[0].pos:cand[0].neg;
   }
   const mN0=h=>h.name;
@@ -5942,8 +5981,8 @@ const Sim = (() => {
       const {win,lose}=npcFight(a,b);
       const seen=a.known||b.known||a.ally||b.ally||ch(.5);
       if(lose.master&&ch(mHunt(win))){
-        if(ch(.7)){ const d=makeStray(lose); log(`감독관의 통지: ${CLS[lose.cls].n} 조의 마스터 사망.${seen?` ${pName(win)} 조가 서번트를 피해 마스터를 노렸다.`:''} 주인을 잃은 서번트는 아직 사라지지 않았다. ${seen?indTxt(H_BY[lose.hero]):''}마력이 다하기까지 ${d}일.`,'notice'); }
-        else { lose.master=false; lose.alive=false; pairOut(lose,'마스터를 잃고 흩어졌다',seen?win:null); log(`감독관의 통지: ${CLS[lose.cls].n} 조의 마스터 사망. 서번트도 곧 흩어졌다.`,'notice'); }
+        if(ch(.7)){ const d=makeStray(lose); log(`감독관의 통지: ${CLS[lose.cls].n} 조의 마스터 사망.${seen?` ${pName(win)} 조가 서번트를 피해 마스터를 노렸다고 한다.`:''}`,'notice'); }
+        else { lose.master=false; lose.alive=false; pairOut(lose,'마스터를 잃고 흩어졌다',seen?win:null); log(`감독관의 통지: ${CLS[lose.cls].n} 조의 마스터 사망.${seen?` ${pName(win)} 조가 서번트를 피해 마스터를 노렸다고 한다.`:''}`,'notice'); }
         reported++; continue;
       }
       if(lose.hp<=0){
@@ -6438,9 +6477,29 @@ const Sim = (() => {
   }
 
   /* ---------- 저장 ---------- */
-  function snapshot(){ if(!S||S.pending||(S.war&&S.phase==='war')) return null; const c=JSON.parse(JSON.stringify(S,(k,v)=>typeof v==='function'?undefined:v)); return c; }
+  // 저장: 선택지가 떠 있어도 되돌아갈 수 있는 지점을 남긴다
+  let PRE=null, LASTWAR=null;
+  function serial(){ const c=JSON.parse(JSON.stringify(S,(k,v)=>typeof v==='function'?undefined:k==='_resume'?undefined:v)); c.pending=null; if(c.war) c.war.queue=[]; return JSON.stringify(c); }
+  function snapshot(){
+    if(!S) return null;
+    if(S.phase==='war'&&S.war){
+      const w=S.war;
+      if(S.pending&&w.resumeAt&&!(w.queue&&w.queue.length)&&!w.battle) return JSON.parse(serial());
+      return LASTWAR?JSON.parse(LASTWAR):null;
+    }
+    if(S.pending) return PRE?JSON.parse(PRE):null;
+    return JSON.parse(serial());
+  }
+  function resumeAt(r){
+    if(r==='day'&&S.phase==='war') return dayDecision();
+    if(r==='night'&&S.phase==='war') return nightDecision();
+    if(r==='ev'&&S.resumeEv){ const R0=S.resumeEv; const e=(R0.src==='GROW'?GROW:EV).find(x=>x.id===R0.id); if(e) (R0.src==='GROW'?showGrow:showEv)(e); }
+  }
   function load(data){ if(data&&JSON.stringify(data).includes('"arthur"')) data=JSON.parse(JSON.stringify(data).replace(/"arthur"/g,'"artoria"')); // 아서 → 시구르드 교체 전 저장분 호환
-    S=data; if(!S.relics) S.relics=S.relic?[S.relic]:[]; S.city=S.city||{n:'서울',loc:'ko'}; S.sur=S.sur||S.name[0]; S.aff=S.aff||{avenger:0,judge:0}; R=mulberry((data.seed+data.age*7919)|0); S.pending=null; return S; }
+    S=data; if(!S.relics) S.relics=S.relic?[S.relic]:[]; S.city=S.city||{n:'서울',loc:'ko'}; S.sur=S.sur||S.name[0]; S.aff=S.aff||{avenger:0,judge:0}; R=mulberry((data.seed+data.age*7919)|0); S.pending=null; PRE=null; LASTWAR=null;
+    if(S.war){ S.war.queue=[]; if(S.phase==='war'&&S.war.resumeAt){ S._resume=S.war.resumeAt; LASTWAR=serial(); } }
+    if(S.resumeEv&&S.phase!=='war') S._resume='ev';
+    return S; }
 
   return {newLife,start,tick,resolve,autoChoice,setFocus,setHooks,snapshot,load,record,yearProgress,
     get S(){return S}, STYLE:()=>STYLE, seal:()=>S&&S.sealId!=null?SEALS[S.sealId]:SEALS[0], skillsOf, CLS,GR,HEROES,H_BY,ORIGINS,FOCUS,LEN,pName,artOf,ARCHE,myParams,npcParams,TIER_TXT,hero:()=>S&&S.hero?H_BY[S.hero]:null,
@@ -6483,21 +6542,25 @@ function prog(){ const S=Sim.S; if(!S) return; $('#gProg').style.width=(Sim.year
 function stamp(e){ return e.n? `${e.a}세 · 제${e.n}일${e.tod?' '+e.tod:''}` : `${e.a}세 · ${e.y}`; }
 let group=null, groupKey='';
 const BREAK=['n','night','sys','note','dead','q'];
+function chipBox(e){
+  const box=document.createElement('span'); box.className='delta';
+  if(e.k==='check'){ box.classList.add('chk');
+    e.t.split(' · ').forEach(x=>{const c=document.createElement('span');c.textContent=x.slice(2);c.className=x.startsWith('✓')?'ok':x.startsWith('✗')?'ng':'eq';box.appendChild(c);});
+    return box; }
+  const items=e.t.split(' · '), foe=items.filter(x=>x.startsWith('적 ')), mine=items.filter(x=>!x.startsWith('적 '));
+  const grp=t=>{const g=document.createElement('span');g.className='grp';g.textContent=t;box.appendChild(g);};
+  if(foe.length&&mine.length) grp('아군');
+  mine.forEach(x=>{const c=document.createElement('span');c.textContent=x;c.className=x.includes('+')?'up':'down';
+    if(/^(노출|령주)/.test(x)) c.className=x.includes('+')?(x.startsWith('령주')?'up':'down'):(x.startsWith('령주')?'down':'up');
+    box.appendChild(c);});
+  if(foe.length){ grp('적군'); foe.forEach(x=>{const c=document.createElement('span');c.textContent=x.slice(2);c.className='foe';box.appendChild(c);}); }
+  return box;
+}
 function addEntry(e){
   const f=$('#feed');
-  if(e.k==='check'){
+  if(e.k==='check'||e.k==='delta'){
     const host=f.firstChild&&f.firstChild.querySelector('.b'); if(!host) return;
-    const box=document.createElement('span'); box.className='delta chk';
-    e.t.split(' · ').forEach(x=>{const c=document.createElement('span');c.textContent=x.slice(2);c.className=x.startsWith('✓')?'ok':'ng';box.appendChild(c);});
-    host.appendChild(box); return;
-  }
-  if(e.k==='delta'){
-    const host=f.firstChild&&f.firstChild.querySelector('.b'); if(!host) return;
-    const box=document.createElement('span'); box.className='delta';
-    e.t.split(' · ').forEach(x=>{const c=document.createElement('span');c.textContent=x;c.className=x.includes('+')?'up':'down';
-      if(/^(노출|령주)/.test(x)) c.className=x.includes('+')?(x.startsWith('령주')?'up':'down'):(x.startsWith('령주')?'down':'up');
-      box.appendChild(c);});
-    host.appendChild(box); return;
+    host.appendChild(chipBox(e)); return;
   }
   const key=`${e.a}|${e.n||0}|${e.tod||''}`;
   if(group&&!(BREAK.includes(e.k)&&!(e.k==='n'&&e.n))&&key===groupKey){
@@ -6533,7 +6596,7 @@ function syncCtrl(){
 document.querySelectorAll('.ctrl [data-sp]').forEach(b=>b.onclick=()=>{Sim.S.speed=+b.dataset.sp;syncCtrl();});
 $('#pauseBtn').onclick=()=>{infoHeld=false;Sim.S.paused=!Sim.S.paused;syncCtrl();};
 $('#autoBtn').onclick=()=>{Sim.S.auto=!Sim.S.auto;syncCtrl(); const d=Sim.S.pending; if(d){ $('#dAuto').classList.toggle('hidden',!Sim.S.auto||d.input==='last'); if(Sim.S.auto&&d.input!=='last') scheduleAuto(); else clearTimeout(autoTimer); }};
-$('#exitBtn').onclick=()=>{ const sv=Sim.snapshot(); if(sv) store.set(K_SAVE,sv); cancelAnimationFrame(raf); clearTimeout(autoTimer); showIntro(); };
+$('#exitBtn').onclick=()=>{ if(Sim.S&&Sim.S.dead&&Sim.S.pending){ Sim.resolve(Sim.autoChoice(Sim.S.pending),''); return; } const sv=Sim.snapshot(); if(sv) store.set(K_SAVE,sv); cancelAnimationFrame(raf); clearTimeout(autoTimer); showIntro(); };
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{$('#game').dataset.tab=b.dataset.tab;document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-pressed',x===b));window.scrollTo(0,0);});
 document.addEventListener('keydown',e=>{
   if($('#game').classList.contains('hidden')||e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
@@ -6559,7 +6622,7 @@ function render(){
   $('#game').classList.toggle('war',!!war);
   $('#gName').textContent=S.name; $('#gAge').textContent=`${S.age}세`; $('#gYear').textContent=`${S.city?S.city.n+' · ':''}${S.year}년`;
   const ph=$('#gPhase'); ph.textContent=war?`제${S.war.day||0}일 · ${S.war.tod||'낮'}`:S.dead?'끝':S.phase==='epi'?'에필로그':'삶'; ph.classList.toggle('war',!!war);
-  $('#circ').textContent=`회로 ${letter(S.circuit)}`;
+  $('#circ').innerHTML=`마술 회로 <b>${S.circuit?letter(S.circuit):'없음'}</b>`;
   $('#stats').innerHTML=Object.entries(ST_LABEL).map(([k,l])=>bar(l,S.st[k],k)).join('')+bar('재산',S.wealth||0,'wealth');
   // 올해의 목표
   const lock=S.age<6||S.phase!=='life';
@@ -6567,7 +6630,6 @@ function render(){
   $('#focusD').textContent=S.age<6?'6세까지는 목표 없이 성장합니다.':S.phase==='war'?'전쟁 중에는 밤마다 행동을 결정합니다.':(Sim.FOCUS[S.focus]||{}).d||'';
   // 가족
   const F=S.fam, rows=[];
-  rows.push(`<div>마술 회로 <b>${S.circuit?letter(S.circuit):'없음'}</b></div>`);
   if(F.father) rows.push(`<div>아버지 <b>${F.father.alive?F.father.age+'세':'세상을 떠남'}</b></div>`);
   if(F.mother) rows.push(`<div>어머니 <b>${F.mother.alive?F.mother.age+'세':'세상을 떠남'}</b></div>`);
   if(!F.father&&!F.mother) rows.push('<div>부모를 모름</div>');
@@ -6595,9 +6657,9 @@ function render(){
     $('#pairsLeft').textContent=`남은 조 ${left}`; $('#pairsTitle').textContent=`같은 성배를 다투는 ${['','','','','','','','일곱','여덟','아홉'][w.pairs.length+1]||''} 조`;
     const rowsP=[`<button class="pair me ${w.heroAlive?'':'out'}" data-i="me"><span class="c">${Sim.CLS[h.cls].n}</span><span class="m">당신 · ${h.name}</span><span class="s">${w.heroAlive?'':'탈락'}</span></button>`];
     w.pairs.forEach(p=>{
-      const out=!p.alive||!p.master&&!p.stray;
+      const ml=!p.master||(!p.alive&&p.out&&/마스터를 잃/.test(p.out.why||'')); const out=!p.alive||ml;
       const nm=p.known||!p.alive?`${esc(p.mname)} · ${p.revealed?Sim.H_BY[p.hero].name:'정체 불명'}`:'거처 불명';
-      const st=!p.alive?'탈락':!p.master?'주인 없음':p.ally?'동맹':p.known?`<span class="dots">${[0,1,2,3].map(i=>`<i class="${p.hp>i*25?'on':''}"></i>`).join('')}</span>`:'?';
+      const st=ml?'주인 없음':!p.alive?'탈락':p.ally?'동맹':p.known?`<span class="dots">${[0,1,2,3].map(i=>`<i class="${p.hp>i*25?'on':''}"></i>`).join('')}</span>`:'?';
       rowsP.push(`<button class="pair ${out?'out':''} ${p.ally&&p.alive?'ally':''}" data-i="${p.i}"><span class="c">${Sim.CLS[p.cls].n}</span><span class="m">${nm}</span><span class="s">${st}</span></button>`);
     });
     $('#pairs').innerHTML=rowsP.join('');
@@ -6697,7 +6759,7 @@ function showDecision(d){
       const hd=document.createElement('div'); hd.className='rh'; hd.textContent=d.battle?'이번 전투':'지금까지'; rc.appendChild(hd);
       items.forEach(e=>{ const el=document.createElement('div');
         if(e.k==='q'){ el.className='rl pk'; el.textContent='→ '+(e.pick||''); }
-        else if(e.k==='delta'||e.k==='check'){ el.className='rl dl'; el.textContent=e.k==='check'?e.t.replace(/[✓✗] /g,''):e.t; }
+        else if(e.k==='delta'||e.k==='check'){ el.className='rl dl'; el.appendChild(chipBox(e)); }
         else { el.className='rl '+e.k; el.textContent=e.t; }
         rc.appendChild(el); });
       rc.classList.remove('hidden'); setTimeout(()=>{rc.scrollTop=rc.scrollHeight},0);
