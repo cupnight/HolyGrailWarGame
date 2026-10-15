@@ -655,6 +655,8 @@ const Sim = (() => {
      frags:['저는 대왕의 친위대였습니다. 그분이 세상을 떠난 뒤, 이집트를 맡았지요.','알렉산드리아에 세상의 모든 책을 모으고 싶었습니다. 지혜는 칼보다 오래 남으니까요.','등대와 도서관. 그 둘을 남겼습니다. 대왕께서 보셨다면 웃으셨을 겁니다. “칼을 내려놓았구나, 프톨레마이오스.”']},
     {id:'kriemhild',fem:1,cls:'berserk',name:'크림힐트',title:'니벨룽의 미망인',from:'니벨룽겐의 노래',s:['C++','C','D','A','EX'],art:{n:'발뭉 크림힐트',d:'남편의 검으로 휘두르는 복수'},traits:['충성','야망'],wish:'그 사람을 죽인 자들이 한 사람도 남김없이 대가를 치르는 것',relic:'핏자국이 남은 보리수 잎',
      frags:['저는 부르군트의 공주였어요. 용을 벤 영웅이 저를 아내로 맞았지요. 행복했어요. 정말로.','하겐이 그이의 등에 창을 꽂았어요. 보리수 잎이 붙었던 자리를, 제가 그에게 가르쳐 주었기 때문에.','저는 훈족의 왕에게 시집가서, 오빠들을 모두 잔치에 불렀어요. …그 잔치가 어떻게 끝났는지는, 아시죠?']},
+    {id:'solomon',cls:'caster',name:'솔로몬',title:'마술왕',from:'구약성서 열왕기',s:['E','E','B','A++','A++'],art:{n:'아르스 노바',d:'열 개의 반지를 하늘에 돌려보내고, 자신의 존재를 지운다'},traits:['연민','자유'],wish:'인간이 되는 것',relic:'열 번째 반지',sp:'intel',
+     frags:['나는 신에게서 지혜를 받았다. 열 개의 반지와 함께. 그날부터 사람의 마음과 앞날이 전부 보였다.','왕으로 사는 동안 나는 한 번도 내 뜻으로 무언가를 고르지 않았다. 신이 바라는 대로, 백성이 바라는 대로. 그게 왕이었다.','죽기 직전에야 반지를 내려놓았다. 처음으로 아무것도 보이지 않았다. …무서웠다. 그리고 조금, 기뻤다.']},
   ];
   const RIVAL={
     sigurd:{brynhild:'시구르드: “…브륀힐드. 당신이 적이라니. 하지만 이번만은 등을 보이지 않겠습니다.”',siegfried:'시구르드: “같은 용의 피를 뒤집어쓴 분이군요. 당신의 이야기도 잘 알고 있습니다.”'},
@@ -770,6 +772,10 @@ const Sim = (() => {
   RIVAL.kriemhild={siegfried:'크림힐트: “…당신. 당신이에요? 이번에는, 제가 지켜 드릴게요. 설령 당신을 베더라도.”',sigurd:'크림힐트: “같은 이야기에서 온 분이군요. 그이와 닮았어요. 그래서 싫어요.”',brynhild:'크림힐트: “브륀힐드… 그이의 첫 번째 여자. 이번에야말로 끝을 내요.”'};
   Object.assign(RIVAL.siegfried=RIVAL.siegfried||{},{kriemhild:'지크프리트: “…크림힐트. 미안하다. 나 때문에 너는 그런 끝을 맞았다.”'});
   Object.assign(RIVAL.brynhild=RIVAL.brynhild||{},{kriemhild:'브륀힐드: “크림힐트… 당신과는, 다시 다투고 싶지 않았어요.”'});
+  RIVAL.solomon={merlin:'솔로몬: “꽃의 마술사인가. 너도 다 보이는 쪽이지. 지겹지 않나?”',gilgamesh:'솔로몬: “우루크의 왕. 같은 것을 보는 눈이로군. 다만 너는 그걸 즐기고, 나는 그러지 못했다.”',davinci:'솔로몬: “…이상하군. 처음 보는 얼굴인데, 오래 같이 일한 사람 같다.”'};
+  Object.assign(RIVAL.merlin=RIVAL.merlin||{},{solomon:'멀린: “이런, 마술왕님이시잖아. 같은 천리안끼리 싸우면 결말이 뻔해서 재미가 없는데.”'});
+  Object.assign(RIVAL.gilgamesh=RIVAL.gilgamesh||{},{solomon:'길가메시: “흥, 마술왕인가. 다 보면서 아무것도 즐기지 못한 왕이라니. 딱하군.”'});
+  Object.assign(RIVAL.davinci=RIVAL.davinci||{},{solomon:'레오나르도 다 빈치: “어라, 당신… 이상하네. 어디서 같이 커피라도 마신 적 있던가?”'});
   // ---------- 서번트 말투 ----------
   // reg: plain(반말) · polite(존댓말) · royal(짐/노라) · mute(말 대신 묘사)
   // 괄호로 감싼 문장은 대사가 아니라 묘사로 출력된다.
@@ -2704,6 +2710,23 @@ const Sim = (() => {
       bye:['고마웠어요, 마스터. 당신은 저를 배신하지 않았어요.','다시 부르신다면… 이번엔 웃으면서 올게요.'],
       cold:'…당신도 결국, 하겐과 같았네요.',
       askWish:'마스터, 당신은 성배에 무엇을 바라세요?'},
+    solomon:{reg:'plain',ord:0,
+      greet:'캐스터, 솔로몬. 부름에 응했다. …그래, 네가 내 마스터인가. 미리 말해 두지. 나는 네가 무엇을 바라는지 이미 알고 있다.',
+      bow:'예의 바르군. 왕을 대하는 법을 아는 마스터는 드물다.',
+      wish:'내 소원? …웃지 마라. 인간이 되는 것이다. 왕도 영웅도 아닌, 그냥 사람.',
+      order:'명령이라면 따르지. 그 결과도 이미 보인다만.',
+      plan:'좋은 계획이다. 이번에는 나도 결말을 모르겠군. 그게 좀 즐겁다.',
+      naive:'두려워하는 건 당연하다. 이건 성배전쟁이다. 다만 네가 살아남는 미래도 분명히 있다. 그쪽으로 가자.',
+      thanks:'고맙다는 말은… 오랜만에 듣는군. 왕일 때는 아무도 하지 않았다.',
+      flee:'도망쳐도 괜찮다. 살아 있으면 다른 길이 보인다. 나는 그걸 너무 늦게 알았다.',
+      seals0:'령주가 다했군. 상관없다. 나는 처음으로 내 뜻으로 너의 편에 서 있다.',
+      dawn:'아침이군. 이 시간의 빛은 미래가 잘 안 보여서 좋다.',
+      refuse:'그래. 그것도 네 선택이다. 선택할 수 있다는 건 좋은 일이다.',
+      grailNo:'이 잔은 안 된다. 바닥이 보인다. 거기엔 소원이 아니라 재앙이 고여 있다.',
+      grailYes:'…고맙다, 마스터. 이걸로 나는, 처음으로 무언가를 내 손으로 고른 셈이다.',
+      bye:['고마웠다, 마스터. 너와 보낸 날들은 미리 보이지 않았다. 그래서 좋았다.','다음에 만날 때는 왕이 아니라, 그냥 사람이었으면 좋겠군.'],
+      cold:'…그래. 이런 결말도 보였었다.',
+      askWish:'마스터, 너는 성배에 무엇을 바라지? 나는 이미 보고 있지만, 네 입으로 듣고 싶다.'},
   };
   // 말투별 공통 짧은 대사
   const REGQ = {
@@ -2898,6 +2921,7 @@ const Sim = (() => {
     shingen:{n:'풍림화산',r:'B',k:'대군보구',x:'바람처럼 빠르게, 숲처럼 고요하게, 불처럼 맹렬하게, 산처럼 움직이지 않는다. 카이의 군세가 전장을 덮는다.'},
     ptolemaios:{n:'비블리오테케 바실레이우',r:'A+',k:'대군보구',x:'알렉산드리아 대도서관을 불러낸다. 쌓인 모든 지혜가 빛이 되어 쏟아진다.'},
     kriemhild:{n:'발뭉 크림힐트',r:'A+',k:'대인보구',x:'남편 지크프리트의 검 발뭉을 복수의 칼로 휘두른다. 상대의 방비를 벗겨 내고, 용의 피를 가진 자에게는 더욱 깊이 박힌다.'},
+    solomon:{n:'아르스 노바',r:'D',k:'대인보구',x:'신에게서 받은 열 개의 반지를 하늘에 돌려보낸다. 반지가 사라지면 솔로몬이 남긴 모든 것이 함께 무너진다. 그 자신까지. 한 번 쓰면 다시는 쓸 수 없다.'},
   };
 
   /* ---------- 스킬 (명칭·등급은 FGO 한국어판 기준) ---------- */
@@ -2938,7 +2962,7 @@ const Sim = (() => {
     '냉정침착':{k:'insight',x:'어떤 순간에도 흔들리지 않는다'}, '수호의 계약':{k:'evade',x:'지키겠다는 맹세'},
     '축지':{k:'evade',x:'순식간에 거리를 좁힌다'}, '병약':{k:'mad',x:'싸우는 도중 갑자기 피를 토한다'},
     '제오세':{k:'insight',x:'다섯 가지 세(勢)의 깨달음'}, '천안':{k:'insight',x:'목적을 위한 길을 꿰뚫어 본다'}, '무공':{k:'power',x:'무(無)에 다가선 검'},
-    '무의 축복':{k:'power',x:'무예의 신들이 내린 축복'}, '이별의 저주':{k:'mad',x:'사랑하는 사람과 함께할 수 없는 저주'},
+    '무의 축복':{k:'power',x:'무예의 신들이 내린 축복'}, '이별의 저주':{k:'curse',x:'사랑하는 사람과 함께할 수 없는 저주'},
     '사자심(신속)':{k:'evade',x:'사자의 심장이 내딛는 빠른 걸음'}, '기족백반':{k:'power',x:'기사로서의 온갖 재주'}, '영원히 머나먼 승리의 검':{k:'power',x:'동경해 온 성검의 그림자'},
     '심안(진짜)':{k:'insight',x:'수련으로 얻은 전장의 눈'}, '마술':{k:'regen',x:'잔재주 같은 마술'},
     '컬렉터':{k:'power',x:'왕의 재보에서 원하는 무기를 꺼낸다'}, '영생의 봉헌':{k:'heal',x:'불사를 내려놓은 현자의 치유'}, '신수의 지혜':{k:'insight',x:'신에게서 받은 지혜'},
@@ -2949,9 +2973,9 @@ const Sim = (() => {
     '갈바니즘':{k:'regen',x:'번개를 마력으로 바꾼다'}, '천부의 예지':{k:'insight',x:'번뜩이는 천재의 예지'}, '별의 개척자':{k:'rally',x:'인류의 길을 연 자'},
     '개선의 카리스마':{k:'rally',x:'개선하는 황제의 위광'}, '화력지원(포)':{k:'sabotage',x:'포병의 지원 사격'}, '가능성의 빛':{k:'power',x:'사람들이 바란 가능성'},
     '여신의 총애':{k:'evade',x:'달의 여신의 사랑을 받는다'}, '바람기를 향한 쐐기':{k:'sabotage',x:'바람기는 용서하지 않는다'},
-    '해신의 축복':{k:'heal',x:'바다의 신에게서 받은 가호'}, '천갈의 저주':{k:'mad',x:'하늘의 전갈에게 죽은 저주'}, '짐승성의 호완':{k:'power',x:'짐승을 잡는 강한 팔'}, '달의 여신의 압박':{k:'sabotage',x:'달의 여신이 지켜보고 있다'}, '삼형제별의 궁수':{k:'power',x:'오리온자리의 세 별'},
+    '해신의 축복':{k:'heal',x:'바다의 신에게서 받은 가호'}, '천갈의 저주':{k:'curse',x:'하늘의 전갈에게 죽은 저주'}, '짐승성의 호완':{k:'power',x:'짐승을 잡는 강한 팔'}, '달의 여신의 압박':{k:'sabotage',x:'달의 여신이 지켜보고 있다'}, '삼형제별의 궁수':{k:'power',x:'오리온자리의 세 별'},
     '사랑의 점':{k:'sabotage',x:'보는 이를 사로잡는 점'}, '기사의 무략':{k:'evade',x:'기사의 몸놀림'},
-    '빈자의 식견':{k:'insight',x:'말 한마디로 본질을 꿰뚫는다'}, '무관의 무예':{k:'stealth',x:'인정받지 못한 무예. 능력을 감춘다'},
+    '카바차와 쿤달라':{k:'armor',x:'태양이 내린 황금 갑옷과 귀걸이. 바사비 샤크티를 쓰기 전까지 받는 피해가 크게 줄어든다'}, '빈자의 식견':{k:'insight',x:'말 한마디로 본질을 꿰뚫는다'}, '무관의 무예':{k:'stealth',x:'인정받지 못한 무예. 능력을 감춘다'},
     '신앙의 가호':{k:'survive',x:'굳은 신앙이 몸을 지킨다'}, '고문기술':{k:'sabotage',x:'고통을 주는 기술'},
     '변용':{k:'power',x:'몸을 자유롭게 바꾼다'}, '기척 감지':{k:'insight',x:'대지에 귀를 기울여 기척을 읽는다'}, '완전한 형태':{k:'heal',x:'흙으로 몸을 되돌린다'},
     '마경의 지혜':{k:'insight',x:'영웅을 기른 마경의 지혜'}, '원초의 룬':{k:'regen',x:'신대의 룬 마술'}, '원초의 룬(전사)':{k:'power',x:'발키리에게 배운 전사의 룬. 힘을 끌어올린다'}, '용의 개조':{k:'heal',x:'용의 심장을 먹고 바뀐 몸. 상처가 빨리 아문다'}, '지혜의 결정':{k:'insight',x:'룬과 새들의 말로 쌓은 지혜. 상대의 수를 읽는다'}, '신살자':{k:'slayer',x:'신을 죽인 자'},
@@ -2998,7 +3022,7 @@ const Sim = (() => {
     '용의 마녀':{k:'rally',x:'용을 부리는 마녀'}, '덧없는 꿈':{k:'power',x:'사라질 꿈의 힘'},
     '세례영창':{k:'sabotage',x:'세례의 주문'}, '신명재결':{k:'sabotage',x:'신의 이름으로 재결한다'},
     '천부의 견식':{k:'insight',x:'타고난 관찰력'}, '가설추론':{k:'reveal',x:'가설로 진실을 꿰뚫는다'}, '바리츠':{k:'evade',x:'신비한 격투술'},
-    '해신의 핵':{k:'mr',x:'포세이돈이 준 몸. 마술과 보구가 잘 듣지 않는다'}, '약탈의 창':{k:'sabotage',x:'빼앗는 창. 상대의 기세를 꺾는다'}, '포세이돈의 가호':{k:'evade',x:'칼도 창도 통하지 않는 몸'},
+    '해신의 핵':{k:'div',x:'포세이돈이 준 몸. 마술과 보구가 잘 듣지 않는다'}, '약탈의 창':{k:'sabotage',x:'빼앗는 창. 상대의 기세를 꺾는다'}, '포세이돈의 가호':{k:'evade',x:'칼도 창도 통하지 않는 몸'},
     '여행의 종자':{k:'rally',x:'산초가 늘 곁에서 챙겨 준다'}, '편력기사의 긍지':{k:'survive',x:'몇 번을 쓰러져도 기사는 다시 말에 오른다'}, '거인 사냥':{k:'slayer',x:'거인이라 믿는 상대에게 강하다'}, '둘시네아에게 바치는 맹세':{k:'rally',x:'공주를 위한 맹세가 마음을 굳힌다'},
     '성배의 가호':{k:'heal',x:'성배를 본 자에게 남은 축복'}, '수호기사(성창)':{k:'fort',x:'동료를 지키는 성창의 기사'}, '구원의 빛':{k:'evade',x:'성창의 빛이 공격을 비껴가게 한다'},
     '천부의 운명':{k:'insight',x:'전장의 흐름을 타고났다'}, '마음으로 단련한 갑옷':{k:'survive',x:'마음이 곧 갑옷이다'}, '두 발로 얻은 영광':{k:'power',x:'스스로 걸어 쟁취한 승리'},
@@ -3006,6 +3030,7 @@ const Sim = (() => {
     '진지작성(타케다)':{k:'fort',x:'사람이 곧 성이다'}, '카이의 호랑이':{k:'rally',x:'카이의 군세를 이끄는 맹장'}, '홍련의 불꽃':{k:'power',x:'불처럼 맹렬하게'}, '사람이 곧 성':{k:'fort',x:'성 없이도 사람이 지킨다'},
     '구제의 카리스마':{k:'rally',x:'백성을 구한 왕의 품격'}, '기억 분할(왕)':{k:'insight',x:'왕으로서의 기억을 나눠 동시에 생각한다'}, '지혜와의 접속':{k:'insight',x:'대도서관의 지혜에 닿는다'},
     '복수의 서약':{k:'sabotage',x:'원한이 상대의 기세를 빨아들인다'}, '니벨룽의 보물':{k:'power',x:'라인강에 가라앉은 보물의 힘'}, '피로 물든 미소':{k:'heal',x:'상처를 입어도 웃으며 버틴다'},
+    '소환술':{k:'power',x:'천사와 악마를 불러 부린다'}, '솔로몬의 반지':{k:'sabotage',x:'열 개의 반지가 인간의 마술을 거둬들인다'},
   };
   const SK = {
     sigurd:[['대마력','A',1],['기승','A',1],['신성','B',1],['원초의 룬(전사)','B'],['용의 개조','EX'],['지혜의 결정','A']],
@@ -3056,7 +3081,7 @@ const Sim = (() => {
     orion:[['대마력','D',1],['단독행동','A+',1],['여신의 총애','EX'],['바람기를 향한 쐐기','A+'],['심안(가짜)','B-']],
     superorion:[['단독행동','EX',1],['해신의 축복','B',1],['천갈의 저주','D',1],['짐승성의 호완','B+'],['달의 여신의 압박','EX'],['삼형제별의 궁수','A+']],
     diarmuid:[['대마력','B',1],['심안(진짜)','B'],['사랑의 점','C'],['기사의 무략','B']],
-    karna:[['대마력','C',1],['신성','A',1],['빈자의 식견','A'],['마력방출(불꽃)','A'],['무관의 무예','-']],
+    karna:[['대마력','C',1],['신성','A',1],['빈자의 식견','A'],['마력방출(불꽃)','A'],['무관의 무예','-'],['카바차와 쿤달라','A']],
     vlad:[['대마력','C',1],['신앙의 가호','A+++'],['군략','B'],['무고의 괴물','A']],
     elizabeth:[['대마력','A',1],['진지작성','B',1],['카리스마','C'],['고문기술','A'],['전투속행','B']],
     enkidu:[['대마력','A',1],['변용','A'],['기척 감지','A+'],['완전한 형태','A']],
@@ -3121,6 +3146,7 @@ const Sim = (() => {
     shingen:[['기승','A',1],['대마력','D',1],['진지작성(타케다)','C',1],['카이의 호랑이','A'],['홍련의 불꽃','A'],['사람이 곧 성','B']],
     ptolemaios:[['대마력','B',1],['단독행동','A',1],['진지작성','A+',1],['구제의 카리스마','A'],['기억 분할(왕)','A'],['지혜와의 접속','EX']],
     kriemhild:[['광화','EX',1],['복수의 서약','A'],['니벨룽의 보물','B'],['피로 물든 미소','A']],
+    solomon:[['진지작성','A',1],['도구작성','C',1],['고속영창','C',1],['계시','B'],['소환술','EX'],['솔로몬의 반지','EX'],['천리안','EX']],
   };
   // 서번트 고유 보정: 기존 스킬에 붙는 추가 효과(승률 하위권 보정). k: flat 항상 / first 첫 합 / late 2합부터 / grit 다칠수록 / guard 거처를 지킬 때
   const EDGE={
@@ -3173,7 +3199,7 @@ const Sim = (() => {
     if(e.k==='grit') return (100-hp)*e.v;
     if(e.k==='guard') return defend? e.v : 0;
     return 0; }
-  const skillsOf=h=>(SK[h.id]||[]).map(([n,r,c])=>{const ed=EDGE[h.id]&&EDGE[h.id].n===n?EDGE[h.id]:null;const bx=((SKX[n]||{x:''}).x)+(SURV[h.id]===n?'. 쓰러지는 순간 한 번은 다시 일어선다':'')+(MAGE_BERSERK[h.id]&&n==='광화'?'. 마술사 버서커 — 광기 속에서도 마술을 놓지 않아, 마력이 전투력에 크게 반영된다':'');return {n,r,c:!!c,k:(SKX[n]||{k:'power'}).k,x:ed?(bx?bx+'. ':'')+ed.x:bx};});
+  const skillsOf=h=>(SK[h.id]||[]).map(([n,r,c])=>{const ed=EDGE[h.id]&&EDGE[h.id].n===n?EDGE[h.id]:null;const bx=((SKX[n]||{x:''}).x)+(SURV[h.id]===n?'. 쓰러지는 순간 한 번은 다시 일어선다':'')+(h.id==='solomon'&&n==='천리안'?'. 상대의 보구를 미리 내다보고, 처음 보는 보구라도 한 걸음 먼저 비켜선다':'')+(h.id==='artoria'&&n==='직감'?'. 처음 보는 보구라도 몸이 먼저 피한다':'')+(MAGE_BERSERK[h.id]&&n==='광화'?'. 마술사 버서커 — 광기 속에서도 마술을 놓지 않아, 마력이 전투력에 크게 반영된다':'');return {n,r,c:!!c,k:(SKX[n]||{k:'power'}).k,x:ed?(bx?bx+'. ':'')+ed.x:bx};});
   function SV(h,kind){ return skillsOf(h).filter(x=>x.k===kind).reduce((a,x)=>a+RANKV[x.r],0); }
   const RANKV0={E:1,D:2,C:3,B:4,A:5,EX:6,'?':4.5};
   const RANKV=new Proxy({},{get:(_,r)=>{r=String(r);if(r.includes('~')){const [a,b]=r.split('~');return (RANKV[a]+RANKV[b])/2;}const b=RANKV0[r.replace(/[+-]/g,'')]||3;return b+(r.match(/\+/g)||[]).length*.4-(r.includes('-')?.4:0);}});
@@ -3213,6 +3239,9 @@ const Sim = (() => {
     sigurd:'용을 벤 자로서, 물러서지 않겠습니다.', siegfried:'용보다 무서운 상대는 아니군.', lancelot:'기사의 이름에 부끄럽지 않게.', arjuna:'이 화살 하나에 모든 것을 걸겠습니다.', robin:'숲이 없어도 사냥은 할 수 있지.', atalanta:'달의 여신이여, 화살을 이끌어 주소서.', cuchulainn:'이 창에 찔리면 끝이야. 알고 덤벼.', hector:'트로이의 문은 그렇게 쉽게 안 열린다고.', leonidas:'스파르타에 후퇴는 없다!', alexander:'하하! 정복의 맛은 이래야지!', boudica:'승리의 여신이 나를 보고 있다.', achilles:'따라잡을 수 있으면 따라잡아 봐.', medea:'마술사의 싸움을 가르쳐 줄까?', merlin:'이건 좋은 이야기가 되겠군.', paracelsus:'다섯 원소여, 저 자를 해부하십시오.', jingke:'…술은 이기고 나서 마시지.', fuuma:'(바람 소리만 났다.)', corday:'이게 옳은 일이라고 믿어요.', heracles:'(땅이 울릴 만큼 낮게 으르렁거렸다.)', spartacus:'사랑하라! 그리고 저항하라!', lubu:'…방해된다.', dantes:'크하하하! 그 절망, 내가 받아 주마!', salieri:'회색 옷의 사내가 왔다. 너를 위해.', jeanne:'주여, 이 싸움을 지켜보소서.', qinshihuang:'짐 앞에서 무례하구나.',
   };
   for(const k in HLINE2){ if(HLINE[k]) HLINE[k].push(HLINE2[k]); }
+  Object.assign(HLINE,{
+    solomon:['네가 어디로 움직일지 이미 보인다.','반지여, 응답하라.','미안하다. 이 결말은 바꿀 수 없다.'],
+  });
   Object.assign(HLINE,{
     kriemhild:['그이의 검으로, 당신을 베겠어요.','피는 피로 갚아야죠.','웃어요? 저도 웃고 있어요.'],
   });
@@ -4294,6 +4323,7 @@ const Sim = (() => {
     if(h.sp==='avenge') p+=(100-w.hp)*.3;
     if(h.sp==='gate') p+=14+(w.hp<50?10:0);
     p+=(BIAS[h.id]||0);
+    if(h.id==='gawain'&&w.tod==='밤') p-=SV(h,'power')*1.2; // 성자의 숫자: 해가 있을 때만
     if(h.id==='enkidu'&&w.battle&&w.battle.morphR===w.battle.round) p+=10;
     if(h.id==='enkidu'&&w.morph==='atk') p+=6;
     if(ctx.judged) p+=22;
@@ -4307,7 +4337,11 @@ const Sim = (() => {
   // 한 번 버티기: 전투속행 계열이 없는 서번트에게 기존 스킬에 붙이는 추가 효과
   const SURV={raikou:'무궁의 무련',asterios:'천성의 마',ibaraki:'귀종의 마',penthesilea:'군신포효'};
   // 서번트별 미세 보정(전투력)
-  const BIAS={raikou:-4,asterios:-2,ibaraki:-2.5};
+  // 처음 보는 상대 보구도 미리 알던 것처럼 피하는 서번트
+  const FORESEE={solomon:'솔로몬은 이미 그 빛을 본 적이 있다는 듯 한 걸음 먼저 비켜섰다. 「천리안 EX」.',artoria:'빛이 닿기 직전, 알트리아의 몸이 먼저 움직였다. 「직감 A」.'};
+  // 카르나의 황금 갑옷: 바사비 샤크티를 쓰기 전까지 받는 피해가 줄어든다
+  const kavF=(id,o)=>id==='karna'&&!o.kavacha?KAV:1; const KAV=.7;
+  const BIAS={gilgamesh:8,superorion:4.5,arjuna:9,emiya:2,karna:10,caenis:-5,enkidu:5,artoria:3,rama:-7,solomon:-2.5,raikou:-4,asterios:-2,ibaraki:-2.5};
   function clsBonus(h,P){ return h.cls==='caster'? PV(P[3])*2.4 : MAGE_BERSERK[h.id]? PV(P[3])*2.0 : h.cls==='shadow'? PV(P[1])*1.0 : 0; }
   function npcPower(p,vsMe){
     const h=H_BY[p.hero];
@@ -4317,6 +4351,7 @@ const Sim = (() => {
     if(h.sp==='avenge') v+=(100-p.hp)*.3;
     if(h.sp==='gate') v+=14+(p.hp<50?10:0);
     v+=(BIAS[h.id]||0);
+    if(h.id==='gawain'&&S.war&&S.war.tod==='밤') v-=SV(h,'power')*1.2;
     v+=edgeV(h,p.hp,vsMe&&W().battle?W().battle.round:null,vsMe&&W().battle&&W().battle.ctx&&W().battle.ctx.attack);
     if(vsMe) v+=W().exposure*.12;
     return v;
@@ -4527,6 +4562,7 @@ const Sim = (() => {
     shingen:['신겐이 온천을 찾아 하루 종일 도시를 돌아다녔다.','신겐이 동네 어르신들과 바둑을 두며 크게 웃었다.','신겐은 지도 위에 교토로 가는 길을 몇 번이고 그렸다.'],
     ptolemaios:['프톨레마이오스가 도서관에서 문 닫을 때까지 나오지 않았다.','프톨레마이오스가 당신에게 오늘 읽은 책의 줄거리를 친절하게 설명해 주었다.','프톨레마이오스는 등대 사진이 걸린 카페에서 오래 머물렀다.'],
     kriemhild:['크림힐트가 창가에 앉아 오래 머리를 빗었다. 콧노래가 조금 무서웠다.','크림힐트는 결혼식장 앞을 지날 때 걸음을 멈추고 한참 바라보았다.','크림힐트가 정원에서 보리수 잎을 한 장 주워 책 사이에 끼워 두었다.'],
+    solomon:['솔로몬이 텔레비전 앞에서 한참 움직이지 않았다. 다음 장면을 모르는 드라마가 신기하다고 했다.','솔로몬은 편의점에서 컵케이크를 하나 사 와서 아주 천천히 먹었다.','솔로몬이 반지를 하나씩 빼서 탁자 위에 늘어놓고 오래 내려다보았다.'],
     dantes_:[],
   };
   const OUTINGS = [
@@ -4961,6 +4997,7 @@ const Sim = (() => {
     const fin=b.ctx.final;
     const choices=[
       {t:'정면으로 맞선다',d:w.sm<=0?'마력이 없다. 제대로 싸울 수 없다':`서번트 마력 −${smCost('round')} 안팎`,auto:w.sm>0,f:()=>clash(0)},
+      h.id==='solomon'? {t:`보구: ${artOf(h).n}`,d:'단 한 번. 상대를 반드시 지운다. 대신 솔로몬도 소멸하고, 당신의 전쟁은 여기서 끝난다. 마지막 상대라면 성배는 당신의 것이다',auto:fin&&w.hp<40&&e.hp>w.hp,f:()=>arsNova()} :
       {t:`보구: ${artOf(h).n}`,d:`랭크 ${artOf(h).r} · 서번트 마력 −${smCost('art')} · 정체가 드러난다`,off:w.sm<smCost('art'),st:[{l:'서번트 마력',v:Math.round(w.sm)},{l:'마력',v:Math.round(S.st.mana)}],auto:(w.hp<50||e.hp<45)&&w.sm>=smCost('art')+15,f:()=>clash(0,'art')},
     ];
     if(w.seals>0&&w.sm<40) choices.push({t:'령주: 마력을 채워라',d:'령주 1획 · 서번트 마력 +60',seal:true,auto:w.sm<15&&w.seals>1,f:()=>{useSeal('마력을 채워라');w.sm=clamp(w.sm+60);log(`${h.name}의 몸에 령주의 마력이 흘러들었다. 윤곽이 다시 또렷해졌다.`,'seal');soon(()=>battleRound());}});
@@ -5011,11 +5048,13 @@ const Sim = (() => {
   }
   function clash(bonus,kind){
     const w=W(),h=hero(),b=w.battle,e=b.e;
+    if(kind==='art'&&h.id==='karna'&&!w.kavacha){ w.kavacha=1; log('카르나가 황금 갑옷을 벗어 던졌다. 갑옷과 맞바꾼 창이 손에 잡혔다. 「카바차와 쿤달라」.','skill'); }
     if(kind==='art'){ w.npN=(w.npN||0)+1; w.exposure=clamp(w.exposure+Math.max(15,30-SV(h,'stealth')*2)); const a=artOf(h); b.artN=(b.artN||0)+1; if(b.artN===1) log(`${h.name}${J(h.name,이)} 보구를 해방했다. “${a.n}.” ${a.d.replace(/\.$/,'')}.`,'war'); else log(pickNR([`${h.name}${J(h.name,이)} 다시 한 번 진명을 외쳤다. “${a.n.split(' - ')[0]}!”`,`두 번째 해방. 남은 마력을 쥐어짜 “${a.n.split(' - ')[0]}”${J(a.n.split(' - ')[0],을)} 다시 펼쳤다.`,`${h.name}의 보구가 한 번 더 밤을 갈랐다.`],'art2'),'war'); if(S.st.mana<40) add({health:-4}); }
     enemySpeak(e,false);
     let eArt=0, eArtHit=0;
-    if(!b.eArtUsed&&ch(.08+(e.hp<50?.12:0)+(b.ctx.final?.08:0))){ b.eArtUsed=true; const ea=artOf(H_BY[e.hero]);
-      if(e.artKnown){ eArtHit=2; log(`${pName(e)}${J(pName(e),이)} ${ea.n}${J(ea.n,을)} 해방했다. 알고 있던 보구였다. 피할 길을 미리 열어 두었다.`,'war'); }
+    if(!b.eArtUsed&&e.hero!=='solomon'&&ch(.08+(e.hp<50?.12:0)+(b.ctx.final?.08:0))){ b.eArtUsed=true; const ea=artOf(H_BY[e.hero]); if(e.hero==='karna'&&!e.kavacha){ e.kavacha=1; log(`${pName(e)}${J(pName(e),이)} 황금 갑옷을 벗어 던졌다.`,'war'); }
+      if(FORESEE[h.id]&&!e.artKnown){ eArtHit=2; log(`${pName(e)}${J(pName(e),이)} 보구를 해방했다. “${ea.n}.” ${FORESEE[h.id]}`,'war'); revealArt(e,''); }
+      else if(e.artKnown){ eArtHit=2; log(`${pName(e)}${J(pName(e),이)} ${ea.n}${J(ea.n,을)} 해방했다. 알고 있던 보구였다. 피할 길을 미리 열어 두었다.`,'war'); }
       else { eArtHit=1; log(`${pName(e)}${J(pName(e),이)} 보구를 해방했다. “${ea.n}.” ${ea.d.replace(/\.$/,'')}.`,'war'); revealArt(e,''); } }
     smUse(smCost(kind==='art'?'art':'round'));
     const eh2=H_BY[e.hero];
@@ -5041,16 +5080,16 @@ const Sim = (() => {
     if(myNP||enNP){
       // 보구가 터진 합: 보구를 쓴 쪽은 보구 피해만 준다. 쓰지 않은 쪽은 평소처럼 맞선다.
       const ourSide=()=>{
-      if(myNP){ const nh=Math.round(npDmg(h,eh2,false,e.aid==='elder',MP)*(h.id==='enkidu'&&w.morph==='atk'?1.15:1)); e.hp=clamp(e.hp-nh);
+      if(myNP){ const nh=Math.round(npDmg(h,eh2,false,e.aid==='elder',MP)*kavF(eh2.id,e)*(h.id==='enkidu'&&w.morph==='atk'?1.15:1)); e.hp=clamp(e.hp-nh);
         if(e.hp>0) log(pickNR([`보구가 ${eN}${J(eN,을)} 휩쓸었다. 빛이 걷힌 자리에 ${eN}${J(eN,이)} 피투성이로 서 있었다.`,`${eN}${J(eN,이)} 보구를 정면으로 받아 냈다. 대가는 컸다.`,`${eN}의 방어가 보구 앞에서 종잇장처럼 찢겼다.`],'npMine'),'war'); }
-      else if(d>=8){ const dmg=Math.round((6+d*.3+extra)*outM*(e.aid==='elder'?.8:1)*(1-Math.min(.35,SV(eh2,'evade')*.035))); e.hp=clamp(e.hp-dmg);
+      else if(d>=8){ const dmg=Math.round((6+d*.3+extra)*outM*(e.aid==='elder'?.8:1)*(1-Math.min(.35,SV(eh2,'evade')*.035))*kavF(eh2.id,e)); e.hp=clamp(e.hp-dmg);
         log(pickNR([`보구를 쏟아 낸 틈을 놓치지 않고 ${mN}${J(mN,이)} 파고들었다.`,`${mN}${J(mN,이)} 빛의 가장자리를 돌아 ${eN}에게 일격을 넣었다.`],'npCtr'),'war'); }
       else if(d>-8) e.hp=clamp(e.hp-ri(2,5));
       };
       const theirSide=()=>{
-      if(enNP){ const x=Math.round(npDmg(eh2,h,eArtHit===2,false,EP)*(h.id==='enkidu'&&w.morph==='def'?.8:1)*(eArtHit!==2&&e.artHint?.875:1)); w.hp=clamp(w.hp-x);
+      if(enNP){ const x=Math.round(npDmg(eh2,h,eArtHit===2,false,EP)*(h.id==='enkidu'&&w.morph==='def'?.8:1)*kavF(h.id,w)*(eArtHit!==2&&e.artHint?.875:1)); w.hp=clamp(w.hp-x);
         log(pickNR(eArtHit===2?[`미리 알던 보구였지만 여파까지 피하지는 못했다.`,`피할 길은 열어 두었다. 그래도 ${mN}의 옷자락이 타들어 갔다.`]:[`보구의 여파가 ${mN}${J(mN,을)} 휩쓸었다.`,`${mN}${J(mN,이)} 보구의 직격을 받아 냈다. 갑옷 너머로 피가 번졌다.`,`빛이 걷히고 나서야 ${mN}의 상처가 보였다. 깊다.`],'eArtH'),'loss'); }
-      else if(d<=-8){ let dmg=Math.round((4+(-d)*.22)*inM); if(h.sp==='guard') dmg-=3; dmg=Math.round(dmg*(1-Math.min(.35,SV(h,'evade')*.035))*(h.id==='siegfried'?.82:1)); w.hp=clamp(w.hp-Math.max(1,dmg));
+      else if(d<=-8){ let dmg=Math.round((4+(-d)*.22)*inM); if(h.sp==='guard') dmg-=3; dmg=Math.round(dmg*(1-Math.min(.35,SV(h,'evade')*.035))*(h.id==='siegfried'?.82:1)*kavF(h.id,w)); w.hp=clamp(w.hp-Math.max(1,dmg));
         log(pickNR([`보구를 해방한 틈을 노려 ${eN}${J(eN,이)} 파고들었다.`,`${eN}${J(eN,이)} 빛을 뚫고 나와 ${mN}에게 반격했다.`],'npCtrE'),'war'); }
       else if(d<8) w.hp=clamp(w.hp-ri(2,5));
       };
@@ -5060,12 +5099,12 @@ const Sim = (() => {
         w.hp=clamp(w.hp-ri(3,7)); e.hp=clamp(e.hp-ri(3,7));
         log(pickNR(['칼끝이 몇 번이고 엇갈렸다. 승부가 나지 않는다.','서로 한 걸음씩 물러섰다. 숨을 고른다.','건물 하나가 무너졌다. 둘 다 아직 서 있다.','불꽃이 튀고 가로등이 줄줄이 꺼졌다.',`${mN}${J(mN,과)} ${eN}${J(eN,이)} 정면으로 부딪쳤다. 충격파에 유리창이 일제히 깨졌다.`,'두 그림자가 지붕에서 지붕으로 옮겨 가며 맞붙었다.','서로의 수를 읽고 있다. 섣불리 들어가지 못한다.','무기가 맞부딪친 소리가 골목 끝까지 울렸다.','둘 다 한 발도 물러서지 않았다. 바닥에 금이 갔다.'],'tie'),'war');
       } else if(d>0){
-        const dmg=Math.round((6+d*.3+extra)*outM*(e.aid==='elder'?.8:1)*(1-Math.min(.35,SV(eh2,'evade')*.035))); e.hp=clamp(e.hp-dmg); w.hp=clamp(w.hp-ri(1,5));
+        const dmg=Math.round((6+d*.3+extra)*outM*(e.aid==='elder'?.8:1)*(1-Math.min(.35,SV(eh2,'evade')*.035))*kavF(eh2.id,e)); e.hp=clamp(e.hp-dmg); w.hp=clamp(w.hp-ri(1,5));
         if(e.hp>0) log(pickNR([`${mN}의 일격이 ${eN}의 방어를 뚫었다.`,`${eN}${J(eN,이)} 비틀거렸다. 피가 흩뿌려졌다.`,`${mN}${J(mN,이)} 틈을 놓치지 않고 파고들었다.`,`${eN}${J(eN,이)} 한쪽 무릎을 꿇었다가 다시 일어섰다.`,`${mN}${J(mN,이)} 밀어붙인다. ${eN}${J(eN,이)} 뒤로 밀려났다.`,`${eN}의 방어가 한순간 무너졌다.`,`${mN}의 연격이 이어졌다. ${eN}${J(eN,이)} 숨을 몰아쉬었다.`],'adv'),'war');
         if(h.sp==='tough') w.hp=clamp(w.hp+3);
       } else {
         let dmg=Math.round((4+(-d)*.22)*inM); if(h.sp==='leaf'&&w.exposure>=75&&ch(.5)){ dmg+=5; log(pickNR(['적은 서번트의 약점을 알고 있었다.','상대는 정확히 전승의 약점을 노려 왔다.','정체가 알려진 대가였다. 적의 칼끝이 약점만 노린다.'],'leaf'),'war'); } if(h.sp==='guard') dmg-=3;
-        dmg=Math.round(dmg*(1-Math.min(.35,SV(h,'evade')*.035))*(h.id==='siegfried'?.82:1)); w.hp=clamp(w.hp-Math.max(1,dmg)); e.hp=clamp(e.hp-ri(1,4));
+        dmg=Math.round(dmg*(1-Math.min(.35,SV(h,'evade')*.035))*(h.id==='siegfried'?.82:1)*kavF(h.id,w)); w.hp=clamp(w.hp-Math.max(1,dmg)); e.hp=clamp(e.hp-ri(1,4));
         if(w.hp>0) log(pickNR([`${mN}${J(mN,이)} 밀렸다. 피를 흘리며 당신을 감쌌다.`,`${eN}의 공격이 ${mN}의 어깨를 스쳤다.`,`${mN}${J(mN,이)} 벽에 내동댕이쳐졌다가 일어섰다.`,`${eN}${J(eN,이)} 기세를 잡았다. ${mN}${J(mN,이)} 방어에 급급하다.`,`${mN}${J(mN,이)} 무릎을 꿇었다가 이를 악물고 일어섰다.`,`${eN}의 일격에 ${mN}의 무기가 크게 튕겨 나갔다.`],'dis'),'war');
         if(w.heroAlive&&ch(.08-S.st.will/2000)) { add({health:-ri(4,10)}); log(pickNR(['파편이 당신 옆구리를 스쳤다.','튀어 오른 돌조각에 이마가 찢어졌다.','충격파에 당신도 바닥을 굴렀다.','깨진 유리가 팔을 긁고 지나갔다.'],'shr'),'war'); }
       }
@@ -5085,6 +5124,21 @@ const Sim = (() => {
     { const r=npcRetreat(b,e); if(r){ b.res='fled'; log(r==='seal'?`${eN}${J(eN,이)} 령주의 힘으로 눈앞에서 사라졌다.`:e.aid==='merc'?`${e.mname}: “계약서에 목숨값은 없었습니다.” ${eN}${J(eN,이)} 물러났다.`:`${eN}${J(eN,이)} 상처를 안고 어둠 속으로 물러났다.`,'war'); return endBattle(); } }
     if(!fin&&b.round>=b.maxR){ log(pick(['새벽이 가까워졌다. 양쪽 모두 무기를 거두었다.','멀리서 사이렌이 울렸다. 오늘 밤은 여기까지다.','성당교회의 은폐반이 다가오는 기척에 서로 물러났다.']),'war'); return endBattle(); }
     b.round++; soon(()=>battleRound());
+  }
+  // 솔로몬의 보구: 상대를 확실히 지우고, 자신도 소멸한다
+  function arsNova(){
+    const w=W(),h=hero(),b=w.battle,e=b.e;
+    w.npN=(w.npN||0)+1;
+    log(`${h.name}${J(h.name,이)} 열 개의 반지를 하늘로 들어 올렸다. “아르스 노바.” 반지가 하나씩 빛이 되어 올라갔다.`,'war');
+    log(`신에게 받은 것을 신에게 돌려보내는 보구. 그 빛 아래에서 ${pName(e)}의 영기가 버티지 못하고 풀려 나갔다.`,'war');
+    e.usedRevive=true; e.survUsed=true; defeatNpc(e,'우리');
+    log(voiceLine(h,w.trust>=30?'잘 있어라, 마스터. 이번 결말은… 내가 골랐다.':'…이것도 보였던 결말이다.'),'voice');
+    log('마지막 반지가 사라지자 솔로몬의 윤곽도 빛으로 풀렸다. 손등의 령주가 천천히 식었다.','loss');
+    w.heroAlive=false; w.hp=0; w.arsNova=true; S.flags.arsNova=1; w.myOut={d:w.day,tod:w.tod,why:'아르스 노바로 자신을 지웠다'}; wrec('mine',`${h.name}${J(h.name,이)} 아르스 노바로 자신을 지웠다`);
+    if(contracted().length===0){ S.flags.war='victor'; w.ended=true; w.queue=[]; endBattle(); finale(null); return; }
+    S.flags.war='lost'; mark('loss');
+    if(contracted().length>1&&!w.final) afterLoss(); else w.out=true;
+    return endBattle();
   }
   const mN0=h=>h.name;
   function learnSkill(e,n){ e.skKnown=e.skKnown||[]; if(!e.skKnown.includes(n)) e.skKnown.push(n); }
@@ -5118,6 +5172,7 @@ const Sim = (() => {
     soon(()=>battleRound());
   }
   const WEAK = {
+    solomon:'열 개의 반지',
     kriemhild:'지크프리트라는 이름',
     caenis:'창도 칼도 아닌, 무게로 짓누르는 공격', quixote:'산초가 곁에 없는 순간', percival:'성배에 관한 물음', kagetora:'사람의 마음을 읽어야 하는 순간',
     morgan:'아르토리아라는 이름', shingen:'오래 끄는 싸움', ptolemaios:'불타는 서고',
@@ -5302,6 +5357,7 @@ const Sim = (() => {
     shingen:['교토는… 또 멀구나.','내 죽음을… 3년만 숨겨라.'],
     ptolemaios:['책은… 남았습니까. 그거면 됐습니다.','대왕이시여, 이제야 곁으로 갑니다.'],
     kriemhild:['…이번에는, 아무도 배신하지 않았어요.','당신… 거기 있나요?'],
+    solomon:['…아. 이번에는, 끝이 안 보였는데.','반지를… 누군가 주워 주겠지.'],
   };
   function myHeroDown(e){
     const w=W(),h=hero();
@@ -5647,11 +5703,16 @@ const Sim = (() => {
     const ws=myWishes();
     const ch_=ws.map(x=>({t:x.t,auto:true,f:()=>{S.flags.wishText=x.t;grant(x,shared)}}));
     if(S.flags.myWish){ const t=S.flags.myWish; ch_.unshift({t:`그날 말한 소원: “${t}”`,d:`${h.name}에게 털어놓았던 소원`,f:()=>{S.flags.wishText=t;grant({t,pure:`성배가 당신의 말을 받아 들었다. “${t}.” 소원은 이루어졌다. 다음 날 아침 세상은 꼭 그만큼 달라져 있었다.`,dark:`성배가 당신의 말을 받아 들었다. “${t}.” 소원은 가장 짧은 길로 이루어졌다. 그 길 위에 무엇이 쓰러져 있었는지 당신은 나중에야 알았다.`,eff:[{will:6,bond:4},{will:-10}]},shared)}}); }
+    if(w.arsNova) log('제단 앞에 선 것은 당신 혼자였다. 반지 하나 남지 않은 빈손으로.','war');
+    if(!w.arsNova){
     ch_.push({t:`${h.name}의 소원을 빈다`,d:`“${h.wish}”`,f:()=>{S.flags.wishText=`${h.name}의 소원 — ${h.wish}`;grantHero(shared)}});
     if(w.trust>=70) ch_.push({t:`${h.name}${J(h.name,이)} 이 세계에 남게 한다`,d:'서번트가 몸을 얻는다',f:()=>{S.flags.wishText=`${h.name}${J(h.name,이)} 남는 것`;grantStay(shared)}});
-    { const cost=smCost('art'), sm=Math.round(w.sm), enough=w.sm>=cost, hint=w.cupKnown&&!w.cupPure?' · 이 성배는 소원을 먹는다':'';
+    if(h.id==='solomon'){ const hint=w.cupKnown&&!w.cupPure?' · 이 성배는 소원을 먹는다':'';
+      ch_.push({t:'보구를 사용하여 부순다',d:`아무것도 빌지 않는다. 아르스 노바로 성배를 지운다. ${h.name}도 함께 소멸한다${hint}`,f:()=>{S.flags.wishText='아르스 노바로 성배를 지웠다';grantBreak(shared,'fade')}}); }
+    else { const cost=smCost('art'), sm=Math.round(w.sm), enough=w.sm>=cost, hint=w.cupKnown&&!w.cupPure?' · 이 성배는 소원을 먹는다':'';
       ch_.push({t:'보구를 사용하여 부순다',d:enough?`아무것도 빌지 않는다. 보구 해방에 필요한 마력 ${cost} · 현재 ${sm}${hint}`:`마력이 부족하다(필요 ${cost} · 현재 ${sm}). 부수고 나면 ${h.name}${J(h.name,은)} 그 자리에서 소멸한다${hint}`,f:()=>{S.flags.wishText='보구로 성배를 부쉈다';grantBreak(shared,enough?'ok':'fade')}});
       if(!enough&&w.seals>0) ch_.push({t:'령주로 마력을 보태 부순다',seal:true,d:`령주 1획 · 남은 ${w.seals}획. 마력을 채워 ${h.name}${J(h.name,이)} 소멸하지 않는다${hint}`,f:()=>{S.flags.wishText='령주로 마력을 보태 보구로 성배를 부쉈다';grantBreak(shared,'seal')}}); }
+    }
     decide({title:'성배',body:`${shared?`${shared.mname}${J(shared.mname,과)} 나란히 섰다. `:''}${body} 무엇을 빌 것인가.`,war:true,choices:ch_});
   }
   function sharedOut(shared){
@@ -5671,6 +5732,10 @@ const Sim = (() => {
   function grantHero(shared){
     const w=W(),h=hero(), pure=w.cupPure;
     if(!pure&&w.trust>=60){ log(`${h.name}${J(h.name,이)} 성배로 뻗은 당신 손을 잡아 내렸다.`,'voice'); log(sayV(h,'grailNo'),'voice'); add({will:6,bond:4}); }
+    else if(pure&&h.id==='solomon'){ log('성배가 빛났다. 솔로몬의 손가락에서 반지가 하나씩 빠져 바닥에 굴렀다.','voice'); log(sayV(h,'grailYes'),'voice');
+      log('그는 자기 손을 오래 내려다보았다. “…아. 아무것도 안 보인다. 이게 사람이구나.” 울 것 같은 얼굴로 웃었다.','joy');
+      log('며칠 뒤 그는 이름을 바꾸고 도시를 떠났다. 몇 해 뒤, 의사 국가시험 합격자 명단에서 낯선 이름을 하나 보았다. 이유는 모르지만, 그 사람이라는 걸 알았다.','joy');
+      add({bond:8,will:4}); S.flags.solomonHuman=1; sharedOut(shared); warOver(); return; }
     else if(pure){ log(`성배가 빛났다. ${h.name}${J(h.name,은)} 오래 눈을 감았다가 떴다.`,'voice'); log(sayV(h,'grailYes'),'voice'); log(`무엇이 이루어졌는지 ${he(h)}는 말하지 않았다.`,'voice'); add({bond:6}); }
     else { log(`성배가 검게 끓어올랐다. ${h.name}의 소원은 가장 짧은 길로 이루어졌다. ${he(h)}가 떠난 뒤, 당신은 그 길이 무엇이었는지 신문에서 읽었다.`,'loss'); add({will:-6}); S.flags.cupDisaster=1; }
     sharedOut(shared); farewell();
@@ -5686,7 +5751,8 @@ const Sim = (() => {
     const w=W(),h=hero(), pure=w.cupPure, a=artOf(h);
     if(mode==='seal'){ w.seals--; (w.sealLog=w.sealLog||[]).push({d:w.day,tod:w.tod,word:'보구로 성배를 부숴라'}); wrec('seal','령주 — “보구로 성배를 부숴라”'); const sp=seal().parts[Math.min(2,w.seals)];
       log(`“보구로 성배를 부숴라.” 손등에서 ${sp}${J(sp,이)} 타올랐다. 모자랐던 마력이 ${h.name}에게 흘러들었다.`,'seal'); }
-    if(mode==='fade') log(`마력이 모자랐다. ${h.name}${J(h.name,은)} 망설이지 않았다. 자신의 존재를 마력으로 바꾸기 시작했다. 윤곽이 빛으로 풀려 나갔다.`,'war');
+    if(mode==='fade'&&h.id==='solomon') log('솔로몬이 반지를 하나씩 빼어 하늘로 들어 올렸다. 처음부터 이렇게 끝낼 생각이었다는 듯이.','war');
+    else if(mode==='fade') log(`마력이 모자랐다. ${h.name}${J(h.name,은)} 망설이지 않았다. 자신의 존재를 마력으로 바꾸기 시작했다. 윤곽이 빛으로 풀려 나갔다.`,'war');
     log(`${h.name}${J(h.name,이)} 보구를 해방했다. “${a.n}.”`,'war');
     const k=a.k||'';
     log(/대군|대성|대계|대국|대왕|대마/.test(k)?'빛이 제단째 성배를 삼켰다. 도시 지하가 한순간 대낮처럼 밝아졌다.':/결계/.test(k)?'성배를 둘러싼 세계가 통째로 갈라졌다. 그 한가운데에서 잔이 금이 갔다.':/대인/.test(k)?'일격이 성배의 한가운데를 꿰뚫었다. 잔에 금이 가는 소리가 오래 울렸다.':'성배가 보구의 빛을 견디지 못하고 금이 갔다.','war');
@@ -5705,6 +5771,7 @@ const Sim = (() => {
   }
   function farewell(){
     const w=W(),h=hero();
+    if(w.arsNova||!w.heroAlive){ warOver(); return; }
     if(w.trust>=60) log(sayV(h,'bye'),'voice'); log(`${h.name}${J(h.name,은)} 새벽빛 속으로 흩어졌다.`,'voice');
     warOver();
   }
