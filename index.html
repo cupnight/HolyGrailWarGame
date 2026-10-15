@@ -143,6 +143,7 @@ button.pair:hover{border-color:var(--gold)}
 .entry.note .b,.sub.note{color:var(--dim);font-family:var(--f-ui);font-size:14px}
 .entry.dead .b,.sub.dead{color:var(--text);font-weight:700}
 .entry.n .b,.sub.n{color:#cfc8ba}
+.entry.guide .b,.sub.guide{color:var(--gold2);font-family:var(--f-ui);font-size:14.5px;font-weight:600;background:rgba(201,164,92,.12);border-left:3px solid var(--gold);padding:6px 10px;border-radius:4px}
 .entry.q .qt{display:block;font-family:var(--f-ui);font-size:11.5px;letter-spacing:.08em;color:var(--faint)}
 .entry.q .qb{display:block;color:var(--dim)}
 .entry.q .pk{display:block;margin-top:2px;font-family:var(--f-ui);font-size:14px;font-weight:500;color:var(--gold2)}
@@ -152,6 +153,11 @@ button.pair:hover{border-color:var(--gold)}
 .delta span{font-family:var(--f-mono);font-size:11.5px;font-variant-numeric:tabular-nums;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
 .delta span.up{color:var(--moss);border-color:rgba(134,171,146,.45)}
 .delta span.down{color:#e58b93;border-color:rgba(192,58,69,.45)}
+.delta.chk span{font-family:var(--f-ui);letter-spacing:0}
+.delta.chk span.ok{color:var(--gold2);border-color:rgba(201,164,92,.55);background:rgba(201,164,92,.10)}
+.delta.chk span.ok::before{content:'✦ '}
+.delta.chk span.ng{color:#f0a2a8;border-color:rgba(192,58,69,.6);background:rgba(192,58,69,.12)}
+.delta.chk span.ng::before{content:'✕ '}
 .more{margin-top:10px;background:transparent;border:1px dashed var(--line);color:var(--dim);border-radius:var(--r);padding:8px;font-size:13px}
 
 aside{display:grid;gap:18px;align-content:start}
@@ -166,7 +172,7 @@ aside{display:grid;gap:18px;align-content:start}
 .track.mana i{background:var(--dusk)}
 .track.health i{background:var(--moss)}
 .track.hp i{background:var(--seal)}
-.track.wealth i{background:var(--gold2)}
+.track.wealth i{background:#d98b4e}
 .focus{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .focus button{background:transparent;border:1px solid var(--line);border-radius:5px;padding:7px 4px;font-size:13px;color:var(--dim)}
 .focus button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold2);background:rgba(201,164,92,.08)}
@@ -3559,8 +3565,28 @@ const Sim = (() => {
   function decide(d){ for(const c of d.choices||[]){ if(!c.st){ const st=statsOf(c.f); if(st.length) c.st=st; } } S.pending=d; H.decide(d);}
   const DL={mana:'마력',lore:'지식',will:'정신',bond:'관계',health:'건강',wealth:'재산',hp:'서번트 건강',sm:'서번트 마력',trust:'신뢰',exposure:'노출',fort:'결계',seals:'령주'};
   function snapD(){ const o={...S.st,wealth:S.wealth}; if(S.war&&S.phase==='war'){o.hp=S.war.heroAlive?S.war.hp:0;o.sm=S.war.sm;o.trust=S.war.trust;o.exposure=S.war.exposure;o.fort=S.war.fort;o.seals=S.war.seals;} return o; }
+  // 능력치 판정 기록: 선택지 결과에 어떤 능력치가 영향을 줬는지 함께 보여 준다
+  let CHK=null;
+  function chk(l,v,need){ const ok=v>need; if(CHK&&l) CHK.push({l,ok}); return ok; }
+  function chkp(l,p){ const ok=ch(p); if(CHK&&l) CHK.push({l,ok}); return ok; }
+  // 판정 문구: 이야기 문장처럼
+  function chkPhrase(l,ok){
+    const sv=l.startsWith('서번트의 '), items=(sv?l.slice(5):l).split('·'), pre=sv?'서번트의 ':'';
+    const q=x=>`'${x}'`;
+    const list=a=>a.length===1?q(a[0]):a.slice(0,-1).map(q).join(', ')+J(a[a.length-2],과)+' '+q(a[a.length-1]);
+    const subj=a=>list(a)+J(a[a.length-1],이);
+    if(ok){
+      if(sv) return pickNR([`${pre}${subj(items)} 통했다`,`${pre}${subj(items)} 빛을 발했다`,`${pre}${subj(items)} 한발 앞섰다`],'chkS');
+      return items.length===1? pickNR([`쌓아 온 ${subj(items)} 빛을 발했다`,`${subj(items)} 힘이 되었다`,`${subj(items)} 길을 열었다`],'chkO1') : pickNR([`${subj(items)} 함께 빛을 발했다`,`쌓아 온 ${subj(items)} 힘이 되었다`],'chkO2');
+    }
+    if(sv){ const last=[items[items.length-1]]; return pickNR([`${pre}${subj(last)} 미치지 못했다`,`${pre}${subj(last)} 한 끗 모자랐다`],'chkSF'); }
+    return pickNR([`${subj(items)} 한 끗 모자랐다`,`${subj(items)} 따라 주지 않았다`,`${subj(items)} 아직 부족했다`],'chkF');
+  }
+  function chkOut(){ if(!CHK||!CHK.length||!S||S.dead) return; const seen=new Set(), out=[];
+    for(const c of CHK){ const key=c.l+c.ok; if(seen.has(key)) continue; seen.add(key); out.push((c.ok?'✓ ':'✗ ')+chkPhrase(c.l,c.ok)); }
+    log(out.join(' · '),'check'); }
   function tracked(fn){
-    const b=snapD(); const r=fn(); if(!S) return r;
+    const b=snapD(); const prevC=CHK; CHK=[]; let r; try{ r=fn(); } finally { if(S) chkOut(); CHK=prevC; } if(!S) return r;
     const a=snapD(); const out=[];
     for(const k in DL){ if(k in b && k in a){ const d=Math.round(a[k])-Math.round(b[k]); if(d) out.push(`${DL[k]} ${d>0?'+':'−'}${Math.abs(d)}`); } }
     if(out.length && !S.dead) log(out.join(' · '),'delta');
@@ -3745,6 +3771,8 @@ const Sim = (() => {
 
   function advanceYear(){
     S.age++; S.year++;
+    if(S.age===6){ if(S.focus==='play'||!FOCUS[S.focus]) S.focus='balance'; log("※ 이제 '올해의 목표'를 선택할 수 있습니다.",'guide'); }
+    if(S.age===16) log("※ 이제 '올해의 목표'에서 '생업'을 선택할 수 있습니다.",'guide');
     mark('calm');
     // 성장·노화
     if(S.age<6){ add({mana:ri(0,2),lore:ri(1,3),will:ri(0,2),health:ri(0,2)}); }
@@ -3776,6 +3804,7 @@ const Sim = (() => {
     if(S.warState==='refused' && S.age===S.warAge+1){ log(S.oldWar?.summary||'지난겨울의 일은 신문 한 귀퉁이에서 가스 사고로 끝났다.','ev'); }
     // 사건
     rollEvent();
+    if(!S.pending&&!S.dead&&S.age>=3&&S.age<=15&&ch(.8)) growthEvent();
     // 회상 멈춤
     if(!S.pending && [5,15,30,50,70].includes(S.age)) reflect();
     finishYear();
@@ -3851,7 +3880,7 @@ const Sim = (() => {
       {t:'잘못 봤다고 우긴다',auto:true,f:()=>{add({bond:-1});return '친구는 납득하지 않았지만 더 묻지 않았다.'}}]},
     {id:'sibling',a:[11,18],w:6,c:()=>O().mage&&S.fam.sib&&S.origin!=='church',txt:()=>'각인은 한 아이에게만 간다. 형제와 당신 중 누가 받을지, 올해 정해진다.',ch:[
       {t:'형제에게 양보한다',f:()=>{S.flags.crestRefused=1;S.flags.sibHeir=1;add({bond:6,will:3});lean('judge',1);return '형제는 고맙다고 하지 않았다. 대신 그해 겨울 목도리를 떠 주었다.'}},
-      {t:'끝까지 겨룬다',auto:true,f:()=>{if(S.st.mana+ri(0,30)>55){S.flags.heirWon=1;add({mana:5,bond:-8});return '당신이 이겼다. 형제는 그날 이후 집에서 말이 없어졌다.'}add({will:-3,bond:-3});S.flags.sibHeir=1;lean('avenger',2);return '당신이 졌다. 형제의 등에 새겨진 각인이 부러웠다.'}},
+      {t:'끝까지 겨룬다',auto:true,f:()=>{if(chk('마력',S.st.mana+ri(0,30),55)){S.flags.heirWon=1;add({mana:5,bond:-8});return '당신이 이겼다. 형제는 그날 이후 집에서 말이 없어졌다.'}add({will:-3,bond:-3});S.flags.sibHeir=1;lean('avenger',2);return '당신이 졌다. 형제의 등에 새겨진 각인이 부러웠다.'}},
       {t:'둘이서 집을 떠날 궁리를 한다',f:()=>{S.flags.rebel=1;add({bond:5,mana:-3});return '둘은 밤마다 지도를 펼쳤다. 끝내 떠나지는 못했다.'}}]},
 
     {id:'c_lost',a:[3,7],w:4,txt:()=>`${pick(['시장','놀이공원','기차역','축제 인파'])}에서 손을 놓쳤다. 낯선 어른들의 다리 사이로 아무도 보이지 않았다.`,ch:[
@@ -3879,7 +3908,7 @@ const Sim = (() => {
     {id:'c_fail',a:[7,12],w:4,c:()=>isMage(),txt:()=>'혼자 연습하던 주문이 빗나가 어머니가 아끼던 화분이 까맣게 탔다.',ch:[
       {t:'솔직히 말한다',auto:true,f:()=>{add({bond:2});lean('judge',1);return '어머니는 화분보다 당신 손을 먼저 살폈다.'}},
       {t:'새 화분을 사다 놓는다',f:()=>{add({wealth:-2,will:1});return '모양이 조금 달랐다. 어머니는 아무 말도 하지 않았다.'}},
-      {t:'마술로 되살려 본다',f:()=>{if(S.st.mana+ri(0,30)>40){add({mana:4});return '꽃잎 하나가 다시 피었다. 그걸로 충분했다.'}add({health:-3});return '화분이 아예 재가 되었다. 손끝도 데었다.'}}]},
+      {t:'마술로 되살려 본다',f:()=>{if(chk('마력',S.st.mana+ri(0,30),40)){add({mana:4});return '꽃잎 하나가 다시 피었다. 그걸로 충분했다.'}add({health:-3});return '화분이 아예 재가 되었다. 손끝도 데었다.'}}]},
     {id:'c_trip',a:[10,14],w:3,txt:()=>'수학여행 마지막 밤. 다들 잠든 척하며 비밀 이야기를 했다. 당신 차례가 왔다.',ch:[
       {t:'진짜 비밀을 말한다',f:()=>{add({bond:4});if(isMage())S.flags.friendKnows=1;return isMage()?'다들 웃었다. 한 명만 웃지 않았다. 그 친구와는 오래 갔다.':'다들 놀렸다. 그래도 그 밤이 좋았다.'}},
       {t:'적당히 지어낸다',auto:true,f:()=>{add({bond:1});return '지어낸 이야기가 반에서 전설이 되었다.'}}]},
@@ -3901,11 +3930,11 @@ const Sim = (() => {
       {t:'원장에게 묻는다',f:()=>{add({bond:4,lore:2});S.flags.orphanTruth=1;return '원장은 오래 망설이다 말했다. 당신을 맡긴 사람은 손등에 붉은 자국이 있었다고.'}},
       {t:'다시 넣어 둔다',f:()=>{add({will:2});return '그날 밤 이상하게 잠이 잘 왔다.'}}]},
     {id:'first_love',a:[14,22],w:5,txt:()=>'같은 버스를 타는 사람이 자꾸 눈에 밟혔다.',ch:[
-      {t:'말을 건다',auto:true,f:()=>{if(ch(.5+S.st.bond/250)){S.flags.firstLove=1;add({bond:8,will:2});return '그 사람도 당신을 보고 있었다고 했다. 둘은 1년 넘게 같은 버스를 탔다.'}add({will:-2});return '대답은 짧았다. 다음 날부터 버스를 한 대 늦게 탔다.'}},
+      {t:'말을 건다',auto:true,f:()=>{if(chkp('관계',.5+S.st.bond/250)){S.flags.firstLove=1;add({bond:8,will:2});return '그 사람도 당신을 보고 있었다고 했다. 둘은 1년 넘게 같은 버스를 탔다.'}add({will:-2});return '대답은 짧았다. 다음 날부터 버스를 한 대 늦게 탔다.'}},
       {t:'마음에만 둔다',f:()=>{add({will:3});return '그 사람이 이사 간 날을 오래 기억했다.'}},
       {t:'마술로 마음을 엿본다',off:()=>!isMage(),f:()=>{add({mana:2,bond:-5,will:-3});lean('judge',-1);return '알게 된 것은 당신이 알고 싶었던 게 아니었다.'}}]},
     {id:'archive_exam',a:[15,21],w:6,c:()=>isMage()&&S.st.mana>=25&&!S.flags.archive,txt:()=>'마술협회 총본부, 런던의 ‘시계탑’에서 입학 시험 안내가 왔다. 붙으면 런던에서 공부할 수 있다.',ch:[
-      {t:'응시한다',auto:true,f:()=>{if(S.st.lore+S.st.mana/2+ri(0,25)>55){S.flags.archive=1;add({lore:5,will:3});return '합격했다. 봉투에는 밀랍 인장이 찍혀 있었다.'}add({will:-3});return '떨어졌다. 시험관은 당신의 회로가 아니라 문장을 탓했다.'}},
+      {t:'응시한다',auto:true,f:()=>{if(chk('마력·지식',S.st.lore+S.st.mana/2+ri(0,25),55)){S.flags.archive=1;add({lore:5,will:3});return '합격했다. 봉투에는 밀랍 인장이 찍혀 있었다.'}add({will:-3});return '떨어졌다. 시험관은 당신의 회로가 아니라 문장을 탓했다.'}},
       {t:'응시하지 않는다',f:()=>{add({bond:2});return `${cityN()}에 남기로 했다.`}}]},
     {id:'abroad',a:[18,25],w:7,c:()=>S.flags.archive&&!S.flags.abroad,txt:()=>cityN()==='런던'?'시계탑에서 연구생 자리를 제안했다. 같은 도시지만, 들어가면 몇 년은 바깥세상과 끊긴다.':'시계탑에서 연구생 자리를 제안했다. 바다를 건너 런던에서 몇 년.',ch:[
       {t:'떠난다',auto:true,d:'지식↑ 재산↓ 관계↓',f:()=>{S.flags.abroad=1;add({lore:12,mana:4,wealth:-12,bond:-6});return '런던의 겨울은 길고 축축했다. 도서관 창가 자리가 당신 것이 되었다.'}},
@@ -3916,7 +3945,7 @@ const Sim = (() => {
       {t:'떠돌며 연구한다',off:()=>!isMage(),f:()=>{S.flags.job='연구';add({lore:6,wealth:-6});return '배낭 하나에 노트 열 권. 도시를 옮겨 다녔다.'}}]},
     {id:'rival',a:[20,50],w:3,c:()=>isMage(),txt:()=>'옆 구역 마술사 가문이 당신 쪽 영맥에 표식을 박아 넣었다. 영역 침범이다.',ch:[
       {t:'협상한다',auto:true,f:()=>{add({wealth:-5,bond:2});return '찻값보다 비싼 차를 마시며 경계선을 다시 그었다.'}},
-      {t:'결투를 신청한다',f:()=>{if(S.st.mana+ri(0,30)>60){add({mana:3,will:4});S.flags.rivalBeaten=1;return '당신이 이겼다. 상대 가문은 당신 이름을 기억하게 되었다.'}add({health:-12,will:-2});lean('avenger',1);return '갈비뼈 두 대가 부러졌다. 표식은 그대로 남았다.'}},
+      {t:'결투를 신청한다',f:()=>{if(chk('마력',S.st.mana+ri(0,30),60)){add({mana:3,will:4});S.flags.rivalBeaten=1;return '당신이 이겼다. 상대 가문은 당신 이름을 기억하게 되었다.'}add({health:-12,will:-2});lean('avenger',1);return '갈비뼈 두 대가 부러졌다. 표식은 그대로 남았다.'}},
       {t:'물러선다',f:()=>{add({will:-2});lean('avenger',2);return '영맥 한 줄을 내주었다. 마당의 나무가 그해 시들었다.'}}]},
     {id:'old_survivor',a:[12,30],w:6,c:()=>preWar()&&!S.flags.knowsCup,txt:()=>`공원 벤치의 노인이 당신 손을 보더니 말했다. “${cityN()}에서는 60년마다 성배가 차오르지. 나는 지난번에 살아남았어.”`,ch:[
       {t:'이야기를 듣는다',auto:true,f:()=>{S.flags.knowsCup=1;add({lore:6});return '노인은 일곱 명이 일곱 서번트를 부르고, 마지막 한 쌍만 성배를 손에 쥔다고 했다. 그리고 덧붙였다. “성배는 소원을 이뤄 주지. 가장 짧은 길로.”'}},
@@ -3932,7 +3961,7 @@ const Sim = (() => {
     {id:'teach_child',a:[30,60],w:5,c:()=>S.fam.kids.some(k=>k.circ>=2&&k.age>=6&&k.age<=14)&&!S.once.teach,txt:()=>{const k=S.fam.kids.find(k=>k.circ>=2&&k.age>=6);return `${k.name}${이(k.name).slice(k.name.length)} 촛불을 보고 있으면 불꽃이 기운다. 당신이 어릴 때와 똑같다.`},ch:[
       {t:'마술을 가르친다',f:()=>{S.flags.taughtKid=1;add({bond:2,mana:1});return '당신이 받았던 수련보다 1시간 짧게, 그리고 저녁은 꼭 함께 먹었다.'}},
       {t:'평범하게 키운다',auto:true,f:()=>{S.flags.hidKid=1;add({bond:4});return '아이 방의 촛불을 전구로 바꿨다.'}}]},
-    {id:'accident',a:[16,65],w:2,c:()=>isMage()&&S.focus==='train',txt:()=>'수련실의 원이 예상보다 크게 빛났다.',ch:[{t:'회로를 닫는다',auto:true,f:()=>{if(ch(.5+S.st.will/200)){add({will:2});return '가까스로 닫았다. 천장에 그을음이 남았다.'}add({health:-15,mana:-4});mark('loss');return '왼손 감각이 반쯤 돌아오지 않았다.'}}]},
+    {id:'accident',a:[16,65],w:2,c:()=>isMage()&&S.focus==='train',txt:()=>'수련실의 원이 예상보다 크게 빛났다.',ch:[{t:'회로를 닫는다',auto:true,f:()=>{if(chkp('정신',.5+S.st.will/200)){add({will:2});return '가까스로 닫았다. 천장에 그을음이 남았다.'}add({health:-15,mana:-4});mark('loss');return '왼손 감각이 반쯤 돌아오지 않았다.'}}]},
     {id:'money',a:[22,65],w:3,txt:()=>'목돈이 필요한 일이 생겼다.',ch:[
       {t:'빌린다',auto:true,f:()=>{add({wealth:-8,will:-1});return '갚는 데 몇 해가 걸렸다.'}},
       {t:'가문의 보석을 판다',off:()=>!O().mage,f:()=>{add({wealth:5,mana:-3});return '조상이 수십 년 마력을 담아 둔 보석이 전당포 진열장에 놓였다.'}},
@@ -3998,7 +4027,7 @@ const Sim = (() => {
       {t:'성당교회에 넘긴다',f:()=>{add({will:1});return '신부는 소포를 받으며 한숨을 쉬었다. “올해만 세 번째입니다.”'}}]},
     {id:'relic',a:[14,40],w:12,force:true,c:()=>preWar()&&relicRoom()&&S.age===S.warAge-1&&(O().mage||S.wealth>=45),txt:()=>{const r=H_BY[offerRelic()].relic;return `골동품 경매에 ‘${r}’${josa(r,'이라는','라는').slice(r.length)} 물건이 나왔다. 감정서에는 ‘${H_BY[S._rel].from}’에 나오는 인물의 유품일지 모른다고 적혀 있었다. 손에 쥐면 이상하게 무겁다.`},ch:[
       {t:'사들인다',d:'재산 -25',off:()=>S.wealth<25,f:()=>{addRelic(S._rel);add({wealth:-25});return '포장을 풀자 방 안의 공기가 한 겹 무거워졌다.'}},
-      {t:'몰래 훔친다',off:()=>!isMage(),f:()=>{if(S.st.mana+S.st.will+ri(0,40)>90){addRelic(S._rel);add({will:-2});lean('judge',-1);return '경매장 경비는 아무것도 보지 못했다.'}add({health:-6,wealth:-10});return '들켰다. 합의금을 물고 풀려났다.'}},
+      {t:'몰래 훔친다',off:()=>!isMage(),f:()=>{if(chk('마력·정신',S.st.mana+S.st.will+ri(0,40),90)){addRelic(S._rel);add({will:-2});lean('judge',-1);return '경매장 경비는 아무것도 보지 못했다.'}add({health:-6,wealth:-10});return '들켰다. 합의금을 물고 풀려났다.'}},
       {t:'지나친다',auto:true,f:()=>'그 물건이 누구 손에 들어갔는지는 나중에 알게 된다.'}]},
     // ---- 전쟁 이후 ----
     {id:'scar',a:[18,80],w:8,c:()=>fought()&&!S.once.scar&&S.age>=S.warAge+1,txt:()=>'손등의 령주 자국이 비 오는 밤마다 욱신거린다. 피부 아래에서 무언가 아직 이어져 있는 것 같다.',ch:[
@@ -4051,6 +4080,118 @@ const Sim = (() => {
     for(const [a,b] of ORPH_FIX) t=t.split(a).join(b);
     return t.replace(/(엄마|어머니|아버지|아빠)(는|가|를|와|랑|)(?=[\s.,”!?에의도한])/g,(m,w,j)=>'선생님'+({'는':'은','가':'이','를':'을','와':'과','랑':'이랑'}[j]??j))
             .replace(/부모님/g,'선생님들');
+  }
+  /* ---------- 어린 시절의 성장 사건 (3~15세) ---------- */
+  // 해마다 높은 확률로 하나씩 일어난다. 고른 쪽에 따라 능력치가 크게 갈린다.
+  const GROW = [
+    // 마력
+    {id:'g_candle',a:[6,12],w:4,c:()=>isMage(),txt:()=>'촛불 하나를 켜 두고 불꽃만 바라보는 명상을 배웠다. 다리가 저려 왔다.',ch:[
+      {t:'불꽃이 꺼질 때까지 버틴다',d:'마력↑↑ 정신↑',auto:true,f:()=>{add({mana:ri(4,6),will:2});return '초가 다 타고 나서야 눈을 떴다. 손끝이 따뜻했다.'}},
+      {t:'몰래 졸다 깬다',d:'건강↑',f:()=>{add({health:3});return '눈을 떠 보니 아침이었다. 이상하게 개운했다.'}}]},
+    {id:'g_ache',a:[8,15],w:4,c:()=>isMage(),txt:()=>'회로가 자라는 시기라고 했다. 밤마다 팔다리 속으로 뜨거운 실이 지나가는 것 같았다.',ch:[
+      {t:'아파도 매일 회로를 연다',d:'마력↑↑↑ 건강↓',f:()=>{add({mana:ri(6,8),health:-3});return '이불을 물어뜯으며 버텼다. 1년 뒤 회로는 한 뼘쯤 넓어져 있었다.'}},
+      {t:'회로를 쉬게 둔다',d:'건강↑ 마력↑',auto:true,f:()=>{add({health:3,mana:2});return '통증은 천천히 가라앉았다. 서두를 필요는 없다고 어머니가 말했다.'}}]},
+    {id:'g_familiar',a:[9,15],w:3,c:()=>isMage(),txt:()=>'처음으로 사역마를 부리는 법을 배웠다. 무엇을 부를지 정해야 한다.',ch:[
+      {t:'까마귀를 부린다',d:'마력↑ 지식↑',auto:true,f:()=>{add({mana:3,lore:4});S.flags.familiar='까마귀';return '까마귀가 창틀에 앉아 당신 이름을 흉내 냈다. 그날부터 동네 소식을 물어 왔다.'}},
+      {t:'고양이에게 말을 건다',d:'관계↑ 마력↑',f:()=>{add({bond:4,mana:2});S.flags.familiar='고양이';return '고양이는 대답하지 않았다. 대신 매일 밤 발치에서 잤다.'}}]},
+    {id:'g_moon',a:[5,12],w:3,c:()=>S.circuit>=2,txt:()=>'보름달이 뜬 밤이면 몸이 뜨거워 잠이 오지 않았다.',ch:[
+      {t:'창문을 열고 달빛을 쬔다',d:'마력↑↑',auto:true,f:()=>{add({mana:ri(4,6)});return '달빛이 피부 안쪽으로 스며드는 느낌이었다. 아침까지 눈이 반짝였다.'}},
+      {t:'이불을 머리끝까지 덮는다',d:'건강↑ 정신↑',f:()=>{add({health:2,will:2});return '열은 새벽녘에야 내렸다. 꿈은 기억나지 않았다.'}}]},
+    {id:'g_gem',a:[10,15],w:3,c:()=>isMage(),txt:()=>'작은 보석 하나를 받았다. 마력을 담아 두는 연습이라고 했다.',ch:[
+      {t:'매일 조금씩 채운다',d:'마력↑ 정신↑',auto:true,f:()=>{add({mana:4,will:3});return '석 달 뒤 보석은 은은하게 빛났다. 가장 지루하고 가장 확실한 방법이었다.'}},
+      {t:'한 번에 가득 채워 본다',d:'마력 판정 · 성공하면 마력↑↑↑',st:()=>[{l:'마력',v:Math.round(S.st.mana)}],f:()=>{ if(chk('마력',S.st.mana+ri(0,40),45)){ add({mana:8}); return '보석이 손바닥 안에서 노래하듯 울렸다. 회로가 한꺼번에 열린 감각이 오래 남았다.'; } add({health:-4,mana:1}); return '보석에 금이 갔다. 손바닥에 작은 화상이 남았다.'; }}]},
+    {id:'g_ward',a:[7,13],w:3,c:()=>O().mage,txt:()=>'집 결계를 손보는 날, 처음으로 옆에서 거들게 되었다.',ch:[
+      {t:'표식을 하나하나 외운다',d:'지식↑ 마력↑',auto:true,f:()=>{add({lore:4,mana:3});return '창틀마다 다른 표식이 있었다. 밤에 누워서도 손가락으로 그려 보았다.'}},
+      {t:'몰래 표식 하나를 바꿔 본다',d:'마력↑↑ 관계↓',f:()=>{add({mana:5,bond:-2});return '그날 밤 집 안의 시계가 전부 3분씩 늦게 갔다. 크게 혼났다.'}}]},
+    // 지식
+    {id:'g_library',a:[6,14],w:4,txt:()=>'여름방학. 동네 도서관에 에어컨이 나왔다.',ch:[
+      {t:'서가 한 줄을 다 읽는다',d:'지식↑↑',auto:true,f:()=>{add({lore:ri(5,7)});return '방학이 끝날 무렵 사서가 당신 이름을 외우고 있었다.'}},
+      {t:'친구와 함께 다닌다',d:'관계↑ 지식↑',f:()=>{add({bond:3,lore:2});return '책보다 수다가 많았다. 그래도 한 권은 끝까지 읽었다.'}}]},
+    {id:'g_quiz',a:[8,13],w:3,txt:()=>'학교 퀴즈 대회가 열린다. 반에서 한 명이 나가야 한다.',ch:[
+      {t:'손을 든다',d:'지식 판정 · 이기면 지식↑ 정신↑ 재산↑',st:()=>[{l:'지식',v:Math.round(S.st.lore)}],auto:true,f:()=>{ if(chk('지식',S.st.lore+ri(0,40),40)){ add({lore:4,will:3,wealth:3}); return '마지막 문제의 답을 아는 사람은 당신뿐이었다. 상품은 도서상품권이었다.'; } add({will:2,lore:1}); return '세 번째 문제에서 떨어졌다. 집에 와서 틀린 문제를 전부 찾아보았다.'; }},
+      {t:'응원만 한다',d:'관계↑',f:()=>{add({bond:2});return '목이 쉬도록 소리를 질렀다. 반은 3등을 했다.'}}]},
+    {id:'g_star',a:[5,12],w:3,txt:()=>'시골 할머니 댁 마당에 누웠다. 별이 이렇게 많은 줄 몰랐다.',ch:[
+      {t:'별자리를 외운다',d:'지식↑↑',auto:true,f:()=>{add({lore:5});return '오리온자리, 전갈자리. 둘은 같은 하늘에 뜨지 않는다는 것도 그때 알았다.'}},
+      {t:'별에 이름을 붙인다',d:'관계↑ 정신↑',f:()=>{add({bond:2,will:2});return '가족 이름을 하나씩 붙였다. 제일 밝은 별은 당신 차지였다.'}}]},
+    {id:'g_lang',a:[10,15],w:3,txt:()=>'외국에서 온 교환학생이 옆자리에 앉았다.',ch:[
+      {t:'그 나라 말을 배운다',d:'지식↑↑',auto:true,f:()=>{add({lore:5});return '1년 뒤 둘만 아는 욕을 열 개쯤 알게 되었다.'}},
+      {t:'우리말을 가르쳐 준다',d:'관계↑↑',f:()=>{add({bond:5});return '그 아이는 떠나는 날 공항에서 당신 이름을 정확한 발음으로 불렀다.'}}]},
+    {id:'g_museum',a:[6,12],w:3,txt:()=>'박물관 견학. 다들 매점으로 갔는데, 오래된 칼 앞에서 발이 떨어지지 않았다.',ch:[
+      {t:'안내문을 끝까지 읽는다',d:'지식↑ (회로가 있으면 마력↑)',auto:true,f:()=>{add({lore:4,mana:S.circuit>=2?2:0});return S.circuit>=2?'유리 너머 칼이 아주 희미하게 웅웅거렸다. 당신만 들은 것 같았다.':'칼 주인의 이름은 아무도 몰랐다. 그래서 더 오래 보았다.'}},
+      {t:'기념품을 산다',d:'관계↑ 재산↓',f:()=>{add({bond:2,wealth:-2});return '모형 칼을 동생과 나눠 가졌다. 일주일 만에 부러졌다.'}}]},
+    {id:'g_chess',a:[8,15],w:3,txt:()=>'공원 벤치의 노인이 장기판을 펴 놓고 상대를 기다리고 있었다.',ch:[
+      {t:'매일 한 판씩 둔다',d:'지식↑ 정신↑',auto:true,f:()=>{add({lore:3,will:3});return '한 번도 이기지 못했다. 노인은 질 때마다 다음 수를 알려 주었다.'}},
+      {t:'이길 때까지 둔다',d:'지식+정신 판정',st:()=>[{l:'지식',v:Math.round(S.st.lore)},{l:'정신',v:Math.round(S.st.will)}],f:()=>{ if(chk('지식·정신',S.st.lore+S.st.will+ri(0,40),70)){ add({lore:4,will:5}); return '해가 질 무렵 처음으로 이겼다. 노인은 박수를 쳤다.'; } add({will:2}); return '해가 지도록 졌다. 노인은 내일 또 오라고 했다.'; }}]},
+    // 정신
+    {id:'g_dark',a:[4,9],w:4,txt:()=>'혼자 자는 첫날 밤. 옷장 문이 조금 열려 있었다.',ch:[
+      {t:'불을 끄고 혼자 잔다',d:'정신↑↑',auto:true,f:()=>{add({will:ri(4,6)});return '밤새 옷장을 노려보았다. 아침에 보니 그냥 옷장이었다.'}},
+      {t:'부모님 방으로 간다',d:'관계↑↑',f:()=>{add({bond:4});return '중간에 누워 잤다. 아버지가 침대 끝에 매달려 있었다.'}}]},
+    {id:'g_run',a:[9,14],w:3,txt:()=>'체육 시간 오래달리기. 세 바퀴째부터 숨이 턱까지 찼다.',ch:[
+      {t:'끝까지 달린다',d:'정신↑ 건강↑',auto:true,f:()=>{add({will:4,health:3});return '꼴찌에서 두 번째였다. 그래도 걷지는 않았다.'}},
+      {t:'친구와 걸으며 수다를 떤다',d:'관계↑',f:()=>{add({bond:3});return '둘이 나란히 꼴찌를 했다. 선생님도 웃었다.'}}]},
+    {id:'g_lie',a:[7,12],w:3,txt:()=>'친구가 깨뜨린 화분을 두고, 선생님이 당신에게 누가 그랬는지 물었다.',ch:[
+      {t:'사실대로 말한다',d:'정신↑ 관계↓',f:()=>{add({will:4,bond:-2});lean('judge',1);return '친구는 한 달 동안 말을 걸지 않았다. 그다음 달에 먼저 사과했다.'}},
+      {t:'모른다고 한다',d:'관계↑↑ 정신↓',auto:true,f:()=>{add({bond:4,will:-1});return '친구가 하교길에 아이스크림을 사 주었다. 맛이 이상했다.'}}]},
+    {id:'g_dojo',a:[8,15],w:3,txt:()=>'동네에 작은 도장이 문을 열었다. 관장은 말이 없었다.',ch:[
+      {t:'다닌다',d:'건강↑ 정신↑ 재산↓',auto:()=>S.wealth>=20,f:()=>{add({health:4,will:4,wealth:-3});return '1년 뒤 처음으로 띠 색이 바뀌었다. 관장이 한 번 고개를 끄덕였다.'}},
+      {t:'창밖에서 몰래 보고 따라 한다',d:'정신↑',auto:()=>S.wealth<20,f:()=>{add({will:3,health:1});return '관장은 다 알고 있었다. 어느 날 창문을 열고 들어오라고 했다.'}}]},
+    {id:'g_dare',a:[10,15],w:3,txt:()=>'친구들이 폐병원에 들어가 보자고 했다. 밤 열 시였다.',ch:[
+      {t:'맨 앞에서 들어간다',d:'정신↑↑ (회로가 강하면 마력↑)',f:()=>{add({will:5,mana:S.circuit>=3?3:0,health:S.circuit>=3?0:-2});return S.circuit>=3?'3층 복도 끝에서 무언가와 눈이 마주쳤다. 당신이 먼저 눈을 돌리지 않았다.':'계단에서 발목을 삐었다. 그래도 끝까지 올라갔다.'}},
+      {t:'안 간다고 한다',d:'지식↑',auto:true,f:()=>{add({lore:2,will:1});return '다음 날 친구들은 아무것도 못 봤다고 했다. 표정은 그렇지 않았다.'}}]},
+    // 관계
+    {id:'g_newkid',a:[6,12],w:4,txt:()=>'전학생이 왔다. 쉬는 시간마다 혼자 창밖을 보고 있었다.',ch:[
+      {t:'먼저 말을 건다',d:'관계↑↑',auto:true,f:()=>{add({bond:5});return '그 아이는 그해 당신의 가장 친한 친구가 되었다.'}},
+      {t:'멀리서 지켜본다',d:'지식↑',f:()=>{add({lore:2,will:1});return '그 아이가 그리는 그림이 좋았다. 끝내 말은 못 걸었다.'}}]},
+    {id:'g_care',a:[6,14],w:3,c:()=>S.fam.sib,txt:()=>'부모님이 늦는 날, 형제를 돌보는 건 당신 몫이 되었다.',ch:[
+      {t:'저녁까지 챙긴다',d:'관계↑ 정신↑',auto:true,f:()=>{add({bond:4,will:2});return '라면에 계란을 두 개 넣었다. 형제는 그걸 오래 기억했다.'}},
+      {t:'숙제부터 한다',d:'지식↑',f:()=>{add({lore:3});return '형제는 혼자 만화를 보다 잠들었다. 담요를 덮어 주었다.'}}]},
+    {id:'g_rep',a:[10,15],w:3,txt:()=>'반장 선거. 친구들이 당신 이름을 칠판에 적었다.',ch:[
+      {t:'연설을 한다',d:'관계+정신 판정',st:()=>[{l:'관계',v:Math.round(S.st.bond)},{l:'정신',v:Math.round(S.st.will)}],auto:true,f:()=>{ if(chk('정신·관계',S.st.bond+S.st.will+ri(0,40),80)){ add({bond:5,will:3}); lean('judge',1); return '두 표 차이로 이겼다. 1년 동안 교실 열쇠를 맡았다.'; } add({will:2,bond:1}); return '졌다. 이긴 아이가 부반장을 맡아 달라고 했다.'; }},
+      {t:'친구를 추천한다',d:'관계↑',f:()=>{add({bond:3});return '친구가 반장이 되었다. 졸업식 날 고맙다는 쪽지를 받았다.'}}]},
+    {id:'g_errand',a:[5,11],w:3,txt:()=>'옆집 할머니가 시장 심부름을 부탁했다. 거스름돈은 가지라고 했다.',ch:[
+      {t:'매주 다녀온다',d:'관계↑ 재산↑',auto:true,f:()=>{add({bond:3,wealth:3});return '할머니는 당신이 올 때마다 귤을 쥐여 주었다.'}},
+      {t:'거스름돈을 돌려드린다',d:'관계↑ 정신↑',f:()=>{add({bond:2,will:3});return '할머니는 한참 웃더니 그 돈으로 같이 국수를 먹자고 했다.'}}]},
+    {id:'g_play',a:[8,13],w:3,txt:()=>'학예회 연극. 배역을 정한다.',ch:[
+      {t:'주인공을 맡는다',d:'정신↑ 관계↑',auto:true,f:()=>{add({will:3,bond:3});return '대사를 하나 까먹었다. 아무도 눈치채지 못하게 지어냈다.'}},
+      {t:'무대 뒤를 맡는다',d:'지식↑ 관계↑',f:()=>{add({lore:3,bond:2});return '조명 하나로 무대의 밤과 낮이 바뀌었다. 그게 제일 재미있었다.'}}]},
+    // 건강
+    {id:'g_swim',a:[6,12],w:3,txt:()=>'여름 수영 교실. 물이 생각보다 차가웠다.',ch:[
+      {t:'매일 나간다',d:'건강↑↑',auto:true,f:()=>{add({health:ri(4,6)});return '여름이 끝날 무렵 25미터를 쉬지 않고 갔다.'}},
+      {t:'물가에서 모래성을 쌓는다',d:'관계↑',f:()=>{add({bond:2,health:1});return '모래성은 파도에 무너졌다. 같이 쌓던 아이와 한참 웃었다.'}}]},
+    {id:'g_cold',a:[4,10],w:3,txt:()=>'감기가 유행했다. 반의 절반이 결석했다.',ch:[
+      {t:'밖에서 뛰어논다',d:'건강 판정 · 버티면 건강↑↑',st:()=>[{l:'건강',v:Math.round(S.st.health)}],f:()=>{ if(chk('건강',S.st.health+ri(0,30),70)){ add({health:5}); return '혼자 멀쩡했다. 그해 겨울 개근상을 받았다.'; } add({health:-3,lore:1}); return '사흘 앓았다. 이불 속에서 만화책을 다 읽었다.'; }},
+      {t:'집에서 책을 읽는다',d:'지식↑ 건강↑',auto:true,f:()=>{add({lore:3,health:2});return '창밖으로 텅 빈 놀이터가 보였다.'}}]},
+    {id:'g_hike',a:[8,14],w:3,c:()=>S.origin!=='orphan',txt:()=>'가족 등산. 정상까지는 아직 멀었다.',ch:[
+      {t:'정상까지 오른다',d:'건강↑ 정신↑',auto:true,f:()=>{add({health:4,will:2});return '정상에서 먹은 김밥이 평생 제일 맛있었다.'}},
+      {t:'중간 쉼터에서 기다린다',d:'관계↑',f:()=>{add({bond:3});return '부모님 중 한 분도 남았다. 둘이서 다람쥐를 구경했다.'}}]},
+    // 재산
+    {id:'g_allow',a:[8,14],w:3,txt:()=>'처음으로 한 달 용돈을 받았다.',ch:[
+      {t:'저금통에 넣는다',d:'재산↑ 정신↑',auto:true,f:()=>{add({wealth:4,will:1});return '돼지 저금통이 무거워질수록 이상하게 든든했다.'}},
+      {t:'친구들과 떡볶이를 먹는다',d:'관계↑',f:()=>{add({bond:4,wealth:-1});return '용돈은 사흘 만에 바닥났다. 대신 단골집이 생겼다.'}}]},
+    {id:'g_market',a:[11,15],w:3,txt:()=>'동네 벼룩시장에 작은 자리를 얻었다. 집에서 안 쓰는 물건을 팔기로 했다.',ch:[
+      {t:'목청껏 손님을 부른다',d:'관계 판정 · 성공하면 재산↑↑',st:()=>[{l:'관계',v:Math.round(S.st.bond)}],auto:true,f:()=>{ if(chk('관계',S.st.bond+ri(0,40),50)){ add({wealth:7,bond:2}); return '오후 세 시에 다 팔았다. 옆자리 아저씨가 장사 수완이 있다고 했다.'; } add({wealth:2,will:2}); return '반도 못 팔았다. 그래도 남은 물건을 이웃이 다 사 갔다.'; }},
+      {t:'물건마다 사연을 적어 둔다',d:'지식↑ 재산↑',f:()=>{add({lore:3,wealth:3});return '사연을 읽은 손님들이 하나씩 집어 갔다.'}}]},
+    // 여러 갈래
+    {id:'g_mentor',a:[9,15],w:4,txt:()=>`${O().mage?'가문을 찾아온 떠돌이 마술사':'이사 온 이웃 노인'}가 당신을 눈여겨보았다. 하나만 가르쳐 주겠다고 했다.`,ch:[
+      {t:'마술을 배운다',d:'마력↑↑ 지식↑ (회로가 있어야 한다)',off:()=>S.circuit<2,auto:()=>isMage(),f:()=>{add({mana:5,lore:2});return '그는 당신 손바닥에 작은 원을 그려 주고 떠났다. 그 원은 오래 지워지지 않았다.'}},
+      {t:'싸우는 법을 배운다',d:'건강↑ 정신↑',f:()=>{add({health:3,will:4});return '넘어지는 법부터 배웠다. 그게 제일 중요하다고 했다.'}},
+      {t:'옛날이야기를 듣는다',d:'지식↑↑',auto:()=>!isMage(),f:()=>{add({lore:6});return '그는 오래된 전쟁 이야기를 했다. 일곱 명의 영웅과 잔 하나에 관한 이야기였다.'}}]},
+    {id:'g_diary',a:[9,15],w:3,txt:()=>'일기장을 하나 샀다. 무엇을 적을지 정했다.',ch:[
+      {t:'매일 있었던 일을 적는다',d:'정신↑ 지식↑',auto:true,f:()=>{add({will:3,lore:2});return '3년 치 일기장이 서랍 하나를 채웠다.'}},
+      {t:'고마운 사람의 이름을 적는다',d:'관계↑↑',f:()=>{add({bond:4,will:1});return '이름은 해마다 늘었다. 몇은 지워졌다.'}},
+      {t:'꿈에 본 것을 적는다',d:'마력↑ 지식↑ (회로가 있으면)',f:()=>{add({mana:S.circuit>=2?3:0,lore:2,will:S.circuit>=2?0:2});return '같은 꿈이 자꾸 나왔다. 불타는 도시와, 잔 하나.'}}]},
+    {id:'g_rival',a:[10,15],w:3,txt:()=>'옆 반에 뭐든 당신보다 조금씩 잘하는 아이가 있었다.',ch:[
+      {t:'이기려고 매달린다',d:'지식↑ 정신↑ 건강↓',auto:true,f:()=>{add({lore:4,will:3,health:-2});return '졸업할 때까지 1승 1패. 마지막 날 처음으로 둘이 웃었다.'}},
+      {t:'친구가 된다',d:'관계↑↑',f:()=>{add({bond:5});return '둘이 함께하면 무서울 게 없었다. 선생님들은 머리가 아팠다.'}}]},
+  ];
+  function growthEvent(){
+    const elig=GROW.filter(e=>S.age>=e.a[0]&&S.age<=e.a[1]&&!S.once[e.id]&&(!e.c||e.c()));
+    if(!elig.length) return;
+    const e=wpick(elig,x=>x.w); S.once[e.id]=1; mark('event');
+    const fv=v=>typeof v==='function'?v():v;
+    const choices=e.ch.map(c=>({t:c.t,d:c.d,st:fv(c.st),auto:fv(c.auto),off:c.off?c.off():false,f:()=>c.f()}));
+    if(choices.every(c=>c.off)) choices[0].off=false;
+    decide({title:`${S.age}세`,body:e.txt(),choices});
   }
   function rollEvent(){
     const elig=EV.filter(e=>S.age>=e.a[0]&&S.age<=e.a[1]&&!S.once[e.id]&&(!e.c||e.c())&&(!e.cond||e.cond()));
@@ -4132,7 +4273,7 @@ const Sim = (() => {
   function warNaive2(){
     decide({title:'밤길',body:'밤길, 인적 없는 골목에서 누군가 앞을 막아섰다. 사람의 형상을 했지만 사람이 아니다. 손에 든 무기가 가로등 빛을 받아 번쩍였다. “령주를 가진 자는 모두 적이다.”',choices:[
       {t:'살고 싶다고 외친다',auto:true,d:'무슨 일이 일어날지 모른다',f:()=>{log('손등이 불에 덴 듯 뜨거워졌다. 바닥에 빛의 원이 그려지고, 바람이 휘몰아쳤다.','war');S.flags.accidental=1;S.warState='in';accidentalSummon();}},
-      {t:'성당으로 도망친다',d:'근처에 불 켜진 성당이 있다',f:()=>{if(ch(.6+S.st.health/400)){log('성당 문을 두드렸다. 신부가 당신 손등을 보고 얼굴을 굳혔다. “이건 성배전쟁의 령주입니다. 넘기시겠습니까, 싸우시겠습니까?”','ev');S.flags.knowsCup=1;warPreludeChurch();}else{add({health:-20});log('등 뒤에서 무언가가 스쳤다. 피를 흘리며 성당 문 앞에 쓰러졌다.','loss');if(S.st.health<=0){S.flags.war='dead';die('정체 모를 습격');return;}S.flags.knowsCup=1;warPreludeChurch();}}},
+      {t:'성당으로 도망친다',d:'근처에 불 켜진 성당이 있다',f:()=>{if(chkp('건강',.6+S.st.health/400)){log('성당 문을 두드렸다. 신부가 당신 손등을 보고 얼굴을 굳혔다. “이건 성배전쟁의 령주입니다. 넘기시겠습니까, 싸우시겠습니까?”','ev');S.flags.knowsCup=1;warPreludeChurch();}else{add({health:-20});log('등 뒤에서 무언가가 스쳤다. 피를 흘리며 성당 문 앞에 쓰러졌다.','loss');if(S.st.health<=0){S.flags.war='dead';die('정체 모를 습격');return;}S.flags.knowsCup=1;warPreludeChurch();}}},
       {t:'반대로 덤벼든다',f:()=>{add({health:-12,will:4});log('주먹이 닿기도 전에 몸이 벽에 부딪혔다. 의식이 흐려지는 순간 손등이 타올랐다.','loss');if(S.st.health<=0){S.flags.war='dead';die('정체 모를 습격');return;}S.flags.accidental=1;S.warState='in';accidentalSummon();}},
     ]});
   }
@@ -4312,7 +4453,7 @@ const Sim = (() => {
   function heroBase(P,hp){const s=P.map(PV);return (78+(s[0]+s[1]+s[2]+s[3])*1.4+s[4]*1.0)*(.55+.45*hp/100);}
   function myPower(ctx={}){
     const w=W(),h=hero();
-    let p=heroBase(myParams().p,w.hp)+clsBonus(h,myParams().p)+5.5+w.trust*.15+S.st.mana*.12+(ctx.e?ctx.e.intel*.1:0)+(ctx.defend?w.fort*.2:0);
+    let p=heroBase(myParams().p,w.hp)+clsBonus(h,myParams().p)-6+w.trust*.15+S.st.mana*.12+(ctx.e?ctx.e.intel*.1:0)+(ctx.defend?w.fort*.2:0);
     if(h.cls==='berserk') p+=5-(w.trust<30?6:0);
     if(h.cls==='caster') p+=ctx.defend?12:5;
     if(h.cls==='shadow'&&w.battle&&w.battle.round===1&&(ctx.attack||ctx.ambushed)) p+=7;
@@ -4345,8 +4486,8 @@ const Sim = (() => {
   // 카르나의 황금 갑옷: 바사비 샤크티를 쓰기 전까지 받는 피해가 줄어든다
   const kavF=(id,o)=>id==='karna'&&!o.kavacha?KAV:1; const KAV=.7;
   // 전용 밤 행동이 있는 클래스의 플레이어 쪽 보정
-  const CLS_BIAS={bow:-2.2,caster:-4.5,shadow:-2.5,judge:-5.5};
-  const BIAS={gilgamesh:12.2,superorion:6.7,arjuna:5,karna:10,caenis:-5,enkidu:5,artoria:3,rama:-7,solomon:-2.5,raikou:-4,asterios:-2,ibaraki:-2.5,chiron:-7.5,ptolemaios:-6.5,tesla:4,nobunaga:3,robin:1,paracelsus:-2,circe:-2,serenity:-7,jack:-5,shuten:7.5,kinghassan:8.5,lishuwen:6.5,semiramis:2,emiya:-1,shakespeare:-1,hundred:3};
+  const CLS_BIAS={bow:-2.2,caster:-4.5,shadow:-4.5,judge:-6.8,sword:.7,lance:.7,berserk:1};
+  const BIAS={gilgamesh:10.7,superorion:6.7,arjuna:3.5,karna:9,caenis:-5,enkidu:5,artoria:4.5,rama:-7,solomon:-2.5,raikou:-4,asterios:-2,ibaraki:0.5,chiron:-7.5,ptolemaios:-6.5,tesla:4,nobunaga:3,robin:-1.5,paracelsus:-2,circe:-2,serenity:-7,jack:-5,shuten:6,kinghassan:8.5,lishuwen:1.5,semiramis:2,emiya:-2.5,shakespeare:-1,hundred:3,kojiro:-0.5,holmes:-1,scathach:4,atalanta:3,spartacus:4.5,bedivere:3.5,tamamo:-2.5,salieri:-3,penthesilea:-3,diarmuid:3};
   function clsBonus(h,P){ return h.cls==='caster'? PV(P[3])*2.4 : MAGE_BERSERK[h.id]? PV(P[3])*2.0 : h.cls==='shadow'? PV(P[1])*1.0 : 0; }
   function npcPower(p,vsMe){
     const h=H_BY[p.hero];
@@ -4429,7 +4570,7 @@ const Sim = (() => {
     if(w.day===7) log('전쟁의 절반이 지났다. 감독관의 통지가 점점 짧아진다.','n');
     if(w.day===13) log('성배가 차오르는 소리가 들린다는 사람이 늘었다. 내일 밤이 마지막이다.','war');
     if(w.day===14) log('마지막 날. 오늘 밤 끝나지 않으면 성배는 남은 이들을 한자리로 불러 모은다.','war');
-    if(!w.heroAlive){ w.queue.push(()=>{ if(!w.sheltered&&ch(.4)) dayEventOut(); },()=>nightStart()); return; }
+    if(!w.heroAlive){ w.queue.push(()=>{ if(ch(.4)) dayEventOut(); },()=>nightStart()); return; }
     dayDecision();
   }
   function routineName(){ const a=S.age, j=S.flags.job; if(a<19) return '학교에 간다'; if(S.flags.abroad&&a<26&&!j) return '시계탑 강의에 나간다'; if(a>=65) return '평소처럼 지낸다'; return j==='회사'?'출근한다':j==='가문'?'가업을 돌본다':j==='연구'?'연구실에 나간다':'평소처럼 지낸다'; }
@@ -4615,15 +4756,80 @@ const Sim = (() => {
     log(f(h),'voice'); w.trust=clamp(w.trust+ri(6,10)); w.exposure=clamp(w.exposure+3);
     if(w.frag<h.frags.length&&w.trust>=50&&ch(.5)){ log(voiceLine(h,h.frags[w.frag]),'voice'); w.frag++; }
   }
+  /* ---------- 소원을 아직 모르겠다고 할 때: 성향과 말투별 대답 ---------- */
+  const HONEST={
+    명예:{plain:['모르는 채로 싸우는 것도 하나의 길이지. 다만 끝까지 싸우겠다는 마음만은 잃지 마라.','소원을 모르는 마스터라… 좋다. 싸우는 동안 찾아라. 그때까지 내 힘을 빌려주마.','정직한 대답이군. 거짓 소원을 늘어놓는 것보다 백배 낫다.'],
+      polite:['모르는 채로 싸우는 것도 하나의 길입니다. 다만 끝까지 싸우겠다는 마음만은 잃지 마십시오.','정직한 대답이군요. 거짓 소원을 늘어놓는 것보다 훨씬 낫습니다.','그렇다면 싸우는 동안 함께 찾아보지요. 그때까지 제 힘을 빌려드리겠습니다.'],
+      royal:['모르는 채로 싸운다라. 그것도 하나의 길이니라. 허나 싸울 각오만은 잃지 말거라.','정직하구나. 거짓 소원을 늘어놓는 신하보다 백배 낫도다.','좋다. 싸우는 동안 찾거라. 그때까지 짐이 힘을 빌려주마.']},
+    연민:{plain:['괜찮아. 소원은 서두른다고 생기는 게 아니니까.','모르겠다는 것도 대답이야. 천천히 찾아. 내가 옆에 있을게.','그래. 다 끝났을 때, 네가 정말 바라는 게 남아 있으면 좋겠다.'],
+      polite:['괜찮아요. 소원은 서두른다고 생기는 게 아니니까요.','모르겠다는 것도 대답이에요. 천천히 찾으세요. 제가 곁에 있을게요.','다 끝났을 때 마스터가 정말 바라는 게 남아 있기를 바랄게요.'],
+      royal:['서두를 것 없느니라. 소원이란 때가 되면 스스로 고개를 드는 법이다.','모른다 함도 하나의 답이니라. 짐이 곁에 있으마.']},
+    충성:{plain:['그렇다면 네가 답을 찾을 때까지 내가 지키지. 그게 내 몫이다.','상관없다. 주인이 무엇을 바라든 나는 따른다. 정해지면 말해라.','모른다라. 그럼 우선 살아남는 것부터 하자.'],
+      polite:['그렇다면 마스터께서 답을 찾으실 때까지 제가 지키겠습니다.','상관없습니다. 정해지시면 말씀해 주세요. 저는 따르겠습니다.','우선 살아남는 것부터 하시지요. 소원은 그다음입니다.'],
+      royal:['그렇다면 네가 답을 찾을 때까지 짐이 지켜 주마. 영광으로 알거라.','상관없다. 정해지거든 고하거라.']},
+    야망:{plain:['하, 바라는 것도 없이 이 전쟁에 들어왔다고? 배짱 하나는 인정하지.','소원이 없으면 성배는 내가 쓰지. …농담이다. 아마도.','욕심 없는 놈이 제일 무섭다던데. 너는 어느 쪽이지?'],
+      polite:['바라는 것도 없이 이 전쟁에 오셨다니, 배짱이 대단하시네요.','소원이 없으시다면… 그 잔, 제가 써도 될까요? 후후, 농담입니다.','욕심이 없는 분이 가장 무섭다고 하던데요.'],
+      royal:['바라는 것도 없이 이 전쟁에 들었다고? 하, 배짱 하나는 왕의 그릇이로구나.','소원이 없다면 성배는 짐이 거두마. …농이니라. 아마도.','욕심 없는 자가 가장 무서운 법이지. 너는 어느 쪽이냐.']},
+    자유:{plain:['좋아. 정해 두지 않는 편이 자유롭지. 마지막에 마음 가는 대로 빌어.','모르겠다? 나도 그런 때가 있었어. 그래서 떠났지.','하하, 솔직해서 좋네. 성배 앞에 서면 저절로 알게 될 거야.'],
+      polite:['정해 두지 않는 편이 자유롭지요. 마지막에 마음 가는 대로 비세요.','저도 그런 때가 있었어요. 그래서 길을 떠났지요.','솔직하셔서 좋네요. 성배 앞에 서면 알게 되실 거예요.'],
+      royal:['정하지 않는 것도 자유니라. 마지막에 마음 가는 대로 빌거라.','하하, 솔직하구나. 짐은 그런 자가 마음에 든다.']},
+  };
+  function honestLine(h){
+    const reg=VREG(h);
+    if(reg==='mute'){ const p=he(h); return pickNR([`${p}는 오래 당신을 보다가, 천천히 고개를 끄덕였다.`,`낮게 으르렁거리는 소리가 났다. 화난 것 같지는 않았다.`,`${p}는 무기를 내려놓고 당신 옆에 앉았다. 대답은 그걸로 충분해 보였다.`,`${p}는 당신 손등의 령주를 잠깐 내려다보았다. 그러고는 다시 창밖을 지켰다.`],'hon'); }
+    const tr=pick(h.traits.filter(t=>HONEST[t]))||'명예', P=HONEST[tr]||HONEST.명예;
+    let l=pickNR(P[reg]||P.plain,'hon'+tr+reg);
+    if((VOICE[h.id]||{}).me==='여') l=l.replace(/짐이/g,'여가').replace(/짐은/g,'여는').replace(/짐/g,'여');
+    return voiceLine(h,l);
+  }
+
+  /* ---------- 새벽: 하루가 넘어갈 때의 한 줄 ---------- */
+  function dawnLine(){
+    const w=W(),h=hero(),n=h.name,mute=VREG(h)==='mute', site=pick(CX().sites||['구시가지']);
+    const P=[];
+    P.push(`${cityN()}의 새벽. 밤새 무슨 일이 있었는지 모르는 얼굴로 해가 떴다.`,'창밖이 희붐하게 밝아 왔다. 첫 전철 소리가 멀리서 들렸다.','전깃줄 위로 까마귀들이 줄지어 앉았다. 새벽 공기가 차다.',`${site} 쪽 하늘이 먼저 밝아 왔다.`,'신문 배달 오토바이 소리에 눈을 떴다. 손등의 령주는 아직 그대로다.');
+    if(w.fought) P.push(`${n}의 상처에서 아지랑이처럼 마력이 피어올랐다. 몸이 조금씩 메워진다.`,'밤새 싸운 흔적을 씻어 냈다. 물이 한참 붉었다.',`${n}${J(n,이)} 창가에 기대 눈을 감고 있었다. 자는 건지, 지키는 건지 알 수 없었다.`);
+    if(w.hid) P.push('불 꺼진 방에서 새벽을 맞았다. 아무도 문을 두드리지 않았다.','결계 안은 조용했다. 오랜만에 깊이 잤다.');
+    if(w.hp<40) P.push(`${n}의 숨소리가 아직 거칠다. 오늘은 무리하면 안 된다.`,`${n}의 윤곽이 새벽빛에 흐릿하게 번졌다. 마력을 더 보내야 한다.`);
+    if(w.trust>=65&&!mute) P.push(`${n}${J(n,이)} 먼저 깨어 창밖을 보고 있었다. 당신을 보고 짧게 아침 인사를 했다.`,`${n}${J(n,이)} 어디서 구했는지 따뜻한 차를 내밀었다.`);
+    if(w.trust<30) P.push(`${n}${J(n,은)} 밤새 한마디도 하지 않았다. 등을 돌린 채 새벽을 맞았다.`);
+    if(mute) P.push(`${n}${J(n,은)} 문 앞에 웅크린 채 밤을 새웠다. 새벽빛에 그 거대한 등이 천천히 오르내렸다.`);
+    if(w.day>=12) P.push('남은 밤이 손가락으로 셀 만큼이 되었다. 도시 아래에서 무언가가 차오르는 기척이 짙다.');
+    if(w.sm<25) P.push('서번트의 기척이 옅다. 마력이 바닥에 가깝다.');
+    return pickNR(P,'dawn');
+  }
+
+  /* ---------- 성당교회에 들른다: 일어날 수 있는 일들 ---------- */
+  const CHURCH_SC=[
+    {w:4,c:()=>alivePairs().some(p=>!p.known),f:()=>{ const p=pick(alivePairs().filter(p=>!p.known)); addIntel(p,35); log(`신부가 흘린 말: ${CLS[p.cls].n} 조는 ${pick(['항구 창고','폐교된 여학교','산 중턱의 별장','구시가지 여관','강변 호텔 꼭대기 층','문 닫은 수족관'])} 근처에 있다.`,'war'); }},
+    {w:3,c:()=>!W().cupKnown,f:()=>{ const w=W(); if(chkp('지식',.4+S.st.lore/250)){ w.cupKnown=true; log(`신부가 낮게 말했다. “이번 성배는 ${w.cupPure?'드물게 맑습니다. 저도 처음 봅니다.':'지난번과 같습니다. 바닥이 검어요. 무엇을 빌든 조심하십시오.'}”`,'war'); } else log('성배에 대해 물었지만, 신부는 웃기만 했다. “때가 되면 아시게 됩니다.”'); }},
+    {w:3,c:()=>W().pairs.some(p=>!p.alive&&!p.revealed),f:()=>{ const p=pick(W().pairs.filter(p=>!p.alive&&!p.revealed)); p.revealed=true; const th=H_BY[p.hero]; log(`신부가 탈락한 조의 기록을 보여 주었다. 쓰러진 ${CLS[p.cls].n}의 정체는 ${th.title} ${th.name}이었다고 한다.`,'war'); }},
+    {w:3,c:()=>contracted().some(p=>!p.ally&&!p.known),f:()=>{ const p=pick(contracted().filter(p=>!p.ally&&!p.known)); decide({title:'예배당의 낯선 사람',body:`맨 앞줄에 누군가 혼자 기도하고 있었다. 손등에 붕대를 감았다. 마스터다. ${p.arche}로 보인다.`,war:true,choices:[
+      {t:'옆에 앉아 말을 건다',d:'관계에 기댄다',st:[{l:'관계',v:Math.round(S.st.bond)}],auto:true,f:()=>{ addIntel(p,30,'talk'); if(chk('관계',S.st.bond+ri(0,40),60)){ p.friendly=true; return `${p.mname}${J(p.mname,은)} 놀라지 않았다. “여기서는 싸우지 않는 게 규칙이죠.” 한참 이야기를 나눴다.`; } return `${p.mname}${J(p.mname,은)} 짧게 대답하고 먼저 일어섰다. 그래도 얼굴은 기억해 두었다.`; }},
+      {t:'뒤를 밟는다',d:'들키면 노출이 오른다',f:()=>{ if(ch(.6)){ addIntel(p,40,'trail'); return '그는 세 번 길을 꺾고 낡은 건물로 들어갔다. 거처를 알았다.'; } W().exposure=clamp(W().exposure+10); return '골목 끝에서 그가 돌아보았다. 들켰다.'; }},
+      {t:'모른 척한다',f:()=>'기도가 끝날 때까지 뒷줄에 앉아 있었다.'}]}); }},
+    {w:3,c:()=>S.wealth>=8&&alivePairs().some(p=>!p.revealed),f:()=>{ const p=pick(alivePairs().filter(p=>!p.revealed)); decide({title:'신부의 거래',body:`“정보에는 값이 있습니다. 헌금 조금이면 ${CLS[p.cls].n} 조에 대해 아는 것을 말씀드리지요.”`,war:true,choices:[
+      {t:'헌금한다',d:'재산 −8',auto:true,f:()=>{ add({wealth:-8}); addIntel(p,40); return '신부는 봉투를 세지도 않고 이야기를 시작했다.'; }},
+      {t:'거절한다',f:()=>'“현명한 분이시군요.” 신부는 미소 지었다.'}]}); }},
+    {w:3,c:()=>S.st.health<75||W().hp<70,f:()=>{ const w=W(); add({health:6}); w.hp=clamp(w.hp+5); log(pick(['수녀가 의무실로 데려갔다. 붕대를 갈고 쓴 차를 한 잔 얻어 마셨다.','신부가 성수를 조금 나눠 주었다. 상처가 덜 쑤셨다.'])); }},
+    {w:3,c:()=>true,f:()=>decide({title:'고해실',body:'신부가 고해실 커튼을 열어 두었다. “말하고 싶은 것이 있으면.”',war:true,choices:[
+      {t:'털어놓는다',auto:true,f:()=>{ add({will:4}); W().trust=clamp(W().trust+2); return '이번 전쟁에서 본 것들을 처음으로 소리 내어 말했다. 신부는 끝까지 아무 말도 하지 않았다.'; }},
+      {t:'그냥 나온다',f:()=>{ add({will:1}); return '커튼 앞에 잠깐 서 있다가 돌아섰다.'; }}]})},
+    {w:3,c:()=>contracted().some(p=>p.aid==='apostle')&&!W().churchQuest,f:()=>{ const w=W(),p=contracted().find(p=>p.aid==='apostle'); decide({title:'교회의 의뢰',body:'신부가 문을 잠갔다. “이번 전쟁에 사도가 섞여 있습니다. 인간이 아닙니다. 그 조를 쓰러뜨려 주신다면, 교회가 보답하겠습니다.”',war:true,choices:[
+      {t:'받아들인다',d:'그 조의 거처를 알게 된다. 쓰러뜨리면 령주 1획',auto:true,f:()=>{ w.churchQuest=p.i; addIntel(p,Math.max(0,40-p.intel)+10,'trail'); return '신부가 지도에 붉은 점 하나를 찍어 주었다.'; }},
+      {t:'거절한다',f:()=>'“그러시겠지요.” 신부는 잠갔던 문을 다시 열었다.'}]}); }},
+    {w:2,c:()=>(W().heat||0)>=2||W().civ>0,f:()=>{ const w=W(); w.exposure=clamp(w.exposure+5); log(`신부의 목소리가 차가웠다. “지난밤 일, 성당교회는 다 알고 있습니다. ${w.civ>1?'한 번만 더 그러시면 대행자가 움직입니다.':'은닉에 협조해 주시지요.'}”`,'war'); }},
+    {w:2,c:()=>S.st.lore>=40&&alivePairs().some(p=>p.revealed&&!p.artKnown),f:()=>{ const p=pick(alivePairs().filter(p=>p.revealed&&!p.artKnown)); if(chk('지식',S.st.lore+ri(0,40),65)) revealArt(p,`교회 지하 서고에서 ${H_BY[p.hero].from}에 관한 사본을 찾았다. `); else log('교회 지하 서고를 뒤졌다. 찾던 기록은 누군가 먼저 빌려 간 뒤였다.'); }},
+    {w:2,c:()=>['jeanne','amakusa','georgios','sanzang'].includes(hero().id),f:()=>{ const h=hero(); log(h.id==='amakusa'?`신부가 ${h.name}${J(h.name,을)} 보고 굳었다. ${h.name}${J(h.name,은)} 아무렇지 않게 성호를 그었다. 신부는 끝내 아무것도 묻지 않았다.`:h.id==='jeanne'?`${h.name}${J(h.name,이)} 제단 앞에서 오래 기도했다. 신부가 조용히 다가와 무릎을 꿇었다.`:`${h.name}${J(h.name,이)} 예배당을 둘러보며 조용히 손을 모았다. 신부의 태도가 눈에 띄게 공손해졌다.`,'voice'); W().trust=clamp(W().trust+4); }},
+    {w:2,c:()=>true,f:()=>log(pick(['오후 예배가 한창이었다. 성가대의 노래를 끝까지 들었다. 그것만으로 조금 나아졌다.','신부는 자리에 없었다. 비어 있는 예배당에 한참 앉아 있었다.','신부가 사탕 하나를 쥐여 주었다. “당신 서번트 몫까지.” 이유는 묻지 않았다.']))},
+  ];
   function church(){
     const w=W();
-    log(pick(['교회 뒷문으로 들어갔다. 신부는 오르간 앞에 앉아 있었다.','신부는 고해실 안에서만 이야기하겠다고 했다.','신부는 커피를 두 잔 내왔다. 한 잔은 당신 서번트 몫이라고 했다.']));
-    const left=contracted().length+1;
-    log(`감독관의 집계: 남은 조 ${left}. 탈락 ${W().pairs.filter(p=>!p.alive).length}.`,'notice');
-    const unk=alivePairs().filter(p=>!p.known);
-    if(unk.length&&ch(.6)){ const p=pick(unk); addIntel(p,35); log(`신부가 흘린 말: ${CLS[p.cls].n} 조는 ${pick(['항구 창고','폐교된 여학교','산 중턱의 별장','구시가지 여관','강변 호텔 꼭대기 층','문 닫은 수족관'])} 근처에 있다.`,'war'); }
-    if(!w.cupKnown&&ch(.25+S.st.lore/300)){ w.cupKnown=true; log(`신부가 낮게 말했다. “이번 성배는 ${w.cupPure?'드물게 맑습니다. 저도 처음 봅니다.':'지난번과 같습니다. 바닥이 검어요. 무엇을 빌든 조심하십시오.'}”`,'war'); }
-    if(w.civ>0){ log('신부가 지난밤 무너진 건물 이야기를 꺼냈다. 다음에도 그러면 성당교회가 직접 나서겠다고 했다.','war'); w.exposure=clamp(w.exposure+5); }
+    log(pick(['교회 뒷문으로 들어갔다. 신부는 오르간 앞에 앉아 있었다.','신부는 고해실 안에서만 이야기하겠다고 했다.','신부는 커피를 두 잔 내왔다. 한 잔은 당신 서번트 몫이라고 했다.','예배당 문을 밀자 촛불 냄새가 났다. 신부가 뒤돌아보지도 않고 말했다. “오셨군요.”','신부는 마당의 낙엽을 쓸고 있었다. 빗자루를 세워 두고 손을 털었다.']));
+    log(`감독관의 집계: 남은 조 ${contracted().length+1}. 탈락 ${w.pairs.filter(p=>!p.alive).length}.`,'notice');
+    const el=CHURCH_SC.filter(x=>x.c()&&x!==w.lastChurch); if(!el.length) return;
+    const sc=wpick(el,x=>x.w); w.lastChurch=sc; sc.f();
+    if(!S.pending&&ch(.35)){ const el2=CHURCH_SC.filter(x=>x!==sc&&x.c()&&x.f.toString().indexOf('decide(')<0); if(el2.length) wpick(el2,x=>x.w).f(); }
   }
   const DAY_EV = [
     {w:3,c:()=>S.flags.job==='회사'||S.flags.job==='연구',f:()=>decide({title:'낮',body:'직장 동료가 요즘 무슨 일 있느냐고 물었다. 눈 밑이 검다고 했다.',war:true,choices:[
@@ -4644,7 +4850,7 @@ const Sim = (() => {
       {t:'눈감는다',d:'서번트 마력 +60, 민간인 피해',f:()=>{w.sm=clamp(w.sm+60);w.civ=(w.civ||0)+1;S.flags.civ=(S.flags.civ||0)+1;add({will:-8});lean('avenger',2);return '다음 날 뉴스에서 원인 모를 집단 실신 사고가 보도되었다. 몇 명은 깨어나지 못했다.'}}]});}},
     {w:2,c:()=>W().sm<50&&S.st.bond>=40,f:()=>{const w=W(),h=hero();decide({title:'마력 공급',body:`밤이 깊었다. ${h.name}의 윤곽이 희미하게 깜박인다. 마스터와 서번트 사이의 마력 길을 더 깊게 잇는 의식이 있다. 피를 나누거나, 손을 맞잡고 회로를 맞대는 것이다.`,war:true,choices:[
       {t:'피를 나눈다',d:'건강 −8, 서번트 마력 +40',f:()=>{add({health:-8});w.sm=clamp(w.sm+40);w.trust=clamp(w.trust+4);return `손가락 끝에서 흐른 피가 ${h.name}의 입술에 닿았다. 서번트의 눈빛이 또렷해졌다.`}},
-      {t:'회로를 맞댄다',d:'마력 판정',auto:true,f:()=>{if(S.st.mana+ri(0,40)>60){w.sm=clamp(w.sm+30);w.trust=clamp(w.trust+6);return '손바닥 사이로 따뜻한 것이 오갔다. 오래 그러고 있었다.'}add({health:-4});w.sm=clamp(w.sm+12);return '회로가 엉켜 머리가 지끈거렸다. 조금은 전해졌다.'}},
+      {t:'회로를 맞댄다',d:'마력 판정',auto:true,f:()=>{if(chk('마력',S.st.mana+ri(0,40),60)){w.sm=clamp(w.sm+30);w.trust=clamp(w.trust+6);return '손바닥 사이로 따뜻한 것이 오갔다. 오래 그러고 있었다.'}add({health:-4});w.sm=clamp(w.sm+12);return '회로가 엉켜 머리가 지끈거렸다. 조금은 전해졌다.'}},
       {t:'오늘은 쉰다',f:()=>{w.sm=clamp(w.sm+8);return '둘 다 일찍 잠들었다.'}}]});}},
     {w:2,c:()=>W().leyline&&contracted().length>1,f:()=>{const w=W();const p=pick(contracted().filter(x=>!x.ally));if(!p)return;log(`${pName(p)} 조가 당신이 차지한 영맥을 노리고 근처를 맴돌았다.`,'war');w.exposure=clamp(w.exposure+8);}},
     {w:2,c:()=>alivePairs().some(p=>p.master&&!p.revealed),f:()=>{const p=pick(alivePairs().filter(p=>p.master&&!p.revealed));decide({title:'휴전의 낮',body:`시장 골목에서 사복 차림의 낯선 사람과 눈이 마주쳤다. 사람이 아니다. ${CLS[p.cls].n}다. ${p.cls==='berserk'?'그 곁의 마술사가 서둘러 그것을 데리고 사라졌다.':'그쪽도 당신을 알아보았다.'}`,war:true,choices:[
@@ -4655,7 +4861,7 @@ const Sim = (() => {
       {t:'당분간 도시를 떠나 있으라고 한다',f:()=>{add({bond:3,will:2});W().fort=clamp(W().fort+5);return '이유는 묻지 않았다. 다음 날 기차표를 샀다는 문자가 왔다.'}}]});}},
     {w:4,c:()=>W().trust>=35&&!W().askedWish,f:()=>{const w=W(),h=hero();w.askedWish=true;decide({title:'소원',body:`${sayV(h,'askWish')} 아래 칸에 직접 적어도 좋다.`,input:'wish',war:true,choices:[
       {t:'적은 대로 말한다',auto:true,wish:true,f:()=>{if(!S.flags.myWish){w.trust=clamp(w.trust+3);return `입을 열었지만 말이 나오지 않았다. ${qv(h,'later')}`}w.trust=clamp(w.trust+8);return `${h.name}${J(h.name,은)} 고개를 끄덕였다. ${qv(h,'okwish')}`}},
-      {t:'아직 모르겠다고 한다',f:()=>{w.trust=clamp(w.trust+3);return qv(h,'honest')}},
+      {t:'아직 모르겠다고 한다',f:()=>{w.trust=clamp(w.trust+3);return honestLine(h)}},
       {t:'되묻는다',f:()=>{w.trust=clamp(w.trust+5);return `${h.name}${J(h.name,은)} 잠시 말이 없다가 대답했다. ${sayV(h,'wish').replace(h.name+': ','')}`}}]});}},
     {w:2,c:()=>W().hp<45,f:()=>{const w=W();decide({title:'령주의 열',body:'손등이 타는 듯하다. 서번트가 약해지고 있다는 신호다.',war:true,choices:[
       {t:'마력을 몰아준다',auto:true,f:()=>{add({health:-7});w.hp=clamp(w.hp+20);return '밤새 열이 났다. 아침에 서번트의 상처가 거의 아물어 있었다.'}},
@@ -4675,7 +4881,7 @@ const Sim = (() => {
     {w:2,c:()=>true,f:()=>log(pick(CX().flavor))},
     {w:3,c:()=>alivePairs().some(p=>p.revealed&&!p.artKnown),f:()=>{const w=W(),h=hero();const p=pick(alivePairs().filter(p=>p.revealed&&!p.artKnown));const th=H_BY[p.hero];
       decide({title:'전설 대조',body:`${pName(p)}의 정체는 ${th.from}의 ${th.name}. 원전을 뒤지면 어떤 보구를 쓰는지 짐작할 수 있다.`,war:true,choices:[
-        {t:'도서관에서 원전을 대조한다',auto:true,f:()=>{if(S.st.lore+ri(0,40)>45){revealArt(p,'원전 세 권을 대조한 끝에 알아냈다. ');revealSkills(p,'전승 속 일화에서 짐작했다. ',1);learnLore(p,1);return ''}return '밤새 책을 뒤졌지만 판본마다 이야기가 달랐다.'}},
+        {t:'도서관에서 원전을 대조한다',auto:true,f:()=>{if(chk('지식',S.st.lore+ri(0,40),45)){revealArt(p,'원전 세 권을 대조한 끝에 알아냈다. ');revealSkills(p,'전승 속 일화에서 짐작했다. ',1);learnLore(p,1);return ''}return '밤새 책을 뒤졌지만 판본마다 이야기가 달랐다.'}},
         {t:`${h.name}에게 묻는다`,f:()=>{if(w.trust>=45||ch(.3)){revealArt(p,`${h.name}${J(h.name,이)} 말했다. ${qv(h,'know')} `);return ''}return `${h.name}${J(h.name,은)} 어깨를 으쓱했다. ${qv(h,'dunno')}`}}]});}},
   );
   DAY_EV.push(
@@ -4725,7 +4931,7 @@ const Sim = (() => {
     else if(k in {hp:1,trust:1,exposure:1,fort:1}) w[k]=clamp(w[k]+v);
     else add({[k]:v}); } }
   function dayEvent(){ const w=W(); if(w.ended||!w.heroAlive||S.pending||S.dead) return; if(!ch(.6)) return; const e=wpick(DAY_EV.filter(x=>x.c()),x=>x.w); if(e) e.f(); }
-  function dayEventOut(){ log(pick(['교회 지하에서 하루를 보냈다. 위층에서 성가대 연습 소리가 났다.','서번트 없는 손등을 오래 보았다.','신문 부고란을 처음부터 끝까지 읽었다.','창밖으로 다른 조의 서번트가 지붕을 넘어가는 것을 보았다.'])); }
+  function dayEventOut(){ log(pick(W().sheltered?['교회 지하에서 하루를 보냈다. 위층에서 성가대 연습 소리가 났다.','수녀가 식판을 내려놓고 갔다. 수프가 아직 따뜻했다.','지하 기도실의 작은 창으로 하늘이 한 뼘 보였다.','서번트 없는 손등을 오래 보았다.']:['서번트 없는 손등을 오래 보았다.','신문 부고란을 처음부터 끝까지 읽었다.','창밖으로 다른 조의 서번트가 지붕을 넘어가는 것을 보았다.','결계 안의 촛불이 밤새 흔들렸다. 아무도 오지 않았다.'])); }
 
   /* ---------- 마스터들의 사연 ---------- */
   const MASTER_EV = {
@@ -4782,7 +4988,7 @@ const Sim = (() => {
     veteran:[
       {c:p=>true,f:p=>decide({title:'지난 겨울의 사람',body:`공원 벤치에 노인 하나가 앉아 있었다. 손등에 낡은 령주 자국과 새 령주가 겹쳐 있다. “60년 전에도 여기 앉아 있었지. 그때 내 서번트는 이 벤치를 좋아했어.”`,war:true,choices:[
         {t:'지난 전쟁 이야기를 청한다',auto:true,f:()=>{addIntel(p,35,'talk');if(!W().cupKnown&&ch(.5)){W().cupKnown=true;return `${p.mname}${J(p.mname,은)} 그 겨울 성배가 무엇을 했는지 이야기했다. 이번 성배가 ${W().cupPure?'다르다는 걸 느낀다고 했다.':'그때와 같다고 했다.'}`}return '노인은 그 겨울의 전투를 하나하나 짚었다. 대부분은 지금도 쓸 만한 이야기였다.'}},
-        {t:'동맹을 청한다',off:W().pairs.some(x=>x.ally&&x.alive),f:()=>{if(ch(.4+S.st.bond/300)){p.ally=true;p.known=true;S.flags.allyName=p.mname;allyConfide(p);wrec('ally',`${CLS[p.cls].n} 조 ${p.mname}${J(p.mname,과)} 동맹`,{p:p.i});return '“늙은이라도 괜찮다면.” 노인이 손을 내밀었다.'}addIntel(p,25);return '“이번엔 혼자 끝을 보고 싶네.” 노인은 고개를 저었다.'}},
+        {t:'동맹을 청한다',off:W().pairs.some(x=>x.ally&&x.alive),f:()=>{if(chkp('관계',.4+S.st.bond/300)){p.ally=true;p.known=true;S.flags.allyName=p.mname;allyConfide(p);wrec('ally',`${CLS[p.cls].n} 조 ${p.mname}${J(p.mname,과)} 동맹`,{p:p.i});return '“늙은이라도 괜찮다면.” 노인이 손을 내밀었다.'}addIntel(p,25);return '“이번엔 혼자 끝을 보고 싶네.” 노인은 고개를 저었다.'}},
         {t:'자리를 피한다',f:()=>'노인은 뒤에서 낮게 웃었다.'}]})},
       {c:p=>W().day>=8,f:p=>{log(`${p.mname}${J(p.mname,이)} 성당교회 앞에서 꽃을 사는 것을 보았다. 60년 전 오늘이 그의 서번트가 사라진 날이라고 했다.`,'n');addIntel(p,15);}},
     ],
@@ -4819,8 +5025,8 @@ const Sim = (() => {
     ],
     sibling:[
       {c:p=>true,f:p=>decide({title:'형제',body:`${p.mname}${J(p.mname,이)} 집 앞에 서 있었다. 손등에 당신과 같은 붉은 령주가 있다. “엄마한테는 말하지 마.”`,war:true,choices:[
-        {t:'함께 싸우자고 한다',off:W().pairs.some(x=>x.ally&&x.alive),auto:true,f:()=>{if(ch(.45+S.st.bond/250)){p.ally=true;p.known=true;S.flags.allyName=p.mname;allyConfide(p);wrec('ally',`${CLS[p.cls].n} 조 ${p.mname}${J(p.mname,과)} 동맹`,{p:p.i});add({bond:4});return '형제는 한참 당신을 보다가 고개를 끄덕였다. “마지막 둘이 남으면, 그때 정하자.”'}addIntel(p,40);return '“그럴 거면 처음부터 각인을 양보했어야지.” 형제는 돌아섰다.'}},
-        {t:'물러나라고 설득한다',f:()=>{if(ch(.25+S.st.bond/300)){p.master=false;p.alive=false;pairOut(p,'설득에 따라 물러났다');p.revealed=true;add({bond:6});return `형제는 다음 날 성당교회에 령주를 넘겼다. 그의 ${CLS[p.cls].n}${J(CLS[p.cls].n,은)} 아침 햇빛 속으로 흩어졌다.`}addIntel(p,30);p.tac='reckless';return '“너야말로 물러나.” 문이 세게 닫혔다.'}},
+        {t:'함께 싸우자고 한다',off:W().pairs.some(x=>x.ally&&x.alive),auto:true,f:()=>{if(chkp('관계',.45+S.st.bond/250)){p.ally=true;p.known=true;S.flags.allyName=p.mname;allyConfide(p);wrec('ally',`${CLS[p.cls].n} 조 ${p.mname}${J(p.mname,과)} 동맹`,{p:p.i});add({bond:4});return '형제는 한참 당신을 보다가 고개를 끄덕였다. “마지막 둘이 남으면, 그때 정하자.”'}addIntel(p,40);return '“그럴 거면 처음부터 각인을 양보했어야지.” 형제는 돌아섰다.'}},
+        {t:'물러나라고 설득한다',f:()=>{if(chkp('관계',.25+S.st.bond/300)){p.master=false;p.alive=false;pairOut(p,'설득에 따라 물러났다');p.revealed=true;add({bond:6});return `형제는 다음 날 성당교회에 령주를 넘겼다. 그의 ${CLS[p.cls].n}${J(CLS[p.cls].n,은)} 아침 햇빛 속으로 흩어졌다.`}addIntel(p,30);p.tac='reckless';return '“너야말로 물러나.” 문이 세게 닫혔다.'}},
         {t:'각자의 길을 간다',f:()=>{addIntel(p,30);return '형제는 어릴 때처럼 당신 머리를 한 번 헝클고 갔다.'}}]})},
     ],
   });
@@ -4919,7 +5125,7 @@ const Sim = (() => {
   }
   /* ---------- 클래스 전용 밤 행동 ---------- */
   // 능력치 대결: 점수 차에 무작위 폭을 더해 대성공/성공/실패/대실패를 가른다
-  function contest(d,great){ const r=d+(rnd()*2-1)*18; return r>=(great||14)?'great':r>=0?'ok':r>-14?'fail':'bad'; }
+  function contest(d,great,l){ const r=d+(rnd()*2-1)*18, res=r>=(great||14)?'great':r>=0?'ok':r>-14?'fail':'bad'; if(CHK&&l) CHK.push({l,ok:res==='great'||res==='ok'}); return res; }
   const oddsWord=d=>d>=8?'유리함':d>-8?'백중':'불리함';
   function oddsTxt(d,est){ return est?`추정 · ${oddsWord(d)}`:oddsWord(d); }
   // 상대 능력치: 진명을 모르면 같은 클래스의 평균으로 추정한다
@@ -4949,7 +5155,7 @@ const Sim = (() => {
   }
   function snipeDo(e,kind){
     const w=W(),h=hero(),eh=H_BY[e.hero],P=myP(),E=eStat(e,false); smUse(10); w.roamed=true; w.exposure=clamp(w.exposure+3);
-    const r=contest(snipeD(e,kind,false),kind==='m'?22:14), eN=pName(e);
+    const r=contest(snipeD(e,kind,false),kind==='m'?22:14,'서번트의 민첩·저격 솜씨'), eN=pName(e);
     if(kind==='sv'){
       if(r==='great'||r==='ok'){ const dmg=Math.max(5,Math.min(25,Math.round((8+(P[0]-E.P[2])*2.5+(SNIPE[h.id]||1)*2.5)*(r==='great'?1.5:1)*(.85+rnd()*.3))));
         e.hp=clamp(e.hp-dmg); addIntel(e,10,'trail');
@@ -5007,7 +5213,7 @@ const Sim = (() => {
   }
   function infilDo(e){
     const w=W(),h=hero(),eN=pName(e); smUse(14); w.roamed=true;
-    const r=contest(infilD(e,false),26); e.alert=(e.alert||0)+(r==='fail'||r==='bad'?2:1);
+    const r=contest(infilD(e,false),26,'서번트의 민첩·기척차단'); e.alert=(e.alert||0)+(r==='fail'||r==='bad'?2:1);
     if(r==='great'&&ch(.65)){ e.mHurt=3; e.hp=clamp(e.hp-ri(15,22)); return `${h.name}${J(h.name,이)} ${e.mname}의 목 앞까지 닿았지만, 마지막 순간 결계가 울렸다. 마스터는 크게 다친 채 달아났다.`; }
     if(r==='great'){ log(`${h.name}${J(h.name,이)} 결계의 틈으로 스며들었다. ${e.mname}${J(e.mname,은)} 마지막까지 아무것도 알아차리지 못했다.`,'war'); add({will:-3}); masterKilled(e); return ''; }
     if(r==='ok'){ revealPair(e,'거처에서 엿들은 대화로 알아냈다. '); revealSkills(e,'거처에서 엿보았다. ',2); e.hp=clamp(e.hp-ri(8,15)); addIntel(e,20,'trail');
@@ -5031,7 +5237,7 @@ const Sim = (() => {
   }
   function rulerDo(e,k){
     const w=W(),h=hero(),eN=pName(e); w.rSeals--; wrec('seal',`감독자의 령주 — ${({halt:'정지',call:'소환',expel:'퇴거'})[k]} 명령`);
-    const r=contest(rulerD(e,false)), ok=r==='great'||r==='ok';
+    const r=contest(rulerD(e,false),14,'서번트의 마력·행운'), ok=r==='great'||r==='ok';
     log(`${h.name}${J(h.name,이)} 감독자의 령주를 들어 올렸다. 빛이 ${eN}에게 날아갔다.`,'seal');
     if(k==='halt'){ e.halt=ok?2:1; return ok?`${eN}${J(eN,이)} 그 자리에 묶였다. 이틀 동안 누구도 습격하지 못한다.`:`${eN}${J(eN,이)} 령주에 저항했다. 하룻밤만 묶어 두었다.`; }
     if(k==='call'){ w.queue.unshift(()=>battle(e,{attack:true,duel:true,forced:ok})); return ok?`${eN}${J(eN,이)} 거역하지 못하고 불려 나왔다. 오늘 밤은 도망칠 수 없다.`:`${eN}${J(eN,은)} 불려 나왔지만, 명령은 끝까지 닿지 않았다. 여차하면 달아날 것이다.`; }
@@ -5043,7 +5249,7 @@ const Sim = (() => {
   function revealD(e){ const h=hero(),P=myP(),E=eStat(e,false); return (SV(h,'reveal')*3+SV(h,'insight')*1.5+P[4]*2+8)-(E.P[4]*2+E.sv('stealth')*2+14); }
   function revealPick(){
     const ts=alivePairs().filter(p=>!p.revealed&&(p.known||p.intel>=20));
-    decide({title:'진명을 간파한다',body:'마주친 적 하나의 이름을 읽어 낸다.',war:true,choices:[...ts.map(p=>({t:`${CLS[p.cls].n} 조`,d:`${oddsTxt(revealD(p),true)} · 정보 ${Math.round(p.intel)}`,auto:true,f:()=>{ const r=contest(revealD(p));
+    decide({title:'진명을 간파한다',body:'마주친 적 하나의 이름을 읽어 낸다.',war:true,choices:[...ts.map(p=>({t:`${CLS[p.cls].n} 조`,d:`${oddsTxt(revealD(p),true)} · 정보 ${Math.round(p.intel)}`,auto:true,f:()=>{ const r=contest(revealD(p),14,'서번트의 진명간파·행운');
         if(r==='great'||r==='ok'){ revealPair(p,'진명간파. '); if(r==='great') revealArt(p,'이름과 함께 보구까지 떠올랐다. '); return ''; }
         addIntel(p,15); return r==='fail'?'이름은 끝내 떠오르지 않았다. 단서만 몇 가지 남았다.':'상대의 정체가 짙은 안개처럼 흐려졌다. 무언가가 진명을 가리고 있다.'; }})),
       {t:'그만둔다',f:()=>''}]});
@@ -5100,10 +5306,10 @@ const Sim = (() => {
   const RANK_BAND=r=>{ const b=String(r).replace(/[+-]/g,''); return b==='EX'?'규격 밖':b==='A'?'A급 이상':b==='B'?'B급 안팎':'C급 이하'; };
   const SCOUT_EV=[
     {w:3,c:t=>!t.artKnown&&!t.artHint&&W().day>=2,f:t=>decide({title:'격전지의 흔적',body:`${t.known?pName(t)+' 조의 거처 근처':'외곽의 공사장'}에 땅이 유리처럼 녹아 굳은 자리가 있었다. 누군가 여기서 보구를 썼다.`,war:true,choices:[
-      {t:'흔적을 조사한다',d:`지식 ${Math.round(S.st.lore)} · 보구의 종류와 규모를 짐작한다`,auto:true,f:()=>{ if(S.st.lore+ri(0,45)>40){ const a=artOf(H_BY[t.hero]); t.artHint={k:a.k,r:RANK_BAND(a.r)}; wrec('hint',`${CLS[t.cls].n}의 보구 흔적 — ${a.k}, ${t.artHint.r}`,{p:t.i}); addIntel(t,10,'trail'); return `흔적의 크기와 마력의 결로 짐작했다. ${CLS[t.cls].n}의 보구는 ${a.k}, ${t.artHint.r}의 위력이다. 이름까지는 알 수 없다.`; } addIntel(t,8,'trail'); return '흔적은 이미 식어 있었다. 남은 것은 탄 냄새뿐이었다.'; }},
+      {t:'흔적을 조사한다',d:`지식 ${Math.round(S.st.lore)} · 보구의 종류와 규모를 짐작한다`,auto:true,f:()=>{ if(chk('지식',S.st.lore+ri(0,45),40)){ const a=artOf(H_BY[t.hero]); t.artHint={k:a.k,r:RANK_BAND(a.r)}; wrec('hint',`${CLS[t.cls].n}의 보구 흔적 — ${a.k}, ${t.artHint.r}`,{p:t.i}); addIntel(t,10,'trail'); return `흔적의 크기와 마력의 결로 짐작했다. ${CLS[t.cls].n}의 보구는 ${a.k}, ${t.artHint.r}의 위력이다. 이름까지는 알 수 없다.`; } addIntel(t,8,'trail'); return '흔적은 이미 식어 있었다. 남은 것은 탄 냄새뿐이었다.'; }},
       {t:'자리를 뜬다',f:()=>'오래 머물면 들킨다. 발길을 돌렸다.'}]})},
     {w:3,c:t=>true,f:t=>decide({title:'결계의 흔적',body:`${t.known?pName(t)+' 조의 거처 근처':'낡은 아파트 단지'}에 누군가 결계를 깔아 두었다. 아직 따뜻하다.`,war:true,choices:[
-      {t:'해제를 시도한다',d:'마력으로 결계를 푼다. 실패하면 들킨다',auto:S.st.mana>=50,f:()=>{ if(S.st.mana+ri(0,35)>60){ addIntel(t,30,'trail'); t.fortDown=true; return '결계가 소리 없이 풀렸다. 안쪽에 남은 마력의 흔적을 읽었다.'; } W().exposure=clamp(W().exposure+10); add({health:-5}); return '결계가 경보를 울렸다. 서둘러 빠져나왔다.'; }},
+      {t:'해제를 시도한다',d:'마력으로 결계를 푼다. 실패하면 들킨다',auto:S.st.mana>=50,f:()=>{ if(chk('마력',S.st.mana+ri(0,35),60)){ addIntel(t,30,'trail'); t.fortDown=true; return '결계가 소리 없이 풀렸다. 안쪽에 남은 마력의 흔적을 읽었다.'; } W().exposure=clamp(W().exposure+10); add({health:-5}); return '결계가 경보를 울렸다. 서둘러 빠져나왔다.'; }},
       {t:'표식만 남겨 둔다',auto:true,f:()=>{ addIntel(t,12,'trail'); return '결계 바깥에 작은 표식을 남겼다. 다음에 찾아오기 쉬울 것이다.'; }}]})},
     {w:3,c:t=>true,f:t=>decide({title:'사역마',body:'전선 위에 앉은 까마귀 한 마리가 당신을 계속 따라왔다. 눈동자에 마술 각인이 비친다. 누군가의 사역마다.',war:true,choices:[
       {t:'붙잡는다',auto:true,f:()=>{ if(ch(.6)){ addIntel(t,22,'trail'); return '서번트가 까마귀를 낚아챘다. 각인을 거꾸로 더듬어 주인의 방향을 알아냈다.'; } W().exposure=clamp(W().exposure+8); return '까마귀는 날아가 버렸다. 당신 얼굴을 본 채로.'; }},
@@ -5115,7 +5321,7 @@ const Sim = (() => {
       {t:'물러난다',f:()=>'휘말리기 전에 자리를 떴다.'}]}); }},
     {w:2,c:t=>!t.known,f:t=>decide({title:'마스터의 거처',body:'불 켜진 창문 하나가 눈에 띄었다. 창가에 마법진이 그려진 천이 걸려 있다. 마스터의 거처일지도 모른다.',war:true,choices:[
       {t:'위치만 기억해 둔다',auto:true,f:()=>{ addIntel(t,30,'trail'); return '주소와 드나드는 시간을 적어 두었다.'; }},
-      {t:'몰래 들어가 본다',d:'지식과 정신에 기댄다',f:()=>{ if(S.st.lore+S.st.will+ri(0,40)>80){ addIntel(t,50,'trail'); return '책상 위에 촉매의 흔적과 메모가 있었다. 그 서번트가 누구인지 짐작이 갔다.'; } add({health:-ri(8,14)}); W().exposure=clamp(W().exposure+12); return '문턱의 함정에 걸렸다. 피를 흘리며 도망쳤다.'; }}]})},
+      {t:'몰래 들어가 본다',d:'지식과 정신에 기댄다',f:()=>{ if(chk('지식·정신',S.st.lore+S.st.will+ri(0,40),80)){ addIntel(t,50,'trail'); return '책상 위에 촉매의 흔적과 메모가 있었다. 그 서번트가 누구인지 짐작이 갔다.'; } add({health:-ri(8,14)}); W().exposure=clamp(W().exposure+12); return '문턱의 함정에 걸렸다. 피를 흘리며 도망쳤다.'; }}]})},
     {w:2,c:t=>true,f:t=>decide({title:'밤길의 아이',body:'새벽 2시, 놀이터 그네에 아이 하나가 앉아 있다. 집에 가기 싫다고 했다. 이 근처는 오늘 밤 위험하다.',war:true,choices:[
       {t:'집까지 데려다준다',auto:true,f:()=>{ W().trust=clamp(W().trust+(hero().traits.includes('연민')?7:3)); add({bond:2}); lean('judge',1); return `${hero().name}${J(hero().name,이)} 아이를 어깨에 태웠다. 아이는 잠이 들었다.`; }},
       {t:'성당교회에 맡긴다',f:()=>{ W().exposure=clamp(W().exposure-3); return '신부는 아무것도 묻지 않고 아이를 받아 들었다.'; }},
@@ -5414,6 +5620,7 @@ const Sim = (() => {
     if(LASTW[eh.id]&&(e.revealed||by==='우리')) log(voiceLine(eh,pick(LASTW[eh.id])),'enemy');
     log(`${CLS[e.cls].n} ${eh.name}${J(eh.name,이)} 빛가루가 되어 흩어졌다.`,'war');
     if(by==='우리') W().kills++;
+    if(by==='우리'&&W().churchQuest===e.i){ W().churchQuest=-1; W().seals++; log('며칠 뒤 신부가 찾아와 당신 손등에 령주 한 획을 그려 주었다. “약속드린 보답입니다.”','seal'); }
     if(e.aid==='mother') log(`${e.mname}${J(e.mname,은)} 그날 밤 병원으로 돌아갔다. 딸의 병실 불이 늦게까지 켜져 있었다.`,'loss');
     if(npcStayAlone(e)){ e.lone=true; log(`마술사 ${e.mname}${J(e.mname,은)} 성당교회로 가지 않았다. 손등의 령주가 아직 빛나고 있다.`,'war'); }
     else if(ch(e.tac==='naive'||e.tac==='desperate'?.25:.45)){ e.master=false; log(`마술사 ${e.mname}의 행방은 알 수 없다.`,'war'); }
@@ -5423,7 +5630,7 @@ const Sim = (() => {
     const others=alivePairs().filter(p=>p!==e&&!p.ally&&!p.artKnown);
     decide({title:'서번트를 잃은 마스터',body:`${e.mname}${J(e.mname,이)} 무너진 담벼락에 기대 앉아 있었다. 손등의 령주는 빛을 잃었다. 도망칠 기력도 없어 보인다.`,war:true,choices:[
       {t:'다른 조의 정보를 묻는다',d:others.length?'그가 이 전쟁에서 본 것을 듣는다':'물어볼 상대가 남아 있지 않다',off:!others.length,auto:true,f:()=>{ const t=wpick(others,p=>1+(p.intel||0)/20);
-        if(ch(.45+S.st.bond/300)){ revealPair(t,`${e.mname}${J(e.mname,이)} 입을 열었다. `); revealArt(t,`그는 ${CLS[t.cls].n} 조와 싸우다 그 보구를 직접 보았다고 했다. `); add({will:-1}); return '“이걸로 목숨값은 된 거지?” 그는 성당교회 쪽으로 절뚝이며 걸어갔다.'; }
+        if(chkp('관계',.45+S.st.bond/300)){ revealPair(t,`${e.mname}${J(e.mname,이)} 입을 열었다. `); revealArt(t,`그는 ${CLS[t.cls].n} 조와 싸우다 그 보구를 직접 보았다고 했다. `); add({will:-1}); return '“이걸로 목숨값은 된 거지?” 그는 성당교회 쪽으로 절뚝이며 걸어갔다.'; }
         addIntel(t,25); return `${e.mname}${J(e.mname,은)} 아는 게 많지 않았다. ${CLS[t.cls].n} 조의 거처 근처 이야기를 조금 들었을 뿐이다.`; }},
       {t:'성당교회로 데려간다',f:()=>{ add({bond:3}); lean('judge',1); return `${e.mname}${J(e.mname,은)} 감독관에게 보호를 요청했다. 고개를 숙이고 당신에게 고맙다고 했다.`; }},
       {t:'그냥 보낸다',f:()=>{ add({will:1}); return '그는 한참 당신을 보다가, 아무 말 없이 어둠 속으로 사라졌다.'; }}]});
@@ -5653,16 +5860,16 @@ const Sim = (() => {
       if(word){ b.npcSealUsed=true; npcSeal(e,word); if(bonus>=22) b.eSealHit=true; }
     }
     if(e.aid==='exec'&&w.heroAlive&&(b.huntNow||ch(.15))){ b.huntNow=false;
-      if(S.st.mana+S.st.will+w.fort*.5+ri(0,40)>95) log(pickNR([`${e.mname}의 마탄이 당신을 노렸다. 결계가 가까스로 막아 냈다.`,`마탄 한 발이 귀 옆을 스치고 지나갔다.`],'execM'),'war');
+      if(chk('',S.st.mana+S.st.will+w.fort*.5+ri(0,40),95)) log(pickNR([`${e.mname}의 마탄이 당신을 노렸다. 결계가 가까스로 막아 냈다.`,`마탄 한 발이 귀 옆을 스치고 지나갔다.`],'execM'),'war');
       else { add({health:-ri(6,14)}); log(pickNR([`${e.mname}${J(e.mname,이)} 서번트를 제쳐 두고 당신을 노렸다. 마탄이 옆구리를 스쳤다.`,`마탄이 결계를 뚫고 들어와 당신 다리를 꿰뚫었다.`],'execH'),'war'); if(S.st.health<=0){ S.flags.war='dead'; die('봉인지정 집행자의 마탄'); } }
     }
     if(e.aid==='elder') bonus+=4;
-    if(e.aid==='executor'&&ch(.25)&&w.heroAlive){ if(S.st.mana+S.st.will+ri(0,40)>90) log(pickNR([`${e.mname}의 흑건이 당신 발밑에 꽂혔다. 한 뼘 차이였다.`,`날아든 흑건을 가까스로 피했다.`,`흑건이 결계에 튕겨 나갔다.`],'exeM'),'war'); else { add({health:-ri(5,10)}); log(pickNR([`${e.mname}${J(e.mname,이)} 던진 흑건이 당신 팔을 스쳤다.`,`흑건 세 자루가 날아들었다. 하나가 허벅지에 박혔다.`,`${e.mname}의 흑건이 어깨를 꿰뚫었다.`],'exe'),'war'); if(S.st.health<=0){ S.flags.war='dead'; die('대행자의 흑건'); return 0; } } }
+    if(e.aid==='executor'&&ch(.25)&&w.heroAlive){ if(chk('',S.st.mana+S.st.will+ri(0,40),90)) log(pickNR([`${e.mname}의 흑건이 당신 발밑에 꽂혔다. 한 뼘 차이였다.`,`날아든 흑건을 가까스로 피했다.`,`흑건이 결계에 튕겨 나갔다.`],'exeM'),'war'); else { add({health:-ri(5,10)}); log(pickNR([`${e.mname}${J(e.mname,이)} 던진 흑건이 당신 팔을 스쳤다.`,`흑건 세 자루가 날아들었다. 하나가 허벅지에 박혔다.`,`${e.mname}의 흑건이 어깨를 꿰뚫었다.`],'exe'),'war'); if(S.st.health<=0){ S.flags.war='dead'; die('대행자의 흑건'); return 0; } } }
     if(e.aid==='atlas'){ if(b.round===1){ bonus+=16; log(`${e.mname}: “분할 사고, 일곱 갈래 시작. 결과 계산 완료.”`,'enemy'); } else if(e.hp<50) bonus-=6; }
     if(e.aid==='lord'){ bonus+=4; if(b.round===1) log(`${e.mname}의 예장이 은빛으로 흘러내려 서번트를 감쌌다.`,'war'); }
     if(e.aid==='wanderer'&&b.round===1&&b.ctx.defend){ bonus+=w.fort*.2; log(`${e.mname}${J(e.mname,이)} 손짓 한 번으로 당신 결계를 걷어 냈다. 신대의 술식이다.`,'war'); }
     if(e.aid==='apostle'){ e.hp=clamp(e.hp+2); if(b.round===1) log(`${pName(e)}의 마스터에게서 짙은 피 냄새가 났다. 사람이 아니다.`,'war'); }
-    if(e.aid==='killer'&&w.heroAlive&&ch(.3)){ if(w.fort+S.st.will+ri(0,40)>80) log(pickNR([`어디선가 날아온 저격탄이 결계에 박혔다. ${e.mname}의 짓이다.`,`총성. 탄은 당신 머리 위 벽에 박혔다.`,`결계 표면에 금이 갔다. 저격이다.`],'kilM'),'war'); else { add({health:-ri(8,16)}); log(pickNR([`${e.mname}의 총탄이 당신을 노렸다. 서번트는 미처 닿지 못했다.`,`어딘가에서 총성이 울렸다. 당신 어깨에서 피가 터졌다.`,`${e.mname}${J(e.mname,은)} 서번트를 미끼로 쓰고, 직접 당신을 쐈다.`],'kil'),'war'); if(S.st.health<=0){ S.flags.war='dead'; die('마술사 사냥꾼의 총탄'); return 0; } } }
+    if(e.aid==='killer'&&w.heroAlive&&ch(.3)){ if(chk('',w.fort+S.st.will+ri(0,40),80)) log(pickNR([`어디선가 날아온 저격탄이 결계에 박혔다. ${e.mname}의 짓이다.`,`총성. 탄은 당신 머리 위 벽에 박혔다.`,`결계 표면에 금이 갔다. 저격이다.`],'kilM'),'war'); else { add({health:-ri(8,16)}); log(pickNR([`${e.mname}의 총탄이 당신을 노렸다. 서번트는 미처 닿지 못했다.`,`어딘가에서 총성이 울렸다. 당신 어깨에서 피가 터졌다.`,`${e.mname}${J(e.mname,은)} 서번트를 미끼로 쓰고, 직접 당신을 쐈다.`],'kil'),'war'); if(S.st.health<=0){ S.flags.war='dead'; die('마술사 사냥꾼의 총탄'); return 0; } } }
     if(e.aid==='exorcist'&&b.round===2&&ch(.6)){ bonus+=10; log(`${e.mname}${J(e.mname,이)} 붙인 부적이 서번트의 발을 묶었다.`,'war'); }
     if(e.aid==='democrat'&&b.round===1&&!b.talked) log(`${e.mname}${J(e.mname,이)} 싸우는 와중에도 자꾸 이쪽을 보며 말을 걸 틈을 찾았다.`,'war');
     if(e.aid==='collector'){ bonus+=6; if(b.round===1) log(`${e.mname}${J(e.mname,이)} 고용한 경호 마술사들이 사방에서 결계를 펼쳤다.`,'war'); }
@@ -5745,9 +5952,9 @@ const Sim = (() => {
     const w=W(),h=hero();
     log('잠결에 눈을 떴다. 창가에 누군가 서 있었다.','war');
     decide({title:'창가의 그림자',body:`${pName(e)}. 서번트가 아니라 당신을 노리고 왔다.`,war:true,choices:[
-      {t:`${h.name}${J(h.name,을)} 부른다`,auto:true,f:()=>{if(ch(.45+w.trust/250+w.fort/300)){log(`${h.name}${J(h.name,이)} 제때 닿았다. 그림자는 물러갔다.`,'war');e.known=true;}else{add({health:-ri(12,25)});log('칼끝이 어깨를 갈랐다. 서번트가 닿기 직전이었다.','war');if(S.st.health<=0){S.flags.war='dead';die('어새신의 칼');}}}},
+      {t:`${h.name}${J(h.name,을)} 부른다`,auto:true,f:()=>{if(chkp('신뢰·결계',.45+w.trust/250+w.fort/300)){log(`${h.name}${J(h.name,이)} 제때 닿았다. 그림자는 물러갔다.`,'war');e.known=true;}else{add({health:-ri(12,25)});log('칼끝이 어깨를 갈랐다. 서번트가 닿기 직전이었다.','war');if(S.st.health<=0){S.flags.war='dead';die('어새신의 칼');}}}},
       {t:'령주: 지금 여기로',d:'령주 1획 · 반드시 막는다',off:w.seals<1,f:()=>{useSeal('지금 여기로');log(`${h.name}${J(h.name,이)} 순식간에 당신 앞에 나타났다.`,'war');battle(e,{defend:true});}},
-      {t:'스스로 막는다',d:'마력과 정신에 기댄다',f:()=>{if(S.st.mana+S.st.will+ri(0,40)>110){log('당신의 결계가 칼끝을 튕겨 냈다. 그림자는 놀란 얼굴로 사라졌다.','war');add({will:3});}else{add({health:-ri(15,30)});log('당신의 결계는 종이처럼 찢어졌다.','war');if(S.st.health<=0){S.flags.war='dead';die('어새신의 칼');}}}}]});
+      {t:'스스로 막는다',d:'마력과 정신에 기댄다',f:()=>{if(chk('마력·정신',S.st.mana+S.st.will+ri(0,40),110)){log('당신의 결계가 칼끝을 튕겨 냈다. 그림자는 놀란 얼굴로 사라졌다.','war');add({will:3});}else{add({health:-ri(15,30)});log('당신의 결계는 종이처럼 찢어졌다.','war');if(S.st.health<=0){S.flags.war='dead';die('어새신의 칼');}}}}]});
   }
   // 아처의 저격 성향(높을수록 저격 이벤트가 잘 나온다)과 어새신의 암습 성향
   const SNIPE={emiya:2.6,tristan:2.6,robin:2.4,nobunaga:2.2,chiron:1.8,napoleon:1.8,atalanta:1.6,tesla:1.5,arash:1.3,superorion:1.2,orion:1.0,tomoe:0.8,gilgamesh:0.6,arjuna:0.4};
@@ -5762,7 +5969,7 @@ const Sim = (() => {
       {t:'승객부터 구한다',auto:true,f:()=>{w.hp=clamp(w.hp-10);w.trust=clamp(w.trust+6);w.exposure=clamp(w.exposure+8);lean('judge',1);return '서번트가 버스를 통째로 들어 골목으로 옮겼다. 그사이 적의 일격을 등으로 받았다.'}},
       {t:'싸움에 집중한다',f:()=>{add({will:-3});w.civ=(w.civ||0)+1;return '버스 쪽에서 비명이 들렸다. 돌아보지 않았다.'}}]});}},
     {w:2,c:()=>W().roamed,f:()=>{const w=W();decide({title:'덫',body:'거리 모퉁이마다 낯선 결계가 깔려 있다. 누군가 이 길로 올 사람을 기다렸다.',war:true,choices:[
-      {t:'해제한다',auto:S.st.mana>=45,f:()=>{if(S.st.mana+ri(0,30)>60){add({lore:2});alivePairs().filter(p=>!p.known).slice(0,1).forEach(p=>addIntel(p,30));return '결계를 풀자 설치한 자의 마력 흔적이 남았다.'}w.hp=clamp(w.hp-15);return '결계가 터졌다. 서번트가 당신을 끌어안고 굴렀다.'}},
+      {t:'해제한다',auto:S.st.mana>=45,f:()=>{if(chk('마력',S.st.mana+ri(0,30),60)){add({lore:2});alivePairs().filter(p=>!p.known).slice(0,1).forEach(p=>addIntel(p,30));return '결계를 풀자 설치한 자의 마력 흔적이 남았다.'}w.hp=clamp(w.hp-15);return '결계가 터졌다. 서번트가 당신을 끌어안고 굴렀다.'}},
       {t:'돌아간다',f:()=>'먼 길로 돌아 집에 왔다. 새벽이 다 되어 있었다.'}]});}},
     {w:0,title:'snipe',c:()=>alivePairs().some(p=>p.cls==='bow'&&p.master&&!p.ally),f:()=>{const w=W();const p=wpick(alivePairs().filter(p=>p.cls==='bow'&&p.master&&!p.ally),p=>SNIPE[p.hero]??1);const th=H_BY[p.hero];if(ch(.35)) return snipeAtMe(p);decide({title:'저격',body:'어딘가 아주 먼 곳에서 빛이 번쩍였다. 다음 순간 옆 건물 벽이 뚫렸다. 아처다.'+(p.revealed?` ${SNIPE_TX[p.hero]||''}`:''),war:true,choices:[
       {t:'엄폐하며 물러난다',auto:true,f:()=>{w.hp=clamp(w.hp-ri(5,12));addIntel(p,15);return '세 발을 더 피했다. 쏜 방향을 기억해 두었다.'}},
@@ -5770,7 +5977,7 @@ const Sim = (() => {
     {w:2,c:()=>hero().id==='cuchulainn'&&!S.once.geis,f:()=>{S.once.geis=1;decide({title:'금기',body:'동맹이라던 노파가 고기 수프를 내밀었다. 개고기라고 했다. 쿠 훌린은 손님으로서 거절할 수 없다.',war:true,choices:[{t:'대신 거절한다',auto:true,f:()=>{W().trust=clamp(W().trust+8);return '“고맙다, 마스터.” 그는 작게 웃었다.'}},{t:'그가 정하게 둔다',f:()=>{W().hp=clamp(W().hp-25);return '그는 수프를 비웠다. 왼손이 떨리기 시작했다.'}}]});}},
     {w:2,c:()=>hero().sp==='traitor'||(hero().traits.includes('야망')&&W().trust<25),f:()=>{const w=W(),h=hero();if(w.trust>=40){log(`${h.name}${J(h.name,이)} 다른 조의 사신과 이야기하다가 당신을 보고 입을 다물었다.`);return;}decide({title:'배신의 기척',body:`${h.name}${J(h.name,이)} 당신보다 강한 주인을 찾고 있다.`,war:true,choices:[
       {t:'령주로 묶어 둔다',d:'1획',off:w.seals<1,auto:true,f:()=>{useSeal('내 곁에 있어라');w.trust=clamp(w.trust-5);return `${h.name}${J(h.name,은)} 이를 갈며 무릎을 꿇었다.`}},
-      {t:'말로 붙잡는다',f:()=>{if(ch(.3+S.st.will/200)){w.trust=clamp(w.trust+10);return `${he(h)}는 오래 당신을 보다가 무기를 내려놓았다.`}w.heroAlive=false;w.myOut={d:w.day,tod:w.tod,why:'붙잡지 못하고 떠나보냈다'};wrec('mine',`${h.name}${J(h.name,이)} 계약을 끊고 떠났다`);S.flags.war='lost';S.flags.betrayedByHero=1;mark('loss');log(`${h.name}${J(h.name,은)} 떠났다.`,'loss');afterLoss();return ''}}]});}},
+      {t:'말로 붙잡는다',f:()=>{if(chkp('정신',.3+S.st.will/200)){w.trust=clamp(w.trust+10);return `${he(h)}는 오래 당신을 보다가 무기를 내려놓았다.`}w.heroAlive=false;w.myOut={d:w.day,tod:w.tod,why:'붙잡지 못하고 떠나보냈다'};wrec('mine',`${h.name}${J(h.name,이)} 계약을 끊고 떠났다`);S.flags.war='lost';S.flags.betrayedByHero=1;mark('loss');log(`${h.name}${J(h.name,은)} 떠났다.`,'loss');afterLoss();return ''}}]});}},
     {w:2,c:()=>W().pairs.some(p=>p.ally&&p.alive)&&W().day>=7,f:()=>{const a=W().pairs.find(p=>p.ally&&p.alive);if(ch(a.tac==='cunning'||a.tac==='proud'?.45:.15)){a.ally=false;log(`동맹 ${a.mname}${J(a.mname,이)} 등을 돌렸다.`,'loss');battle(a,{ambushed:true});}else{log(`${a.mname}${J(a.mname,이)} 알아낸 것을 나눠 주었다.`);W().pairs.forEach(p=>{if(p.alive&&!p.ally&&ch(.4))addIntel(p,20);});}}},
     {w:1,c:()=>true,f:()=>decide({title:'은폐반',body:'성당교회의 은폐반이 무너진 건물 주변에 장막을 치고 있다. 그들 눈에 띄면 오늘 밤의 일을 해명해야 한다.',war:true,choices:[
       {t:'협조한다',auto:true,f:()=>{W().exposure=clamp(W().exposure-5);add({wealth:-3});return '진술서 세 장을 썼다. 새벽에 풀려났다.'}},
@@ -5779,15 +5986,15 @@ const Sim = (() => {
   WAR_EV.push(
     {w:0,title:'ambush',c:()=>alivePairs().some(p=>p.cls==='shadow'&&p.master&&!p.ally),f:()=>{const w=W(),h=hero();const p=wpick(alivePairs().filter(p=>p.cls==='shadow'&&p.master&&!p.ally),p=>AMBUSH[p.hero]??1);const th=H_BY[p.hero];
       decide({title:'암습',body:`잠결에 목덜미가 서늘했다. 방 안에 누군가 있다. 기척이 전혀 없었다. 어새신이다.${p.revealed?' '+th.name+'의 기척이다.':''}`,war:true,choices:[
-        {t:`${h.name}${J(h.name,을)} 부른다`,d:'서번트가 늦지 않기를',st:[{l:'신뢰',v:Math.round(w.trust)}],auto:true,f:()=>{ if(w.trust+ri(0,50)>55){ addIntel(p,25,'trail'); w.queue.unshift(()=>battle(p,{ambushed:true})); return `${h.name}${J(h.name,이)} 벽을 뚫고 들어왔다. 칼끝이 당신 목 한 치 앞에서 멈췄다.`; } add({health:-ri(12,22)}); if(S.st.health<=0){ S.flags.war='dead'; die('어새신의 암습'); return ''; } addIntel(p,15,'trail'); return '서번트가 닿기 전에 칼날이 먼저 지나갔다. 피가 이불을 적셨다.'; }},
-        {t:'결계에 맡긴다',d:`결계 ${Math.round(w.fort)}`,f:()=>{ if(w.fort+ri(0,40)>55){ addIntel(p,20,'trail'); return '결계가 비명을 지르며 칼날을 튕겨 냈다. 그림자는 창밖으로 사라졌다.'; } add({health:-ri(14,24)}); w.fort=clamp(w.fort-10); if(S.st.health<=0){ S.flags.war='dead'; die('어새신의 암습'); return ''; } return '결계가 종잇장처럼 찢겼다.'; }},
-        {t:'마술로 반격한다',d:'마력과 정신에 기댄다',st:[{l:'마력',v:Math.round(S.st.mana)},{l:'정신',v:Math.round(S.st.will)}],off:!isMage(),f:()=>{ if(S.st.mana+S.st.will+ri(0,40)>100){ p.hp=clamp(p.hp-12); addIntel(p,30,'trail'); return '손끝에서 터진 마력이 그림자를 벽에 내동댕이쳤다. 그림자는 피를 흘리며 달아났다.'; } add({health:-ri(16,26)}); if(S.st.health<=0){ S.flags.war='dead'; die('어새신의 암습'); return ''; } return '주문이 완성되기 전에 칼날이 닿았다.'; }}]});}},
+        {t:`${h.name}${J(h.name,을)} 부른다`,d:'서번트가 늦지 않기를',st:[{l:'신뢰',v:Math.round(w.trust)}],auto:true,f:()=>{ if(chk('신뢰',w.trust+ri(0,50),55)){ addIntel(p,25,'trail'); w.queue.unshift(()=>battle(p,{ambushed:true})); return `${h.name}${J(h.name,이)} 벽을 뚫고 들어왔다. 칼끝이 당신 목 한 치 앞에서 멈췄다.`; } add({health:-ri(12,22)}); if(S.st.health<=0){ S.flags.war='dead'; die('어새신의 암습'); return ''; } addIntel(p,15,'trail'); return '서번트가 닿기 전에 칼날이 먼저 지나갔다. 피가 이불을 적셨다.'; }},
+        {t:'결계에 맡긴다',d:`결계 ${Math.round(w.fort)}`,f:()=>{ if(chk('결계',w.fort+ri(0,40),55)){ addIntel(p,20,'trail'); return '결계가 비명을 지르며 칼날을 튕겨 냈다. 그림자는 창밖으로 사라졌다.'; } add({health:-ri(14,24)}); w.fort=clamp(w.fort-10); if(S.st.health<=0){ S.flags.war='dead'; die('어새신의 암습'); return ''; } return '결계가 종잇장처럼 찢겼다.'; }},
+        {t:'마술로 반격한다',d:'마력과 정신에 기댄다',st:[{l:'마력',v:Math.round(S.st.mana)},{l:'정신',v:Math.round(S.st.will)}],off:!isMage(),f:()=>{ if(chk('마력·정신',S.st.mana+S.st.will+ri(0,40),100)){ p.hp=clamp(p.hp-12); addIntel(p,30,'trail'); return '손끝에서 터진 마력이 그림자를 벽에 내동댕이쳤다. 그림자는 피를 흘리며 달아났다.'; } add({health:-ri(16,26)}); if(S.st.health<=0){ S.flags.war='dead'; die('어새신의 암습'); return ''; } return '주문이 완성되기 전에 칼날이 닿았다.'; }}]});}},
     {w:4,c:()=>W().seals===0&&!W().stealTried&&contracted().some(p=>!p.ally&&['cunning','hunter','proud'].includes(p.tac)),f:()=>{const w=W(),h=hero();w.stealTried=true;
       const p=pick(contracted().filter(p=>!p.ally&&['cunning','hunter','proud'].includes(p.tac)));
       log(`${p.mname}${J(p.mname,이)} 결계 밖에서 ${h.name}에게 말을 걸었다. “령주 하나 없는 주인 밑에 있을 이유가 있나? 나와 계약하지. 내 령주는 아직 남아 있다.”`,'enemy');
       decide({title:'계약 강탈',body:`${p.mname}${J(p.mname,이)} 당신 서번트를 빼앗으려 한다. 계약의 끈을 끊는 주술이 결계 너머에서 짜이고 있다.`,war:true,choices:[
-        {t:`${h.name}${J(h.name,을)} 믿는다`,d:`신뢰 ${Math.round(w.trust)}`,auto:w.trust>=50,f:()=>{if(w.trust+ri(0,40)>65){w.trust=clamp(w.trust+6);return `${h.name}${J(h.name,은)} 대답 대신 무기를 들었다. ${p.mname}${J(p.mname,은)} 혀를 차고 물러갔다.`}return stealDone(p);}},
-        {t:'주술을 끊는다',d:'마력과 정신에 기댄다',auto:w.trust<50,f:()=>{if(S.st.mana+S.st.will+ri(0,40)>100){add({health:-5});return '결계 너머의 주술을 맨손으로 찢었다. 손끝이 타들어 갔지만 끈은 이어져 있다.'}add({health:-8});return stealDone(p);}},
+        {t:`${h.name}${J(h.name,을)} 믿는다`,d:`신뢰 ${Math.round(w.trust)}`,auto:w.trust>=50,f:()=>{if(chk('신뢰',w.trust+ri(0,40),65)){w.trust=clamp(w.trust+6);return `${h.name}${J(h.name,은)} 대답 대신 무기를 들었다. ${p.mname}${J(p.mname,은)} 혀를 차고 물러갔다.`}return stealDone(p);}},
+        {t:'주술을 끊는다',d:'마력과 정신에 기댄다',auto:w.trust<50,f:()=>{if(chk('마력·정신',S.st.mana+S.st.will+ri(0,40),100)){add({health:-5});return '결계 너머의 주술을 맨손으로 찢었다. 손끝이 타들어 갔지만 끈은 이어져 있다.'}add({health:-8});return stealDone(p);}},
         {t:'먼저 친다',f:()=>{w.queue.unshift(()=>battle(p,{attack:true}));return '말이 끝나기 전에 결계를 열고 뛰어나갔다.'}}]});}},
   );
   // 상대 아처가 마스터를 노린다
@@ -5796,13 +6003,13 @@ const Sim = (() => {
     const atk=E.P[1]*3+E.P[4]*2+E.sv('insight')*1.2+(SNIPE[p.hero]||1)*4-10;
     const hit=(r,lo,hi,why)=>{ if(r==='great'||r==='ok') return null; add({health:-ri(r==='fail'?lo:hi[0],r==='fail'?hi[0]:hi[1])}); if(S.st.health<=0){ S.flags.war='dead'; die('아처의 저격'); return ''; } return why; };
     decide({title:'저격',body:`어딘가 아주 먼 곳에서 빛이 번쩍였다. 이번에는 벽이 아니라 당신을 노렸다.${p.revealed?' '+(SNIPE_TX[p.hero]||''):''}`,war:true,choices:[
-      {t:`${h.name}${J(h.name,이)} 막는다`,d:`${oddsTxt((P[1]*3+SV(h,'insight')*1.5+w.trust*.1+8)-atk,!p.revealed)} · 서번트의 민첩과 신뢰`,auto:true,f:()=>{ const r=contest((P[1]*3+SV(h,'insight')*1.5+w.trust*.1+8)-atk); const x=hit(r,8,[16,30],'서번트의 손끝이 화살을 스쳤지만 다 막지는 못했다. 어깨가 뜨거웠다.'); if(x!==null) return x; addIntel(p,15,'trail'); return `${h.name}${J(h.name,이)} 화살을 쳐 냈다. 날아온 방향을 기억해 두었다.`; }},
-      {t:'몸을 던져 엎드린다',d:'정신과 건강에 기댄다',st:[{l:'정신',v:Math.round(S.st.will)},{l:'건강',v:Math.round(S.st.health)}],f:()=>{ const r=contest(S.st.will*.15+S.st.health*.1-12); const x=hit(r,6,[12,24],'화살이 등을 스쳤다. 피가 셔츠를 적셨다.'); return x!==null?x:'유리창이 쏟아졌다. 화살은 머리 위를 지나갔다.'; }}]});
+      {t:`${h.name}${J(h.name,이)} 막는다`,d:`${oddsTxt((P[1]*3+SV(h,'insight')*1.5+w.trust*.1+8)-atk,!p.revealed)} · 서번트의 민첩과 신뢰`,auto:true,f:()=>{ const r=contest((P[1]*3+SV(h,'insight')*1.5+w.trust*.1+8)-atk,14,'서번트의 민첩·눈썰미'); const x=hit(r,8,[16,30],'서번트의 손끝이 화살을 스쳤지만 다 막지는 못했다. 어깨가 뜨거웠다.'); if(x!==null) return x; addIntel(p,15,'trail'); return `${h.name}${J(h.name,이)} 화살을 쳐 냈다. 날아온 방향을 기억해 두었다.`; }},
+      {t:'몸을 던져 엎드린다',d:'정신과 건강에 기댄다',st:[{l:'정신',v:Math.round(S.st.will)},{l:'건강',v:Math.round(S.st.health)}],f:()=>{ const r=contest(S.st.will*.15+S.st.health*.1-12,14,'정신·건강'); const x=hit(r,6,[12,24],'화살이 등을 스쳤다. 피가 셔츠를 적셨다.'); return x!==null?x:'유리창이 쏟아졌다. 화살은 머리 위를 지나갔다.'; }}]});
   }
   WAR_EV.push(
     {w:2,c:()=>contracted().some(p=>p.cls==='caster'&&!p.ally&&p.drain>0&&!p.drainSeen),f:()=>{const w=W();const p=contracted().find(p=>p.cls==='caster'&&!p.ally&&p.drain>0&&!p.drainSeen);p.drainSeen=true;
       decide({title:'쓰러지는 시민들',body:`${pick(CX().sites)} 근처에서 사람들이 이유 없이 쓰러지는 일이 이어지고 있다. 뉴스는 가스 누출이라고 했다. 마력이 빨려 나간 흔적이다. 캐스터다.`,war:true,choices:[
-        {t:'흔적을 쫓는다',d:`지식 ${Math.round(S.st.lore)} · 마력이 흘러간 곳을 찾는다`,auto:true,f:()=>{ if(S.st.lore+ri(0,40)>45){ addIntel(p,35,'trail'); return '마력의 실을 따라가자 낡은 건물 하나가 나왔다. 창문마다 마법진이 비쳤다.'; } w.exposure=clamp(w.exposure+5); return '흔적은 중간에 끊겼다. 너무 오래 서성였다.'; }},
+        {t:'흔적을 쫓는다',d:`지식 ${Math.round(S.st.lore)} · 마력이 흘러간 곳을 찾는다`,auto:true,f:()=>{ if(chk('지식',S.st.lore+ri(0,40),45)){ addIntel(p,35,'trail'); return '마력의 실을 따라가자 낡은 건물 하나가 나왔다. 창문마다 마법진이 비쳤다.'; } w.exposure=clamp(w.exposure+5); return '흔적은 중간에 끊겼다. 너무 오래 서성였다.'; }},
         {t:'감독관에게 알린다',f:()=>{ p.hp=clamp(p.hp-15); lean('judge',1); return '감독관 신부는 고개를 끄덕였다. 며칠 뒤 그 동네에 교회 사람들이 드나들었다.'; }},
         {t:'내버려 둔다',f:()=>{ add({will:-2}); return '내 싸움이 아니라고 생각하기로 했다.'; }}]});}},
     {w:2,c:()=>!W().rulerHit&&W().day>=3&&(W().kills>=1||W().exposure>=50)&&contracted().some(p=>p.cls==='judge'&&!p.ally),f:()=>{const w=W(),h=hero(),P=myP();const p=contracted().find(p=>p.cls==='judge'&&!p.ally);const E=eStat(p,false);w.rulerHit=true;
@@ -5837,6 +6044,7 @@ const Sim = (() => {
   function dawn(){
     const w=W(); if(w.ended||S.dead) return;
     w.tod='새벽';
+    if(w.heroAlive) log(dawnLine(),'n');
     if(w.heroAlive){ const hh=hero(); w.hp=clamp(w.hp+2+S.st.mana*.06+w.fort*.03+SV(hh,'regen')*1+SV(hh,'heal')*.6+2*wsF()); if(w.halt>0) w.halt--; smRegen(2); if(hh.cls==='berserk') add({health:-1}); if(SV(hh,'gold')&&ch(.35)){ add({wealth:Math.ceil(SV(hh,'gold')/2)}); } }
     w.queue.push(()=>dawnEvent(),()=>{ checkEnd(); if(!w.ended&&!S.dead) dayStart(); });
   }
@@ -6150,7 +6358,7 @@ const Sim = (() => {
     {id:'sealing',c:()=>S.st.mana>=65&&!S.flags.mundane,f:()=>decide({title:'봉인지정',body:'마술협회에서 공문이 왔다. 당신의 마술이 ‘보존 가치가 있다’고 판단되어 봉인지정 심사에 올랐다고 한다. 봉인지정이 되면 협회가 당신을 ‘보존’하러 온다.',choices:[
         {t:'몸을 숨긴다',f:()=>{S.flags.hiding=1;add({will:3,bond:-6,wealth:-8});return '이름을 바꾸고 다른 동네로 옮겼다. 오래 알던 사람 몇에게만 주소를 알렸다.'}},
         {t:'연구를 일부 넘기고 협상한다',auto:true,f:()=>{add({mana:-8,lore:4});return '연구의 절반을 넘겼다. 심사는 보류되었다. 남은 절반은 아무에게도 보여 주지 않았다.'}},
-        {t:'정면으로 거부한다',f:()=>{if(S.st.mana+S.st.will+ri(0,40)>140){add({will:6});return '협회가 보낸 집행자는 3일 만에 돌아갔다. 다시는 오지 않았다.'}add({health:-15,mana:-10});return '집행자와 맞섰다. 살아남았지만 왼팔에 감각이 돌아오지 않았다.'}}]})},
+        {t:'정면으로 거부한다',f:()=>{if(chk('마력·정신',S.st.mana+S.st.will+ri(0,40),140)){add({will:6});return '협회가 보낸 집행자는 3일 만에 돌아갔다. 다시는 오지 않았다.'}add({health:-15,mana:-10});return '집행자와 맞섰다. 살아남았지만 왼팔에 감각이 돌아오지 않았다.'}}]})},
     {id:'victims',c:()=>(S.flags.civ||S.flags.killedMaster||S.flags.cupDisaster),f:()=>decide({title:'그날의 피해자',body:S.flags.killedMaster?'그 겨울 당신이 쓰러뜨린 마스터의 가족이 찾아왔다. 무엇이 있었는지 알고 싶다고 했다.':'그 겨울 무너진 건물의 유가족 모임 소식을 들었다. 원인은 여전히 가스 사고로 남아 있다.',choices:[
         {t:'진실을 말한다',f:()=>{add({will:-3,bond:4});lean('judge',1);return '말을 다 듣고 나서 그 사람은 오래 울었다. 돌아가면서 고개를 숙였다.'}},
         {t:'익명으로 돕는다',auto:true,f:()=>{add({wealth:-10,will:2});return '매년 겨울, 이름 없이 돈을 보냈다.'}},
@@ -6252,6 +6460,12 @@ let group=null, groupKey='';
 const BREAK=['n','night','sys','note','dead','q'];
 function addEntry(e){
   const f=$('#feed');
+  if(e.k==='check'){
+    const host=f.firstChild&&f.firstChild.querySelector('.b'); if(!host) return;
+    const box=document.createElement('span'); box.className='delta chk';
+    e.t.split(' · ').forEach(x=>{const c=document.createElement('span');c.textContent=x.slice(2);c.className=x.startsWith('✓')?'ok':'ng';box.appendChild(c);});
+    host.appendChild(box); return;
+  }
   if(e.k==='delta'){
     const host=f.firstChild&&f.firstChild.querySelector('.b'); if(!host) return;
     const box=document.createElement('span'); box.className='delta';
@@ -6328,6 +6542,7 @@ function render(){
   $('#focusD').textContent=S.age<6?'6세까지는 목표 없이 성장합니다.':S.phase==='war'?'전쟁 중에는 밤마다 행동을 결정합니다.':(Sim.FOCUS[S.focus]||{}).d||'';
   // 가족
   const F=S.fam, rows=[];
+  rows.push(`<div>마술 회로 <b>${S.circuit?letter(S.circuit):'없음'}</b></div>`);
   if(F.father) rows.push(`<div>아버지 <b>${F.father.alive?F.father.age+'세':'세상을 떠남'}</b></div>`);
   if(F.mother) rows.push(`<div>어머니 <b>${F.mother.alive?F.mother.age+'세':'세상을 떠남'}</b></div>`);
   if(!F.father&&!F.mother) rows.push('<div>부모를 모름</div>');
@@ -6457,7 +6672,7 @@ function showDecision(d){
       const hd=document.createElement('div'); hd.className='rh'; hd.textContent=d.battle?'이번 전투':'지금까지'; rc.appendChild(hd);
       items.forEach(e=>{ const el=document.createElement('div');
         if(e.k==='q'){ el.className='rl pk'; el.textContent='→ '+(e.pick||''); }
-        else if(e.k==='delta'){ el.className='rl dl'; el.textContent=e.t; }
+        else if(e.k==='delta'||e.k==='check'){ el.className='rl dl'; el.textContent=e.k==='check'?e.t.replace(/[✓✗] /g,''):e.t; }
         else { el.className='rl '+e.k; el.textContent=e.t; }
         rc.appendChild(el); });
       rc.classList.remove('hidden'); setTimeout(()=>{rc.scrollTop=rc.scrollHeight},0);
@@ -6579,7 +6794,7 @@ function toast(t){ const d=document.createElement('div'); d.className='toast'; d
 
 /* ---- 엔진 연결 ---- */
 Sim.setHooks({
-  log:e=>{ addEntry(e); if(e.k==='q') setNow({...e,t:`${e.title} → ${e.pick}`}); else if(e.k!=='delta') setNow(e); },
+  log:e=>{ addEntry(e); if(e.k==='q') setNow({...e,t:`${e.title} → ${e.pick}`}); else if(e.k!=='delta'&&e.k!=='check') setNow(e); },
   decide:d=>showDecision(d),
   change:()=>render(),
   phase:()=>render(),
