@@ -3579,7 +3579,7 @@ const Sim = (() => {
   // 판정 문구: 이야기 문장처럼
   function chkPhrase(l,ok){
     const sv=l.startsWith('서번트의 '), items=(sv?l.slice(5):l).split('·'), pre=sv?'서번트의 ':'';
-    const q=x=>`'${x}'`;
+    const q=x=>`「${x}」`;
     const list=a=>a.length===1?q(a[0]):a.slice(0,-1).map(q).join(', ')+J(a[a.length-2],과)+' '+q(a[a.length-1]);
     const subj=a=>list(a)+J(a[a.length-1],이);
     if(ok){
@@ -5520,9 +5520,9 @@ const Sim = (() => {
     if(CHK){ const fx={h,eh:eh2,MP,EP,w,e,b,bonus,kind};
       if(myNP||enNP){
         if(myNP){ const a=artOf(h), an=a.n.split(' - ').pop(); const guard=skillsOf(eh2).filter(x=>x.k==='mr'||x.k==='evade').sort((x,y)=>RANKV[y.r]-RANKV[x.r])[0], red=SV(eh2,'mr')*.04+SV(eh2,'evade')*.02;
-          CHK.push(red>=.2&&guard? {txt:`상대의 '${guard.n}'${J(guard.n,이)} '${an}'의 위력을 깎아 냈다`,ok:false} : {txt:`'${an}'${J(an,이)} 상대를 휩쓸었다`,ok:true}); if(red>=.2&&guard) learnSkill(e,guard.n); }
+          CHK.push(red>=.2&&guard? {txt:`상대의 ${BJ(guard.n,guard.r,'이')} ${BK(an)}의 위력을 깎아 냈다`,ok:false} : {txt:`${BJ(an,'','이')} 상대를 휩쓸었다`,ok:true}); if(red>=.2&&guard) learnSkill(e,guard.n); }
         if(enNP){ const fs=FORESEE[h.id]?(h.id==='solomon'?'천리안':'직감'):null;
-          CHK.push(eArtHit===2? {txt:fs&&!e.artKnown?`서번트의 '${fs}'${J(fs,이)} 보구를 미리 내다보았다`:`미리 알던 '보구'라 피해를 줄였다`,ok:true} : {txt:`상대의 '보구'를 정면으로 받아 냈다`,ok:false}); }
+          CHK.push(eArtHit===2? {txt:fs&&!e.artKnown?`서번트의 ${BJ(fs,(skillsOf(h).find(x=>x.n===fs)||{}).r,'이')} 보구를 미리 내다보았다`:`미리 알던 「보구」라 피해를 줄였다`,ok:true} : {txt:`상대의 「보구」를 정면으로 받아 냈다`,ok:false}); }
       } else if(Math.abs(d)>=8){ const won=d>0; CHK.push({txt:roundFactor(won,fx),ok:won}); }
       else CHK.push({txt:roundFactor(null,fx),eq:true});
     }
@@ -5558,30 +5558,38 @@ const Sim = (() => {
     return endBattle();
   }
   // 전투 한 합에서 승부를 가른 요인을 골라 칩으로 보여 준다
+  // 칩 표기: 스탯은 「근력 B+」, 스킬은 「광화 EX」. 상대 랭크는 진명을 알 때만
+  const isLat=w=>/[A-Za-z+\-]$/.test(w);
+  const jk=(w,t)=>isLat(w)?({이:'가',을:'를',과:'와',은:'는'}[t]):J(w,{이:이,을:을,과:과,은:은}[t]);
+  const BK=(n,r)=>`「${n}${r?' '+r:''}」`;
+  const BJ=(n,r,t)=>BK(n,r)+jk(r||n,t);
   function roundFactor(won,ctx){
     const {h,eh,MP,EP,w,e,b,bonus,kind}=ctx, pv=PV, f=[];
-    const top=(hh,sk)=>{ const W={power:1.2,div:.8,mad:.8,rally:.8}; let best=null,bv=0,sum=0; for(const x of skillsOf(hh)){ const wt=W[x.k]; if(!wt) continue; const v=RANKV[x.r]*wt; sum+=v; if(v>bv){bv=v;best=x.n;} } return {n:best,sum}; };
-    f.push({v:(pv(MP[0])-pv(EP[2]))*2.5,pos:`서번트의 '근력'이 상대의 '내구'를 뚫었다`,neg:`상대의 '내구'를 뚫지 못했다`,me:'근력',op:'내구'});
-    f.push({v:(pv(MP[2])-pv(EP[0]))*2.5,pos:`서번트의 '내구'가 버텨 냈다`,neg:`상대의 '근력'에 밀렸다`,me:'내구',op:'근력'});
-    f.push({v:(pv(MP[1])-pv(EP[1]))*2.5,pos:`서번트의 '민첩'이 한발 앞섰다`,neg:`상대의 '민첩'을 따라잡지 못했다`,me:'민첩',op:'민첩'});
-    f.push({v:(pv(MP[3])-pv(EP[3]))*1.4+clsBonus(h,MP)-clsBonus(eh,EP),pos:`서번트의 '마력'이 상대를 압도했다`,neg:`상대의 '마력'에 밀렸다`,me:'마력',op:'마력'});
-    f.push({v:(pv(MP[4])-pv(EP[4]))*1.5,pos:`서번트에게 '행운'이 따랐다`,neg:`상대에게 '행운'이 따랐다`,me:'행운',op:'행운'});
-    const ts=top(h,0), te=top(eh,0);
-    if(ts.n||te.n) f.push({v:ts.sum-te.sum,pos:ts.n?`서번트의 '${ts.n}'${J(ts.n,이)} 빛을 발했다`:'',neg:te.n?`상대의 '${te.n}'에 밀렸다`:'',learn:te.n,me:ts.n,op:te.n});
+    const er=i=>e.revealed?EP[i]:'';
+    const rk=(hh,n)=>(skillsOf(hh).find(x=>x.n===n)||{}).r||'';
+    const top=hh=>{ const W={power:1.2,div:.8,mad:.8,rally:.8}; let best=null,bv=0,sum=0; for(const x of skillsOf(hh)){ const wt=W[x.k]; if(!wt) continue; const v=RANKV[x.r]*wt; sum+=v; if(v>bv){bv=v;best=x.n;} } return {n:best,sum}; };
+    const S2=(n,r)=>({n,r});
+    f.push({v:(pv(MP[0])-pv(EP[2]))*2.5,pos:`서번트의 ${BJ('근력',MP[0],'이')} 상대의 ${BJ('내구',er(2),'을')} 뚫었다`,neg:`상대의 ${BJ('내구',er(2),'을')} 뚫지 못했다`,me:S2('근력',MP[0]),op:S2('내구',er(2))});
+    f.push({v:(pv(MP[2])-pv(EP[0]))*2.5,pos:`서번트의 ${BJ('내구',MP[2],'이')} 상대의 ${BK('근력',er(0))}을 버텨 냈다`.replace(/」을 버텨/,(m)=>'」'+jk(er(0)||'근력','을')+' 버텨'),neg:`상대의 ${BK('근력',er(0))}에 밀렸다`,me:S2('내구',MP[2]),op:S2('근력',er(0))});
+    f.push({v:(pv(MP[1])-pv(EP[1]))*2.5,pos:`서번트의 ${BJ('민첩',MP[1],'이')} 상대의 ${BK('민첩',er(1))}보다 한발 앞섰다`,neg:`상대의 ${BJ('민첩',er(1),'을')} 따라잡지 못했다`,me:S2('민첩',MP[1]),op:S2('민첩',er(1))});
+    f.push({v:(pv(MP[3])-pv(EP[3]))*1.4+clsBonus(h,MP)-clsBonus(eh,EP),pos:`서번트의 ${BJ('마력',MP[3],'이')} 상대의 ${BK('마력',er(3))}을 압도했다`.replace(/」을 압도/,()=>'」'+jk(er(3)||'마력','을')+' 압도'),neg:`상대의 ${BK('마력',er(3))}에 밀렸다`,me:S2('마력',MP[3]),op:S2('마력',er(3))});
+    f.push({v:(pv(MP[4])-pv(EP[4]))*1.5,pos:`서번트의 ${BJ('행운',MP[4],'이')} 따랐다`,neg:`상대의 ${BJ('행운',er(4),'이')} 따랐다`,me:S2('행운',MP[4]),op:S2('행운',er(4))});
+    const ts=top(h), te=top(eh);
+    if(ts.n||te.n) f.push({v:ts.sum-te.sum,pos:ts.n?`서번트의 ${BJ(ts.n,rk(h,ts.n),'이')} 빛을 발했다`:'',neg:te.n?`상대의 ${BK(te.n,rk(eh,te.n))}에 밀렸다`:'',learn:te.n,me:ts.n?S2(ts.n,rk(h,ts.n)):null,op:te.n?S2(te.n,rk(eh,te.n)):null});
     const eM=edgeV(h,w.hp,b.round,b.ctx.defend), eE=edgeV(eh,e.hp,b.round,false);
-    if(eM) f.push({v:eM,pos:`서번트의 '${EDGE[h.id].n}'${J(EDGE[h.id].n,이)} 승부를 갈랐다`,neg:'',me:EDGE[h.id].n});
-    if(eE) f.push({v:-eE,pos:'',neg:`상대의 '${EDGE[eh.id].n}'에 밀렸다`,learn:EDGE[eh.id].n,op:EDGE[eh.id].n});
-    f.push({v:(w.trust-50)*.15,pos:`당신과 서번트의 '신뢰'가 힘이 되었다`,neg:`'신뢰'가 따라 주지 않았다`});
-    if(e.intel>=40) f.push({v:e.intel*.1-2,pos:`미리 모은 '정보'가 길을 열었다`,neg:''});
-    if(w.sm<15) f.push({v:-(w.sm<=0?30:10),pos:'',neg:`바닥난 '서번트 마력'이 발목을 잡았다`});
-    if(kind==='seal') f.push({v:bonus,pos:`'령주'의 힘이 승부를 갈랐다`,neg:''});
-    if(kind==='weak') f.push({v:bonus+6,pos:`'약점'을 정확히 찔렀다`,neg:''});
-    if(b.judgedNow) f.push({v:22,pos:`'판결'이 상대의 걸음을 묶었다`,neg:''});
+    if(eM){ const n=EDGE[h.id].n; f.push({v:eM,pos:`서번트의 ${BJ(n,rk(h,n),'이')} 승부를 갈랐다`,neg:'',me:S2(n,rk(h,n))}); }
+    if(eE){ const n=EDGE[eh.id].n; f.push({v:-eE,pos:'',neg:`상대의 ${BK(n,rk(eh,n))}에 밀렸다`,learn:n,op:S2(n,rk(eh,n))}); }
+    f.push({v:(w.trust-50)*.15,pos:`당신과 서번트의 「신뢰」가 힘이 되었다`,neg:`「신뢰」가 따라 주지 않았다`});
+    if(e.intel>=40) f.push({v:e.intel*.1-2,pos:`미리 모은 「정보」가 길을 열었다`,neg:''});
+    if(w.sm<15) f.push({v:-(w.sm<=0?30:10),pos:'',neg:`바닥난 「서번트 마력」이 발목을 잡았다`});
+    if(kind==='seal') f.push({v:bonus,pos:`「령주」의 힘이 승부를 갈랐다`,neg:''});
+    if(kind==='weak') f.push({v:bonus+6,pos:`「약점」을 정확히 찔렀다`,neg:''});
+    if(b.judgedNow) f.push({v:22,pos:`「판결」이 상대의 걸음을 묶었다`,neg:''});
     if(won===null){ // 결판이 나지 않은 합
       const c=f.filter(x=>Math.abs(x.v)>=3&&(x.v>0?x.me:x.op)).sort((a,c)=>Math.abs(c.v)-Math.abs(a.v))[0];
       if(!c) return '두 서번트가 팽팽히 맞섰다';
       if(c.v<0&&c.learn&&skillsOf(eh).some(x=>x.n===c.learn)) learnSkill(e,c.learn);
-      return c.v>0? `서번트의 '${c.me}'${J(c.me,이)} 앞섰지만 결판은 나지 않았다` : `상대의 '${c.op}'에 눌렸지만 버텨 냈다`;
+      return c.v>0? `서번트의 ${BJ(c.me.n,c.me.r,'이')} 앞섰지만 결판은 나지 않았다` : `상대의 ${BK(c.op.n,c.op.r)}에 눌렸지만 버텨 냈다`;
     }
     const cand=f.filter(x=>won?(x.v>=3&&x.pos):(x.v<=-3&&x.neg)).sort((a,c)=>won?c.v-a.v:a.v-c.v);
     if(!cand.length) return won?'한 끗 차이로 앞섰다':'한 끗 차이로 밀렸다'; if(!won&&cand[0].learn&&skillsOf(eh).some(x=>x.n===cand[0].learn)) learnSkill(e,cand[0].learn);
