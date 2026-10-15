@@ -305,7 +305,9 @@ aside{display:grid;gap:18px;align-content:start}
   .tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
   .tabs button{flex:1;background:transparent;border:0;padding:12px 0;color:var(--dim);font-size:13.5px}
   .tabs button[aria-pressed="true"]{color:var(--gold2)}
-  .game[data-tab="log"] aside,.game[data-tab="log"]   .game[data-tab="stat"] .feed,.game[data-tab="stat"]   .now .txt{font-size:18px}
+  .game[data-tab="log"] aside{display:none}
+  .game[data-tab="stat"] .feed{display:none}
+  .now .txt{font-size:18px}
   .who .nm{font-size:19px}
   }
 .lastto{display:block;font-style:normal;font-size:.78em;opacity:.65;margin-bottom:4px;letter-spacing:.02em}
@@ -5841,7 +5843,7 @@ function showInfo(key){
 }
 let infoHeld=false;
 function closeInfo(){ if($('#info').classList.contains('hidden')) return; $('#info').classList.add('hidden'); if(infoHeld&&Sim.S){ Sim.S.paused=false; syncCtrl(); } infoHeld=false; if(Sim.S&&Sim.S.pending&&Sim.S.auto&&!$('#dlg').classList.contains('hidden')) scheduleAuto(); }
-document.addEventListener('click',e=>{ const b=e.target.closest('#pairs .pair'); if(b) showInfo(b.dataset.i); if(e.target.id==='infoClose'||e.target.id==='info') closeInfo(); });
+document.addEventListener('click',e=>{ const b=e.target.closest('#pairs .pair'); if(b) showInfo(b.dataset.i); if(e.target.closest('#infoClose')||e.target.id==='info') closeInfo(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#info').classList.contains('hidden')) closeInfo(); });
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
