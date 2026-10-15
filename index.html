@@ -3583,7 +3583,7 @@ const Sim = (() => {
     return pickNR([`${subj(items)} 한 끗 모자랐다`,`${subj(items)} 따라 주지 않았다`,`${subj(items)} 아직 부족했다`],'chkF');
   }
   function chkOut(){ if(!CHK||!CHK.length||!S||S.dead) return; const seen=new Set(), out=[];
-    for(const c of CHK){ const key=c.l+c.ok; if(seen.has(key)) continue; seen.add(key); out.push((c.ok?'✓ ':'✗ ')+chkPhrase(c.l,c.ok)); }
+    for(const c of CHK){ const key=(c.txt||c.l)+c.ok; if(seen.has(key)) continue; seen.add(key); out.push((c.ok?'✓ ':'✗ ')+(c.txt||chkPhrase(c.l,c.ok))); }
     log(out.join(' · '),'check'); }
   function tracked(fn){
     const b=snapD(); const prevC=CHK; CHK=[]; let r; try{ r=fn(); } finally { if(S) chkOut(); CHK=prevC; } if(!S) return r;
@@ -5449,7 +5449,7 @@ const Sim = (() => {
     if(SV(h,'slayer')&&(PV(npcParams(e).p[0])>=4||eh2.cls==='berserk')) sab+=SV(h,'slayer')*1.2;
     skillFlavor(h,mN0(h),b,true); skillFlavor(eh2,pName(e),b,false,e);
     if(h.sp==='gate'&&w.hp<50&&!b.gateSerious){ b.gateSerious=true; log(pickNR(['길가메시의 얼굴에서 웃음이 사라졌다. “좋다. 조금은 진심을 보여 주지.” 황금빛 문이 하늘을 메웠다.','“잡종 주제에 나를 다치게 하다니.” 등 뒤의 문이 셀 수 없이 열렸다.'],'gateS'),'war'); }
-    const P=myPower({e,defend:b.ctx.defend,judged:b.judged,attack:b.ctx.attack,trap:b.ctx.trap})+bonus+(rnd()*36-18)-eSab-(w.sm<=0?30:w.sm<15?10:0); b.judged=false;
+    b.judgedNow=b.judged; const P=myPower({e,defend:b.ctx.defend,judged:b.judged,attack:b.ctx.attack,trap:b.ctx.trap})+bonus+(rnd()*36-18)-eSab-(w.sm<=0?30:w.sm<15?10:0); b.judged=false;
     let E=npcPower(e,true)+(rnd()*36-18)+(e.tac==='reckless'?6:0)+npcAct(b,e)-sab+(b.ctx.attack&&e.cls==='caster'&&W().day>=3?6:0);
     if(S.dead) return;
     if(b.endNow){ b.endNow=false; return endBattle(); }
@@ -5492,6 +5492,7 @@ const Sim = (() => {
         if(w.heroAlive&&ch(.08-S.st.will/2000)) { add({health:-ri(4,10)}); log(pickNR(['파편이 당신 옆구리를 스쳤다.','튀어 오른 돌조각에 이마가 찢어졌다.','충격파에 당신도 바닥을 굴렀다.','깨진 유리가 팔을 긁고 지나갔다.'],'shr'),'war'); }
       }
     }
+    if(CHK&&!myNP&&!enNP&&Math.abs(d)>=8){ const won=d>0, t=roundFactor(won,{h,eh:eh2,MP,EP,w,e,b,bonus,kind}); if(t) CHK.push({txt:t,ok:won}); }
     // 상대 령주는 합의 승패와 상관없이 흔적을 남긴다
     if(b.eSealHit){
       const x=Math.max(2,Math.round(ri(6,10)*(1-Math.min(.4,SV(h,'mr')*.04+SV(h,'evade')*.02))));
@@ -5522,6 +5523,30 @@ const Sim = (() => {
     S.flags.war='lost'; mark('loss');
     if(contracted().length>1&&!w.final) afterLoss(); else w.out=true;
     return endBattle();
+  }
+  // 전투 한 합에서 승부를 가른 요인을 골라 칩으로 보여 준다
+  function roundFactor(won,ctx){
+    const {h,eh,MP,EP,w,e,b,bonus,kind}=ctx, pv=PV, f=[];
+    const top=(hh,sk)=>{ const W={power:1.2,div:.8,mad:.8,rally:.8}; let best=null,bv=0,sum=0; for(const x of skillsOf(hh)){ const wt=W[x.k]; if(!wt) continue; const v=RANKV[x.r]*wt; sum+=v; if(v>bv){bv=v;best=x.n;} } return {n:best,sum}; };
+    f.push({v:(pv(MP[0])-pv(EP[2]))*2.5,pos:`서번트의 '근력'이 상대의 '내구'를 뚫었다`,neg:`상대의 '내구'를 뚫지 못했다`});
+    f.push({v:(pv(MP[2])-pv(EP[0]))*2.5,pos:`서번트의 '내구'가 버텨 냈다`,neg:`상대의 '근력'에 밀렸다`});
+    f.push({v:(pv(MP[1])-pv(EP[1]))*2.5,pos:`서번트의 '민첩'이 한발 앞섰다`,neg:`상대의 '민첩'을 따라잡지 못했다`});
+    f.push({v:(pv(MP[3])-pv(EP[3]))*1.4+clsBonus(h,MP)-clsBonus(eh,EP),pos:`서번트의 '마력'이 상대를 압도했다`,neg:`상대의 '마력'에 밀렸다`});
+    f.push({v:(pv(MP[4])-pv(EP[4]))*1.5,pos:`서번트에게 '행운'이 따랐다`,neg:`상대에게 '행운'이 따랐다`});
+    const ts=top(h,0), te=top(eh,0);
+    if(ts.n||te.n) f.push({v:ts.sum-te.sum,pos:ts.n?`서번트의 '${ts.n}'${J(ts.n,이)} 빛을 발했다`:'',neg:te.n?`상대의 '${te.n}'에 밀렸다`:'',learn:te.n});
+    const eM=edgeV(h,w.hp,b.round,b.ctx.defend), eE=edgeV(eh,e.hp,b.round,false);
+    if(eM) f.push({v:eM,pos:`서번트의 '${EDGE[h.id].n}'${J(EDGE[h.id].n,이)} 승부를 갈랐다`,neg:''});
+    if(eE) f.push({v:-eE,pos:'',neg:`상대의 '${EDGE[eh.id].n}'에 밀렸다`,learn:EDGE[eh.id].n});
+    f.push({v:(w.trust-50)*.15,pos:`당신과 서번트의 '신뢰'가 힘이 되었다`,neg:`'신뢰'가 따라 주지 않았다`});
+    if(e.intel>=40) f.push({v:e.intel*.1-2,pos:`미리 모은 '정보'가 길을 열었다`,neg:''});
+    if(w.sm<15) f.push({v:-(w.sm<=0?30:10),pos:'',neg:`바닥난 '서번트 마력'이 발목을 잡았다`});
+    if(kind==='seal') f.push({v:bonus,pos:`'령주'의 힘이 승부를 갈랐다`,neg:''});
+    if(kind==='weak') f.push({v:bonus+6,pos:`'약점'을 정확히 찔렀다`,neg:''});
+    if(b.judgedNow) f.push({v:22,pos:`'판결'이 상대의 걸음을 묶었다`,neg:''});
+    const cand=f.filter(x=>won?(x.v>=3&&x.pos):(x.v<=-3&&x.neg)).sort((a,c)=>won?c.v-a.v:a.v-c.v);
+    if(!cand.length) return null; if(!won&&cand[0].learn&&skillsOf(eh).some(x=>x.n===cand[0].learn)) learnSkill(e,cand[0].learn);
+    return won?cand[0].pos:cand[0].neg;
   }
   const mN0=h=>h.name;
   function learnSkill(e,n){ e.skKnown=e.skKnown||[]; if(!e.skKnown.includes(n)) e.skKnown.push(n); }
