@@ -264,6 +264,11 @@ aside{display:grid;gap:18px;align-content:start}
 .choice:disabled .cs span{opacity:.6}
 .choice.seal .ct{color:#ff8c95}
 .choice:disabled{opacity:.35;cursor:default}
+.choice.hasadv{padding-right:78px}.choice.hasadv.est{padding-right:118px}
+.choice .adv{position:absolute;right:10px;top:10px;font-family:var(--f-mono);font-size:11px;line-height:18px;padding:0 8px 0 6px;border-radius:999px;border:1px solid;white-space:nowrap}
+.choice .adv.up{color:var(--gold2);border-color:rgba(201,164,92,.55);background:rgba(201,164,92,.1)}
+.choice .adv.down{color:#d9737c;border-color:rgba(192,58,69,.45);background:rgba(192,58,69,.08)}
+.choice .adv.est{border-style:dashed}.choice .adv i{font-style:normal;opacity:.75;margin-left:3px}
 .autonote{font-size:12px;color:var(--faint);margin-top:12px}
 
 /* ---------- 끝 ---------- */
@@ -4438,7 +4443,7 @@ const Sim = (() => {
       H.change();
     }
   }
-  const PV=r=> r==='-'?0 : RANKV[r];
+  const PV=r=> typeof r==='number'?r : r==='-'?0 : RANKV[r];
   function rankShift(r,d){
     if(!d||r==='-'||r==='EX'||!/^[A-E]/.test(r)) return r;
     const L=['E','D','C','B','A']; let i=L.indexOf(r.replace(/[+-]/g,'')); let plus=(r.match(/\+/g)||[]).length, minus=r.includes('-');
@@ -4507,8 +4512,33 @@ const Sim = (() => {
   // 카르나의 황금 갑옷: 바사비 샤크티를 쓰기 전까지 받는 피해가 줄어든다
   const kavF=(id,o)=>id==='karna'&&!o.kavacha?KAV:1; const KAV=.7;
   // 전용 밤 행동이 있는 클래스의 플레이어 쪽 보정
-  const CLS_BIAS={bow:-2.2,caster:-4.5,shadow:-4.5,judge:-6.8,sword:.7,lance:.7,berserk:1};
-  const BIAS={gilgamesh:10.7,superorion:6.7,arjuna:3.5,karna:9,caenis:-5,enkidu:5,artoria:4.5,rama:-7,solomon:-2.5,raikou:-4,asterios:-2,ibaraki:0.5,chiron:-7.5,ptolemaios:-6.5,tesla:4,nobunaga:3,robin:-1.5,paracelsus:-2,circe:-2,serenity:-7,jack:-5,shuten:6,kinghassan:8.5,lishuwen:1.5,semiramis:2,emiya:-2.5,shakespeare:-1,hundred:3,kojiro:-0.5,holmes:-1,scathach:4,atalanta:3,spartacus:4.5,bedivere:3.5,tamamo:-2.5,salieri:-3,penthesilea:-3,diarmuid:3};
+  // 공격 방식: ① 마술 ② 마력 방출 (그 밖은 기존처럼 무기로 싸운다)
+  const MAGIC_ATK={morgan:1,kriemhild:1,sigurd:1,emiya:1,scathach:1,brynhild:1,fionn:1,jalter:1,amakusa:1,semiramis:1,medb:1,tesla:1,elizabeth:1};
+  const BURST_IDS={artoria:1,mordred:1,charlemagne:1,arjuna:1,karna:1,brynhild:1,raikou:1,gawain:1};
+  const canMagic=h=>h.cls==='caster'||!!MAGIC_ATK[h.id];
+  function burstSk(h){ if(!BURST_IDS[h.id]) return null; if(h.id==='gawain'){ const g=skillsOf(h).find(x=>x.n==='성자의 숫자'); return g&&{n:g.n,r:g.r,day:true}; } const x=skillsOf(h).find(x=>/^마력방출/.test(x.n)); return x&&{n:x.n,r:x.r}; }
+  const MG={bcost:3,mrS:1.2,mrD:.04,dodge:.5,bR:.02,npc:true};
+  // 공격 방식별 피해 배율. P: 공격하는 쪽, O: 받는 쪽 (PL5 순서)
+  const mrOf=h=>h.mrEst!=null?h.mrEst:SV(h,'mr');
+  // 정체를 모르는 상대: 그 클래스 서번트들의 평균 능력치와 평균 대마력으로 짐작한다
+  const CLS_GUESS={};
+  function clsGuess(cls){ if(CLS_GUESS[cls]) return CLS_GUESS[cls]; const L=HEROES.filter(x=>x.cls===cls), n=L.length||1;
+    return CLS_GUESS[cls]={P:clsAvg(cls),h:{cls,mrEst:L.reduce((a,x)=>a+SV(x,'mr'),0)/n}}; }
+  function atkM(kind,ah,P,dh,O,night){
+    const cl=(x,a,b)=>Math.max(a,Math.min(b,x)), agi=(PV(P[1])-PV(O[1]))*.02;
+    if(kind==='magic') return cl(1+(PV(P[3])-PV(O[3]))*.04+agi*.5,.7,1.35)*(1-Math.min(.4,mrOf(dh)*MG.mrD));
+    if(kind==='burst'){ const bs=burstSk(ah); const on=bs&&!(bs.day&&night); return cl(1+((PV(P[0])+PV(P[3]))/2-PV(O[2]))*.04+agi,.7,1.35)*(on?1+RANKV[bs.r]*MG.bR:1); }
+    return cl(1+(PV(P[0])-PV(O[2]))*.04+agi,.7,1.35);
+  }
+  // 이 공격 방식이 얼마나 유리한지 대략 매긴다(자동 진행과 NPC가 고를 때)
+  function atkVal(kind,ah,P,dh,O,night){
+    let v=atkM(kind,ah,P,dh,O,night)*(1-dodgeP(O[1],P[1])*(kind==='magic'?MG.dodge:1));
+    if(kind==='magic'&&ah.cls!=='caster'&&dh.cls!=='caster') v-=mrOf(dh)*MG.mrS*.018;
+    return v;
+  }
+  function atkKinds(h){ const k=['round']; if(canMagic(h)) k.push('magic'); if(burstSk(h)) k.push('burst'); return k; }
+  const CLS_BIAS={bow:-2.2,caster:-4.5,shadow:-6,judge:-6.8,sword:.7,lance:.7,berserk:1};
+  const BIAS={gilgamesh:10.7,superorion:6.7,arjuna:4,karna:10.5,caenis:-5,enkidu:5,artoria:2,rama:-7,solomon:-2.5,raikou:-4,asterios:1,ibaraki:0.5,chiron:-7.5,ptolemaios:-6.5,tesla:4,nobunaga:3,robin:-1.5,paracelsus:-2,circe:-2,serenity:-7,jack:-5,shuten:6,kinghassan:7.5,lishuwen:1.5,semiramis:2,emiya:-2.5,shakespeare:-1,hundred:3,kojiro:-0.5,holmes:-1,scathach:4,atalanta:3,spartacus:4.5,bedivere:0.5,tamamo:-2.5,salieri:-3,penthesilea:-3,diarmuid:3,achilles:-2.5,dantes:3};
   function clsBonus(h,P){ return h.cls==='caster'? PV(P[3])*2.4 : MAGE_BERSERK[h.id]? PV(P[3])*2.0 : h.cls==='shadow'? PV(P[1])*1.0 : 0; }
   function npcPower(p,vsMe){
     const h=H_BY[p.hero];
@@ -5404,9 +5434,17 @@ const Sim = (() => {
     const eh=H_BY[e.hero];
     const fin=b.ctx.final;
     const choices=[
-      {t:'정면으로 맞선다',d:w.sm<=0?'마력이 없다. 제대로 싸울 수 없다':`서번트 마력 −${smCost('round')} 안팎`,auto:w.sm>0,f:()=>clash(0)},
+      ...(()=>{ const MPx=myParams().p, EPx=npcParams(e).p, night=w.tod==='밤', ks=atkKinds(h);
+        const vals=ks.map(k=>atkVal(k,h,MPx,eh,EPx,night)); let best=0; ks.forEach((k,i)=>{ if(vals[i]>vals[best]+.02&&w.sm>=smCost(k)+20) best=i; });
+        const ro=r=>isLat(r)?'로':'으로';
+        const out=[{t:'정면으로 맞선다',d:w.sm<=0?'마력이 없다. 제대로 싸울 수 없다':`「근력 ${MPx[0]}」${ro(MPx[0])} 상대의 내구와 겨룬다 ${smRange('round')}`,auto:w.sm>0&&best===0,f:()=>clash(0)}];
+        if(ks.includes('magic')) out.push({t:'마술로 공격한다',d:`「마력 ${MPx[3]}」${ro(MPx[3])} 상대의 마력과 겨룬다 · 대마력에 막히지만 잘 피해지지 않는다 ${smRange('magic')}`,off:w.sm<smCost('magic',0),auto:w.sm>0&&ks[best]==='magic',f:()=>clash(0,'magic')});
+        if(ks.includes('burst')){ const bs=burstSk(h); out.push({t:'마력을 방출하며 공격한다',d:`「${bs.n} ${bs.r}」${ro(bs.r)} 근력과 마력을 함께 실어 상대의 내구를 부순다${bs.day&&night?' · 밤에는 위력이 오르지 않는다':''} ${smRange('burst')}`,off:w.sm<smCost('burst',0),auto:w.sm>0&&ks[best]==='burst',f:()=>clash(0,'burst')}); }
+        if(out.length>=2){ const g=e.revealed?null:clsGuess(e.cls), sv=g?ks.map(k=>atkVal(k,h,MPx,g.h,g.P,night)):vals;
+          let bi=0; sv.forEach((v,i)=>{ if(v>sv[bi]+.02) bi=i; }); out.forEach((c,i)=>{ c.adv=i===bi?'up':'down'; if(g) c.advEst=true; }); }
+        return out; })(),
       h.id==='solomon'? {t:`보구: ${artOf(h).n}`,d:'단 한 번. 상대를 반드시 지운다. 대신 솔로몬도 소멸하고, 당신의 전쟁은 여기서 끝난다. 마지막 상대라면 성배는 당신의 것이다',auto:fin&&w.hp<40&&e.hp>w.hp,f:()=>arsNova()} :
-      {t:`보구: ${artOf(h).n}`,d:`랭크 ${artOf(h).r} · 서번트 마력 −${smCost('art')} · 정체가 드러난다`,off:w.sm<smCost('art'),st:[{l:'서번트 마력',v:Math.round(w.sm)},{l:'마력',v:Math.round(S.st.mana)}],auto:(w.hp<50||e.hp<45)&&w.sm>=smCost('art')+15,f:()=>clash(0,'art')},
+      {t:`보구: ${artOf(h).n}`,d:`랭크 ${artOf(h).r} · 정체가 드러난다 [서번트 마력 −${smCost('art')}]`,off:w.sm<smCost('art'),st:[{l:'서번트 마력',v:Math.round(w.sm)},{l:'마력',v:Math.round(S.st.mana)}],auto:(w.hp<50||e.hp<45)&&w.sm>=smCost('art')+15,f:()=>clash(0,'art')},
     ];
     if(w.seals>0&&w.sm<40) choices.push({t:'령주: 마력을 채워라',d:'령주 1획 · 서번트 마력 +60',seal:true,auto:w.sm<15&&w.seals>1,f:()=>{useSeal('마력을 채워라');w.sm=clamp(w.sm+60);log(`${h.name}의 몸에 령주의 마력이 흘러들었다. 윤곽이 다시 또렷해졌다.`,'seal');soon(()=>battleRound());}});
     if(h.id==='enkidu'&&b.morphR!==b.round){ const cur=w.morph||'balance', t=masterTier(masterScore()), PL5=['근력','민첩','내구','마력','행운'];
@@ -5426,13 +5464,23 @@ const Sim = (() => {
   const NP_MUL=2.2; // 보구 피해 배율(양쪽 공통)
   // 보구 피해: 랭크로 정해지고, 대마력·회피로 줄며, 미리 알던 보구는 절반만 들어온다
   function npDmg(att,def,known,elder,aP){ return Math.max(3,Math.round((8+npRV(att)*2.5)*NP_MUL*(aP?Math.max(.8,Math.min(1.25,1+(PV(aP[3])-3)*.05)):1)*(.85+rnd()*.3)*(known?.75:1)*(elder?.8:1)*(att.sp==='gate'?1:(1-Math.min(.4,SV(def,'mr')*.04+SV(def,'evade')*.02))))); }
-  function smCost(kind){
-    const h=hero(); let c = kind==='art' ? (22+npRV(h)*3)*Math.max(.8,Math.min(1.2,1-(PV(myParams().p[3])-3)*.05)) : 3+ri(0,3);
+  function smCost(kind,roll){
+    if(kind==='magic') return magicCost(roll);
+    const h=hero(); let c = kind==='art' ? (22+npRV(h)*3)*Math.max(.8,Math.min(1.2,1-(PV(myParams().p[3])-3)*.05)) : 3+(roll==null?ri(0,3):roll);
     if(h.cls==='berserk') c*=1.4; if(SV(h,'mad')) c+=1;
     if(SV(h,'ind')) c*=.8; if(h.cls==='caster') c*=.85;
     if(SV(h,'power')>=10&&kind!=='art') c+=1;
+    if(kind==='burst') c+=MG.bcost;
     return Math.round(c);
   }
+  // 마술 공격의 소모: 일반 공격과 따로 계산한다. 서번트 「마력」이 높을수록, 마술에 익숙할수록 덜 든다
+  function magicCost(roll){ const h=hero(), mp=PV(myParams().p[3]); let c=(5+(roll==null?ri(0,3):roll))*Math.max(.75,Math.min(1.2,1-(mp-3)*.08));
+    c*= h.cls==='caster'?.8 : h.cls==='berserk'?1.2 : 1;
+    if(skillsOf(h).some(x=>x.n==='고속영창'||x.n==='고속신언')) c*=.85;
+    if(SV(h,'ind')) c*=.8;
+    return Math.max(2,Math.round(c)); }
+  // 선택지에 보여 줄 소모량: 무작위 폭의 양 끝
+  function smRange(kind){ const a=smCost(kind,0), b=smCost(kind,3); return `[서번트 마력 −${a===b?a:a+'~'+b}]`; }
   function smUse(n){ const w=W(); w.sm=clamp(w.sm-n); if(w.sm<=0&&!w.smOut){ w.smOut=true; log(`${hero().name}의 윤곽이 흐려졌다. 마력이 바닥났다. 이대로는 싸울 수 없다.`,'loss'); } if(w.sm>0) w.smOut=false; }
   function smRegen(base){ const w=W(); const g=Math.round(base+S.st.mana*.1+SV(hero(),'regen')*1+(W().leyline?4:0)+2*wsF()); w.sm=clamp(w.sm+g); return g; }
   function useSeal(word){ const w=W(); w.seals--; (w.sealLog=w.sealLog||[]).push({d:w.day,tod:w.tod,word}); wrec('seal',`령주 — “${word}”`); const sp=seal().parts[Math.min(2,w.seals)]; log(pickNR([`령주의 ${sp}${J(sp,이)} 타들어 갔다. “${word}.”`,`“${word}.” 손등에서 ${sp}${J(sp,이)} 빛을 잃었다.`,`령주 한 획, ${sp}${J(sp,이)} 붉게 타올랐다가 사라졌다. “${word}.”`],'sealU'),'seal'); if(word==='이겨라') w.trust=clamp(w.trust+(w.trust>60?-3:4));
@@ -5464,17 +5512,17 @@ const Sim = (() => {
       if(FORESEE[h.id]&&!e.artKnown){ eArtHit=2; log(`${pName(e)}${J(pName(e),이)} 보구를 해방했다. “${ea.n}.” ${FORESEE[h.id]}`,'war'); revealArt(e,''); }
       else if(e.artKnown){ eArtHit=2; log(`${pName(e)}${J(pName(e),이)} ${ea.n}${J(ea.n,을)} 해방했다. 알고 있던 보구였다. 피할 길을 미리 열어 두었다.`,'war'); }
       else { eArtHit=1; log(`${pName(e)}${J(pName(e),이)} 보구를 해방했다. “${ea.n}.” ${ea.d.replace(/\.$/,'')}.`,'war'); revealArt(e,''); } }
-    smUse(smCost(kind==='art'?'art':'round'));
+    smUse(smCost(kind==='art'?'art':kind==='magic'||kind==='burst'?kind:'round'));
     const eh2=H_BY[e.hero];
     // 대마력: 상대 보구와 캐스터의 마술을 깎는다
     if(eArt&&SV(h,'mr')){ eArt=Math.max(0,eArt-SV(h,'mr')*2.2); }
     let sab=SV(h,'sabotage')*1.1, eSab=SV(eh2,'sabotage')*1.1;
     if(e.cls==='caster') eArt+=0, sab+=SV(h,'mr')*1.2;
-    if(eh2.cls!=='caster'&&h.cls==='caster') eSab+=SV(eh2,'mr')*1.2;
+    if(eh2.cls!=='caster'&&(h.cls==='caster'||kind==='magic')) eSab+=SV(eh2,'mr')*1.2;
     if(SV(h,'slayer')&&(PV(npcParams(e).p[0])>=4||eh2.cls==='berserk')) sab+=SV(h,'slayer')*1.2;
     skillFlavor(h,mN0(h),b,true); skillFlavor(eh2,pName(e),b,false,e);
     if(h.sp==='gate'&&w.hp<50&&!b.gateSerious){ b.gateSerious=true; log(pickNR(['길가메시의 얼굴에서 웃음이 사라졌다. “좋다. 조금은 진심을 보여 주지.” 황금빛 문이 하늘을 메웠다.','“잡종 주제에 나를 다치게 하다니.” 등 뒤의 문이 셀 수 없이 열렸다.'],'gateS'),'war'); }
-    b.judgedNow=b.judged; const P=myPower({e,defend:b.ctx.defend,judged:b.judged,attack:b.ctx.attack,trap:b.ctx.trap})+bonus+(rnd()*36-18)-eSab-(w.sm<=0?30:w.sm<15?10:0); b.judged=false;
+    b.dodged=null; b.judgedNow=b.judged; const P=myPower({e,defend:b.ctx.defend,judged:b.judged,attack:b.ctx.attack,trap:b.ctx.trap})+bonus+(rnd()*36-18)-eSab-(w.sm<=0?30:w.sm<15?10:0); b.judged=false;
     let E=npcPower(e,true)+(rnd()*36-18)+(e.tac==='reckless'?6:0)+npcAct(b,e)-sab+(b.ctx.attack&&e.cls==='caster'&&W().day>=3?6:0);
     if(S.dead) return;
     if(b.endNow){ b.endNow=false; return endBattle(); }
@@ -5484,7 +5532,9 @@ const Sim = (() => {
     const extra = d>0 ? (kind==='seal'?15:kind==='weak'?6:0) : 0;
     const myNP = kind==='art', enNP = eArtHit>0;
     const MP=myParams().p, EP=npcParams(e).p, cl=(x,a,b)=>Math.max(a,Math.min(b,x));
-    const agi=(PV(MP[1])-PV(EP[1]))*.02, outM=cl(1+(PV(MP[0])-PV(EP[2]))*.04+agi,.7,1.35)*(h.sp==='gate'?1.12:1)*(h.id==='enkidu'&&w.morph==='atk'?1.15:1), inM=cl(1+(PV(EP[0])-PV(MP[2]))*.04-agi,.7,1.35)*(h.id==='enkidu'&&w.morph==='def'?.85:1)*(eh2.sp==='gate'?1.12:1);
+    const night=w.tod==='밤', atkK=kind==='magic'||kind==='burst'?kind:'round';
+    let eK='round'; if(MG.npc&&!enNP){ let bv=-9; for(const k of atkKinds(eh2)){ const v=atkVal(k,eh2,EP,h,MP,night); if(v>bv+.02){bv=v;eK=k;} } } b.eK=eK;
+    const agi=(PV(MP[1])-PV(EP[1]))*.02, outM=atkM(atkK,h,MP,eh2,EP,night)*(h.sp==='gate'?1.12:1)*(h.id==='enkidu'&&w.morph==='atk'?1.15:1), inM=atkM(eK,eh2,EP,h,MP,night)*(h.id==='enkidu'&&w.morph==='def'?.85:1)*(eh2.sp==='gate'?1.12:1);
     if(myNP||enNP){
       // 보구가 터진 합: 보구를 쓴 쪽은 보구 피해만 준다. 쓰지 않은 쪽은 평소처럼 맞선다.
       const ourSide=()=>{
@@ -5506,14 +5556,23 @@ const Sim = (() => {
       if(Math.abs(d)<8){
         w.hp=clamp(w.hp-ri(3,7)); e.hp=clamp(e.hp-ri(3,7));
         log(pickNR(['칼끝이 몇 번이고 엇갈렸다. 승부가 나지 않는다.','서로 한 걸음씩 물러섰다. 숨을 고른다.','건물 하나가 무너졌다. 둘 다 아직 서 있다.','불꽃이 튀고 가로등이 줄줄이 꺼졌다.',`${mN}${J(mN,과)} ${eN}${J(eN,이)} 정면으로 부딪쳤다. 충격파에 유리창이 일제히 깨졌다.`,'두 그림자가 지붕에서 지붕으로 옮겨 가며 맞붙었다.','서로의 수를 읽고 있다. 섣불리 들어가지 못한다.','무기가 맞부딪친 소리가 골목 끝까지 울렸다.','둘 다 한 발도 물러서지 않았다. 바닥에 금이 갔다.'],'tie'),'war');
+      } else if(d>0&&ch(dodgeP(EP[1],MP[1])*(atkK==='magic'?MG.dodge:1))){ b.dodged='e'; w.hp=clamp(w.hp-ri(1,3));
+        log(pickNR([`${eN}${J(eN,이)} 몸을 비틀어 일격을 흘려 냈다.`,`${mN}의 일격이 허공을 갈랐다. ${eN}${J(eN,은)} 이미 그 자리에 없었다.`,`${eN}${J(eN,이)} 종이 한 장 차이로 칼끝을 피했다.`],'dodgeE'),'war');
       } else if(d>0){
         const dmg=Math.round((6+d*.3+extra)*outM*(e.aid==='elder'?.8:1)*(1-Math.min(.35,SV(eh2,'evade')*.035))*kavF(eh2.id,e)); e.hp=clamp(e.hp-dmg); w.hp=clamp(w.hp-ri(1,5));
-        if(e.hp>0) log(pickNR([`${mN}의 일격이 ${eN}의 방어를 뚫었다.`,`${eN}${J(eN,이)} 비틀거렸다. 피가 흩뿌려졌다.`,`${mN}${J(mN,이)} 틈을 놓치지 않고 파고들었다.`,`${eN}${J(eN,이)} 한쪽 무릎을 꿇었다가 다시 일어섰다.`,`${mN}${J(mN,이)} 밀어붙인다. ${eN}${J(eN,이)} 뒤로 밀려났다.`,`${eN}의 방어가 한순간 무너졌다.`,`${mN}의 연격이 이어졌다. ${eN}${J(eN,이)} 숨을 몰아쉬었다.`],'adv'),'war');
+        if(e.hp>0&&atkK==='magic') log(pickNR([`${mN}의 마술이 ${eN}${J(eN,을)} 덮쳤다. 방어 위로 빛이 쏟아졌다.`,`마법진이 겹겹이 열렸다. ${eN}${J(eN,이)} 피할 곳을 찾지 못했다.`,`${mN}${J(mN,이)} 낮게 영창했다. 다음 순간 ${eN}의 발밑이 터졌다.`],'advMg'),'war');
+        else if(e.hp>0&&atkK==='burst') log(pickNR([`${mN}${J(mN,이)} 마력을 터뜨리며 돌진했다. 일격이 ${eN}의 방어를 부쉈다.`,`무기에 실린 마력이 폭발했다. ${eN}${J(eN,이)} 뒤로 튕겨 나갔다.`,`${mN}의 일격이 마력의 꼬리를 끌며 ${eN}에게 꽂혔다.`],'advBu'),'war');
+        else if(e.hp>0) log(pickNR([`${mN}의 일격이 ${eN}의 방어를 뚫었다.`,`${eN}${J(eN,이)} 비틀거렸다. 피가 흩뿌려졌다.`,`${mN}${J(mN,이)} 틈을 놓치지 않고 파고들었다.`,`${eN}${J(eN,이)} 한쪽 무릎을 꿇었다가 다시 일어섰다.`,`${mN}${J(mN,이)} 밀어붙인다. ${eN}${J(eN,이)} 뒤로 밀려났다.`,`${eN}의 방어가 한순간 무너졌다.`,`${mN}의 연격이 이어졌다. ${eN}${J(eN,이)} 숨을 몰아쉬었다.`],'adv'),'war');
         if(h.sp==='tough') w.hp=clamp(w.hp+3);
+      } else if(ch(dodgeP(MP[1],EP[1])*(eK==='magic'?MG.dodge:1))){ b.dodged='m'; e.hp=clamp(e.hp-ri(1,3));
+        log(pickNR([`${mN}${J(mN,이)} 한 발 물러서며 공격을 흘려 냈다.`,`${eN}의 일격이 ${mN}의 옷자락만 스치고 지나갔다.`,`${mN}${J(mN,이)} 몸을 낮춰 공격을 아슬아슬하게 피했다.`],'dodgeM'),'war');
       } else {
         let dmg=Math.round((4+(-d)*.22)*inM); if(h.sp==='leaf'&&w.exposure>=75&&ch(.5)){ dmg+=5; log(pickNR(['적은 서번트의 약점을 알고 있었다.','상대는 정확히 전승의 약점을 노려 왔다.','정체가 알려진 대가였다. 적의 칼끝이 약점만 노린다.'],'leaf'),'war'); } if(h.sp==='guard') dmg-=3;
         dmg=Math.round(dmg*(1-Math.min(.35,SV(h,'evade')*.035))*(h.id==='siegfried'?.82:1)*kavF(h.id,w)); w.hp=clamp(w.hp-Math.max(1,dmg)); e.hp=clamp(e.hp-ri(1,4));
-        if(w.hp>0) log(pickNR([`${mN}${J(mN,이)} 밀렸다. 피를 흘리며 당신을 감쌌다.`,`${eN}의 공격이 ${mN}의 어깨를 스쳤다.`,`${mN}${J(mN,이)} 벽에 내동댕이쳐졌다가 일어섰다.`,`${eN}${J(eN,이)} 기세를 잡았다. ${mN}${J(mN,이)} 방어에 급급하다.`,`${mN}${J(mN,이)} 무릎을 꿇었다가 이를 악물고 일어섰다.`,`${eN}의 일격에 ${mN}의 무기가 크게 튕겨 나갔다.`],'dis'),'war');
+        if(w.hp>0&&atkK==='magic') log(pickNR([`${mN}의 마술이 ${eN}에게 닿기 전에 흩어졌다. 그 틈으로 반격이 날아들었다.`,`영창이 끝나기 전에 ${eN}${J(eN,이)} 거리를 좁혔다. ${mN}${J(mN,이)} 피를 흘리며 물러섰다.`,`빛줄기가 빗나갔다. ${eN}의 일격이 ${mN}의 어깨를 스쳤다.`],'disMg'),'war');
+        else if(w.hp>0&&eK==='magic') log(pickNR([`${eN}의 마술이 ${mN}${J(mN,을)} 덮쳤다. 피할 곳이 없었다.`,`발밑에 마법진이 열렸다. ${mN}${J(mN,이)} 불길 속에서 비틀거렸다.`,`${eN}${J(eN,이)} 짧게 영창했다. 보이지 않는 힘이 ${mN}${J(mN,을)} 벽으로 밀어붙였다.`],'disEMg'),'war');
+        else if(w.hp>0&&eK==='burst') log(pickNR([`${eN}${J(eN,이)} 마력을 터뜨리며 파고들었다. ${mN}${J(mN,이)} 막아 낸 무기째 밀려났다.`,`${eN}의 일격에 실린 마력이 폭발했다. ${mN}${J(mN,이)} 바닥을 굴렀다.`],'disEBu'),'war');
+        else if(w.hp>0) log(pickNR([`${mN}${J(mN,이)} 밀렸다. 피를 흘리며 당신을 감쌌다.`,`${eN}의 공격이 ${mN}의 어깨를 스쳤다.`,`${mN}${J(mN,이)} 벽에 내동댕이쳐졌다가 일어섰다.`,`${eN}${J(eN,이)} 기세를 잡았다. ${mN}${J(mN,이)} 방어에 급급하다.`,`${mN}${J(mN,이)} 무릎을 꿇었다가 이를 악물고 일어섰다.`,`${eN}의 일격에 ${mN}의 무기가 크게 튕겨 나갔다.`],'dis'),'war');
         if(w.heroAlive&&ch(.08-S.st.will/2000)) { add({health:-ri(4,10)}); log(pickNR(['파편이 당신 옆구리를 스쳤다.','튀어 오른 돌조각에 이마가 찢어졌다.','충격파에 당신도 바닥을 굴렀다.','깨진 유리가 팔을 긁고 지나갔다.'],'shr'),'war'); }
       }
     }
@@ -5523,7 +5582,14 @@ const Sim = (() => {
           CHK.push(red>=.2&&guard? {txt:`상대의 ${BJ(guard.n,guard.r,'이')} ${BK(an)}의 위력을 깎아 냈다`,ok:false} : {txt:`${BJ(an,'','이')} 상대를 휩쓸었다`,ok:true}); if(red>=.2&&guard) learnSkill(e,guard.n); }
         if(enNP){ const fs=FORESEE[h.id]?(h.id==='solomon'?'천리안':'직감'):null;
           CHK.push(eArtHit===2? {txt:fs&&!e.artKnown?`서번트의 ${BJ(fs,(skillsOf(h).find(x=>x.n===fs)||{}).r,'이')} 보구를 미리 내다보았다`:`미리 알던 「보구」라 피해를 줄였다`,ok:true} : {txt:`상대의 「보구」를 정면으로 받아 냈다`,ok:false}); }
-      } else if(Math.abs(d)>=8){ const won=d>0; CHK.push({txt:roundFactor(won,fx),ok:won}); }
+      } else if(b.dodged==='e'){ CHK.push({txt:`상대가 ${BK('민첩',e.revealed?EP[1]:'')}으로 공격을 흘려 냈다`.replace(/」으로/,()=>'」'+(isLat(e.revealed?EP[1]:'민첩')?'로':'으로')),ok:false}); }
+      else if(b.dodged==='m'){ CHK.push({txt:`서번트의 ${BK('민첩',MP[1])}${isLat(MP[1])?'로':'으로'} 공격을 흘려 냈다`,ok:true}); }
+      else if(Math.abs(d)>=8&&atkK==='magic'){ const won=d>0, mr=skillsOf(eh2).filter(x=>x.k==='mr').sort((x,y)=>RANKV[y.r]-RANKV[x.r])[0];
+        if(!won&&mr&&SV(eh2,'mr')>=4){ CHK.push({txt:`상대의 ${BK(mr.n,mr.r)}에 마술이 막혔다`,ok:false}); learnSkill(e,mr.n); }
+        else if(won&&PV(MP[3])>PV(EP[3])) CHK.push({txt:`서번트의 ${BK('마력',MP[3])}${jk(MP[3],'을')} 실은 마술이 상대를 꿰뚫었다`,ok:true});
+        else CHK.push({txt:roundFactor(won,fx),ok:won}); }
+      else if(Math.abs(d)>=8&&atkK==='burst'&&d>0){ const bs=burstSk(h); CHK.push({txt:bs.day&&night?roundFactor(true,fx):`서번트의 ${BJ(bs.n,bs.r,'이')} 상대의 ${BK('내구',e.revealed?EP[2]:'')}${jk(e.revealed?EP[2]:'내구','을')} 부쉈다`,ok:true}); }
+      else if(Math.abs(d)>=8){ const won=d>0; CHK.push({txt:roundFactor(won,fx),ok:won}); }
       else CHK.push({txt:roundFactor(null,fx),eq:true});
     }
     // 상대 령주는 합의 승패와 상관없이 흔적을 남긴다
@@ -5563,6 +5629,8 @@ const Sim = (() => {
   const jk=(w,t)=>isLat(w)?({이:'가',을:'를',과:'와',은:'는'}[t]):J(w,{이:이,을:을,과:과,은:은}[t]);
   const BK=(n,r)=>`「${n}${r?' '+r:''}」`;
   const BJ=(n,r,t)=>BK(n,r)+jk(r||n,t);
+  // 민첩 회피: 5% + (내 민첩 − 상대 민첩) × 1.5%, 3%~18%
+  const dodgeP=(r,o)=>Math.max(.03,Math.min(.18,.05+(PV(r)-PV(o))*.015));
   function roundFactor(won,ctx){
     const {h,eh,MP,EP,w,e,b,bonus,kind}=ctx, pv=PV, f=[];
     const er=i=>e.revealed?EP[i]:'';
@@ -6776,7 +6844,7 @@ function showDecision(d){
   const ta=$('#dInput'); ta.classList.toggle('hidden',!d.input); ta.value='';
   ta.placeholder=d.input==='last'?(d.toServant?`${d.toName}에게 마지막으로 전할 말 (선택)`:'이 사람에게 한마디 (선택)'):d.input==='wish'?'예: 다시는 아무도 혼자 남지 않는 것':'한 줄을 남겨 두세요 (선택)';
   const box=$('#dChoices'); box.innerHTML='';
-  d.choices.forEach((c,i)=>{const b=document.createElement('button');b.className='choice'+(c.seal?' seal':'');b.disabled=!!c.off;b.innerHTML=(i<9?`<kbd class="kn" aria-hidden="true">${i+1}</kbd>`:'')+'<span class="ct"></span>'+(c.d?'<span class="cd"></span>':'')+(c.st&&c.st.length?'<span class="cs">'+c.st.map(x=>`<span>${esc(x.l)} ${x.v}</span>`).join('')+'</span>':'');b.querySelector('.ct').textContent=c.t;if(c.d)b.querySelector('.cd').textContent=c.d;b.onclick=()=>choose(i);box.appendChild(b);});
+  d.choices.forEach((c,i)=>{const b=document.createElement('button');b.className='choice'+(c.seal?' seal':'')+(c.adv?' hasadv'+(c.advEst?' est':''):'');b.disabled=!!c.off;b.innerHTML=(i<9?`<kbd class="kn" aria-hidden="true">${i+1}</kbd>`:'')+(c.adv?`<span class="adv ${c.adv}${c.advEst?' est':''}">${c.adv==='up'?'▲ 유리':'▼ 불리'}${c.advEst?'<i>(추측)</i>':''}</span>`:'')+'<span class="ct"></span>'+(c.d?'<span class="cd"></span>':'')+(c.st&&c.st.length?'<span class="cs">'+c.st.map(x=>`<span>${esc(x.l)} ${x.v}</span>`).join('')+'</span>':'');b.querySelector('.ct').textContent=c.t;if(c.d)b.querySelector('.cd').textContent=c.d;b.onclick=()=>choose(i);box.appendChild(b);});
   $('#dlg').classList.remove('hidden');
   $('#dAuto').classList.toggle('hidden',!Sim.S.auto||d.input==='last');
   if(Sim.S.auto&&d.input!=='last') scheduleAuto(); else setTimeout(()=>{const f=box.querySelector('.choice:not(:disabled)'); if(f&&!d.input) f.focus({preventScroll:true}); else if(d.input) ta.focus({preventScroll:true});},50);
