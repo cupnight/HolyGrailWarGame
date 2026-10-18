@@ -22,6 +22,11 @@
 <meta name="twitter:image" content="https://cupnight.github.io/holygrailwargame/og.jpg">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="성배가 차는 밤">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script data-goatcounter="https://jeonghun9206.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <title>성배가 차는 밤</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -401,6 +406,9 @@ aside{display:grid;gap:18px;align-content:start}
 .toast.ach small{color:var(--dim)}
 .pn-btn{justify-self:start;display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid rgba(201,164,92,.45);border-radius:999px;padding:7px 14px;color:var(--gold2);font-size:13.5px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s}
 .pn-btn::before{content:'';width:14px;height:14px;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 3h9l4 4v14H6z'/%3E%3Cpath d='M9 11h7M9 15h7M9 7h4'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 3h9l4 4v14H6z'/%3E%3Cpath d='M9 11h7M9 15h7M9 7h4'/%3E%3C/svg%3E") center/contain no-repeat}
+.pn-row{display:flex;flex-wrap:wrap;gap:8px;justify-self:start}
+.pn-btn.inst::before{-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11M7 10l5 5 5-5M5 20h14'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11M7 10l5 5 5-5M5 20h14'/%3E%3C/svg%3E") center/contain no-repeat}
+.pn-btn.hidden{display:none}
 .pn-btn:hover{border-color:var(--gold);background:rgba(201,164,92,.1)}
 .pn-btn .mono{font-size:11.5px;color:var(--gold);opacity:.75}
 .pn-btn .dot{width:7px;height:7px;border-radius:50%;background:var(--seal);display:inline-block}
@@ -431,6 +439,7 @@ html,body{overflow-x:clip}
 .intro-right .setup{position:relative;z-index:1;background:rgba(26,23,35,.72);backdrop-filter:blur(2px)}
 @media (max-width:900px){.intro-art{left:-16px;right:-16px;top:-60px;height:460px}}
 .lastto{display:block;font-style:normal;font-size:.78em;opacity:.65;margin-bottom:4px;letter-spacing:.02em}
+.inst-steps{margin:12px 0 10px;padding-left:20px;display:grid;gap:8px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -463,7 +472,7 @@ html,body{overflow-x:clip}
       <button class="btn primary" id="startBtn">태어나기</button>
       <button class="btn hidden" id="contBtn">이어하기</button>
       <p class="warn">사는 동안 일시 정지와 배속, 자동 결정을 진행할 수 있습니다.</p>
-      <button class="pn-btn" id="patchBtn" type="button">패치 노트 <span class="mono" id="patchVer"></span><i class="dot hidden" id="patchDot" aria-label="새 소식"></i></button>
+      <div class="pn-row"><button class="pn-btn" id="patchBtn" type="button">패치 노트 <span class="mono" id="patchVer"></span><i class="dot hidden" id="patchDot" aria-label="새 소식"></i></button><button class="pn-btn inst hidden" id="installBtn" type="button">앱으로 설치</button></div>
       <p class="keys">단축키 — <kbd>Space</kbd> 일시정지 · <kbd>1</kbd>–<kbd>4</kbd> 배속 · <kbd>A</kbd> 자동 결정 · <kbd>1</kbd>–<kbd>9</kbd> 선택지 · <kbd>Esc</kbd> 팝업 닫기</p>
     </div>
     </div>
@@ -7495,7 +7504,7 @@ const PATCH=[
   ['동맹',['마지막 순간 동맹이 배신할지, 성배를 나눌지, 양보할지가 동맹의 성향에 따라 정해집니다.']],
   ['업적과 도감',['업적과 서번트 도감이 추가되었습니다. 이전에 플레이한 기록도 소급하여 반영됩니다.','도감에서 룰러와 어벤저는 처음 만나기 전까지 ‘???’로 표시됩니다.']],
   ['에필로그',['성배전쟁 이후의 이벤트가 23종에서 65종으로 늘었습니다.','소원의 결과, 서번트와의 신뢰, 동맹과 형제, 인질 사건, 쓴 령주, 성향 등 그 겨울에 있었던 일이 에필로그에 이어집니다.']],
-  ['표시와 수정',['시작 화면에 성배 그림이 추가되었습니다.','성배전쟁 중에는 화면 뒤로 성배가 옅게 비칩니다. 성배 앞에서 소원을 고르는 창과 성배를 쥔 결과 화면은 금빛으로, 오염된 성배라면 보랏빛으로 물듭니다.','링크를 공유할 때 미리보기 이미지가 보이고, 브라우저 탭에 아이콘이 표시됩니다.','조 현황판, 도감, 결과 화면의 클래스 순서를 세이버부터 정규 순서로 맞추었습니다.','이미 아는 마스터가 처음 보는 것처럼 표시되던 문제를 고쳤습니다.','자녀 이름이 겹치던 문제와 문장 속 조사 오류를 고쳤습니다.','결과 화면과 지난 생 기록에서 전쟁 중 몰랐던 정보도 함께 볼 수 있습니다.']]]},
+  ['표시와 수정',['시작 화면에 성배 그림이 추가되었습니다.','성배전쟁 중에는 화면 뒤로 성배가 옅게 비칩니다. 성배 앞에서 소원을 고르는 창과 성배를 쥔 결과 화면은 금빛으로, 오염된 성배라면 보랏빛으로 물듭니다.','링크를 공유할 때 미리보기 이미지가 보이고, 브라우저 탭에 아이콘이 표시됩니다.','시작 화면의 ‘앱으로 설치’ 버튼으로 게임을 앱처럼 설치할 수 있습니다. 설치한 뒤에는 인터넷이 끊겨도 플레이할 수 있습니다.','조 현황판, 도감, 결과 화면의 클래스 순서를 세이버부터 정규 순서로 맞추었습니다.','이미 아는 마스터가 처음 보는 것처럼 표시되던 문제를 고쳤습니다.','자녀 이름이 겹치던 문제와 문장 속 조사 오류를 고쳤습니다.','결과 화면과 지난 생 기록에서 전쟁 중 몰랐던 정보도 함께 볼 수 있습니다.']]]},
  {v:'2026.10.16',t:'전투 개편',g:[
   ['전투',['민첩에 따른 회피, 마술 공격과 마력 방출이 추가되었습니다.','공격 선택지마다 유불리 배지가 표시됩니다.','전투의 합마다 승부를 가른 요인이 칩으로 표시됩니다.','령주 ‘이겨라’가 버프 방식으로 바뀌고, 전투 선택지가 묶여서 정리되었습니다.']],
   ['성장과 표시',['어린 시절 성장 사건과 능력치 판정 표시가 추가되었습니다.','판정 칩이 「스탯 랭크」 · 「스킬 랭크」 형식으로 바뀌었습니다.','다른 조끼리도 클래스 전용 행동을 사용합니다.','나가기 시 저장이 개선되었습니다.']]]},
@@ -7510,6 +7519,19 @@ function showPatch(){ const seen=store.get(K_PATCH);
   const html='<div class="eyebrow">업데이트 기록</div><h2>패치 노트</h2>'+PATCH.map((p,i)=>'<details class="pn"'+(i===0?' open':'')+'><summary><span class="v mono">'+p.v+'</span><span class="t">'+esc(p.t)+'</span>'+(i===0&&seen!==p.v?'<span class="new">NEW</span>':'')+'</summary>'+p.g.map(([h,xs])=>(h?'<h4>'+esc(h)+'</h4>':'')+'<ul>'+xs.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>').join('')+'</details>').join('');
   $('#infoBody').innerHTML=html; infoHeld=false; $('#info').classList.remove('hidden'); store.set(K_PATCH,PATCH[0].v); patchSync(); }
 $('#patchBtn').onclick=()=>showPatch();
+// 앱으로 설치: 크롬·엣지·안드로이드는 설치 창, 아이폰·아이패드는 홈 화면 추가 안내
+(function(){ const live=/github\.io$/.test(location.hostname)||location.hostname==='localhost', btn=$('#installBtn');
+  const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  let bip=null;
+  if(live&&'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); bip=e; if(!standalone()) btn.classList.remove('hidden'); });
+  addEventListener('appinstalled',()=>{ bip=null; btn.classList.add('hidden'); });
+  if(live&&ios&&!standalone()) btn.classList.remove('hidden');
+  btn.onclick=()=>{ if(bip){ bip.prompt(); bip.userChoice.finally(()=>{ bip=null; btn.classList.add('hidden'); }); return; }
+    $('#infoBody').innerHTML='<div class="eyebrow">앱으로 설치</div><h2>홈 화면에 추가</h2><ol class="inst-steps"><li>Safari 아래쪽(아이패드는 위쪽)의 <b>공유</b> 버튼을 누릅니다.</li><li>목록에서 <b>홈 화면에 추가</b>를 고릅니다.</li><li>오른쪽 위의 <b>추가</b>를 누르면 홈 화면에 성배 아이콘이 생깁니다.</li></ol><p class="dim">홈 화면에서 연 게임은 Safari와 저장 기록을 따로 씁니다. Safari에서 하던 생은 홈 화면 앱에서 이어지지 않습니다.</p>';
+    infoHeld=false; $('#info').classList.remove('hidden'); };
+})();
 patchSync();
 $('#contBtn').onclick=()=>{ gcEvent('continue','이어하기'); const d=store.get(K_SAVE); if(!d) return; Sim.load(d); enterGame(false); };
 function showIntro(){
