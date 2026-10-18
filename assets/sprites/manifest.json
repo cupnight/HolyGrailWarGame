@@ -90,7 +90,8 @@
           "holdLast": true
         }
       },
-      "revision": "polished-set-01"
+      "revision": "hard-pixel-animation-01",
+      "bodyPx": 140
     },
     {
       "id": "m_student_f",
@@ -175,7 +176,8 @@
           "holdLast": true
         }
       },
-      "revision": "polished-set-01"
+      "revision": "hard-pixel-animation-01",
+      "bodyPx": 130
     },
     {
       "id": "cuchulainn",
@@ -302,7 +304,8 @@
           "holdLast": true
         }
       },
-      "revision": "polished-set-01"
+      "revision": "hard-pixel-animation-01",
+      "bodyPx": 148
     },
     {
       "id": "lancelot",
@@ -429,7 +432,8 @@
           "holdLast": true
         }
       },
-      "revision": "polished-animation-05"
+      "revision": "reference-pixel-animation-01",
+      "bodyPx": 153
     }
   ]
 }
