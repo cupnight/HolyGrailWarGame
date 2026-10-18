@@ -89,7 +89,8 @@
           ],
           "holdLast": true
         }
-      }
+      },
+      "revision": "pixel-two-head-v2"
     },
     {
       "id": "m_student_f",
@@ -173,7 +174,8 @@
           ],
           "holdLast": true
         }
-      }
+      },
+      "revision": "pixel-two-head-v2"
     },
     {
       "id": "cuchulainn",
@@ -299,7 +301,8 @@
           ],
           "holdLast": true
         }
-      }
+      },
+      "revision": "pixel-two-head-v2"
     },
     {
       "id": "lancelot",
