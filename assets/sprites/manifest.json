@@ -90,7 +90,7 @@
           "holdLast": true
         }
       },
-      "revision": "pixel-two-head-v2"
+      "revision": "coarse-pixel-v1"
     },
     {
       "id": "m_student_f",
@@ -175,7 +175,7 @@
           "holdLast": true
         }
       },
-      "revision": "pixel-two-head-v2"
+      "revision": "coarse-pixel-v1"
     },
     {
       "id": "cuchulainn",
@@ -302,7 +302,7 @@
           "holdLast": true
         }
       },
-      "revision": "pixel-two-head-v2"
+      "revision": "coarse-pixel-v1"
     },
     {
       "id": "lancelot",
@@ -429,7 +429,7 @@
           "holdLast": true
         }
       },
-      "revision": "two-head-animation-01"
+      "revision": "chunky-animation-01"
     }
   ]
 }
