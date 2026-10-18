@@ -90,7 +90,7 @@
           "holdLast": true
         }
       },
-      "revision": "coarse-pixel-v1"
+      "revision": "polished-set-01"
     },
     {
       "id": "m_student_f",
@@ -175,7 +175,7 @@
           "holdLast": true
         }
       },
-      "revision": "coarse-pixel-v1"
+      "revision": "polished-set-01"
     },
     {
       "id": "cuchulainn",
@@ -302,7 +302,7 @@
           "holdLast": true
         }
       },
-      "revision": "coarse-pixel-v1"
+      "revision": "polished-set-01"
     },
     {
       "id": "lancelot",
@@ -420,16 +420,16 @@
           ],
           "durationMs": [
             220,
-            220,
-            240,
-            200,
-            220,
+            180,
+            140,
+            140,
+            180,
             1100
           ],
           "holdLast": true
         }
       },
-      "revision": "chunky-animation-01"
+      "revision": "polished-animation-05"
     }
   ]
 }
