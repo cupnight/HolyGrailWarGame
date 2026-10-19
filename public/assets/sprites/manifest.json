@@ -2432,7 +2432,7 @@
       "rows": 1,
       "frames": 6,
       "bodyPx": 130,
-      "revision": "block-pixel-master-types-01",
+      "revision": "block-pixel-fortune-female-clean-face-01",
       "actions": {
         "idle": {
           "frames": [
@@ -3121,6 +3121,2672 @@
       "frames": 6,
       "bodyPx": 130,
       "revision": "block-pixel-master-types-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_heir_m",
+      "name": "명문의 후계자 · 남성",
+      "kind": "master",
+      "file": "m_heir_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_exec_f",
+      "name": "봉인지정 집행자 · 여성",
+      "kind": "master",
+      "file": "m_exec_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_elder_m",
+      "name": "늙은 연구자 · 남성",
+      "kind": "master",
+      "file": "m_elder_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_student_m",
+      "name": "우연히 령주를 받은 대학생 · 남성",
+      "kind": "master",
+      "file": "m_student_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_avenger_f",
+      "name": "복수를 원하는 몰락 가문의 막내 · 여성",
+      "kind": "master",
+      "file": "m_avenger_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_merc_m",
+      "name": "바다 건너온 용병 마술사 · 남성",
+      "kind": "master",
+      "file": "m_merc_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_veteran_f",
+      "name": "지난 전쟁의 생존자 · 여성",
+      "kind": "master",
+      "file": "m_veteran_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_detective_m",
+      "name": "연쇄 사건을 쫓는 형사 · 남성",
+      "kind": "master",
+      "file": "m_detective_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_collector_f",
+      "name": "성유물을 모으는 부호 · 여성",
+      "kind": "master",
+      "file": "m_collector_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_cultist_m",
+      "name": "성배를 숭배하는 교단의 교주 · 남성",
+      "kind": "master",
+      "file": "m_cultist_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_prodigy_f",
+      "name": "12살 천재 마술사 · 여성",
+      "kind": "master",
+      "file": "m_prodigy_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 120,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_artist_m",
+      "name": "영감을 찾는 화가 · 남성",
+      "kind": "master",
+      "file": "m_artist_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_executor_f",
+      "name": "성당교회의 대행자 · 여성",
+      "kind": "master",
+      "file": "m_executor_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_eighth_f",
+      "name": "제8비적회의 성유물 회수관 · 여성",
+      "kind": "master",
+      "file": "m_eighth_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_atlas_m",
+      "name": "아틀라스원의 연금술사 · 남성",
+      "kind": "master",
+      "file": "m_atlas_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_lord_f",
+      "name": "시계탑 귀족주의파의 젊은 군주 · 여성",
+      "kind": "master",
+      "file": "m_lord_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_democrat_m",
+      "name": "시계탑 민주주의파의 신진 마술사 · 남성",
+      "kind": "master",
+      "file": "m_democrat_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_wanderer_f",
+      "name": "방랑해에서 온 마술사 · 여성",
+      "kind": "master",
+      "file": "m_wanderer_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_apostle_m",
+      "name": "사람의 피를 마시는 사도 · 남성",
+      "kind": "master",
+      "file": "m_apostle_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_killer_f",
+      "name": "프리랜서 마술사 사냥꾼 · 여성",
+      "kind": "master",
+      "file": "m_killer_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_exorcist_m",
+      "name": "퇴마 가문의 후계자 · 남성",
+      "kind": "master",
+      "file": "m_exorcist_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_flunk_f",
+      "name": "시계탑의 만년 낙제생 · 여성",
+      "kind": "master",
+      "file": "m_flunk_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_fortune_m",
+      "name": "길거리 점술가 · 남성",
+      "kind": "master",
+      "file": "m_fortune_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_streamer_f",
+      "name": "오컬트 방송인 · 여성",
+      "kind": "master",
+      "file": "m_streamer_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_stage_m",
+      "name": "무대 마술사 · 남성",
+      "kind": "master",
+      "file": "m_stage_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_inlaw_f",
+      "name": "데릴사위로 들어온 마술사 · 여성",
+      "kind": "master",
+      "file": "m_inlaw_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_antique_m",
+      "name": "빚에 쫓기는 골동품상 · 남성",
+      "kind": "master",
+      "file": "m_antique_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_amnesia_f",
+      "name": "기억을 잃은 사람 · 여성",
+      "kind": "master",
+      "file": "m_amnesia_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_exile_m",
+      "name": "고향을 잃은 망명 마술사 · 남성",
+      "kind": "master",
+      "file": "m_exile_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_lecturer_f",
+      "name": "은퇴한 시계탑 강사 · 여성",
+      "kind": "master",
+      "file": "m_lecturer_f.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-opposite-master-guide-02",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "seal": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "m_kendo_m",
+      "name": "고교 검도부 주장 · 남성",
+      "kind": "master",
+      "file": "m_kendo_m.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-opposite-master-guide-02",
       "actions": {
         "idle": {
           "frames": [
