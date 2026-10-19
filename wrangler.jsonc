@@ -1,0 +1,14 @@
+{
+  // 성배가 차는 밤 — 클라우드플레어 Workers 설정
+  // public/ 폴더의 게임 파일을 그대로 내주고, /api/ 로 시작하는 요청만 src/worker.js 가 처리한다.
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "holygrailwargame",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true }
+}
