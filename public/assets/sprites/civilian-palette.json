@@ -1,0 +1,151 @@
+{
+  "groups": {
+    "hair": [
+      [
+        56,
+        56,
+        56
+      ],
+      [
+        91,
+        91,
+        91
+      ],
+      [
+        133,
+        133,
+        133
+      ],
+      [
+        177,
+        177,
+        177
+      ]
+    ],
+    "upper": [
+      [
+        34,
+        73,
+        45
+      ],
+      [
+        50,
+        100,
+        59
+      ],
+      [
+        77,
+        132,
+        80
+      ],
+      [
+        109,
+        159,
+        110
+      ]
+    ],
+    "lower": [
+      [
+        24,
+        43,
+        75
+      ],
+      [
+        32,
+        61,
+        100
+      ],
+      [
+        43,
+        79,
+        126
+      ],
+      [
+        57,
+        99,
+        151
+      ]
+    ],
+    "skin": [
+      [
+        178,
+        112,
+        75
+      ],
+      [
+        218,
+        152,
+        103
+      ],
+      [
+        246,
+        186,
+        134
+      ],
+      [
+        255,
+        212,
+        163
+      ]
+    ],
+    "mouth": [
+      [
+        122,
+        42,
+        34
+      ],
+      [
+        164,
+        55,
+        47
+      ],
+      [
+        199,
+        86,
+        64
+      ]
+    ],
+    "shoes": [
+      [
+        51,
+        28,
+        20
+      ],
+      [
+        78,
+        45,
+        28
+      ],
+      [
+        109,
+        68,
+        42
+      ]
+    ],
+    "outline": [
+      [
+        28,
+        18,
+        20
+      ]
+    ],
+    "eyes": [
+      [
+        10,
+        8,
+        8
+      ]
+    ]
+  },
+  "recolorable": [
+    "hair",
+    "upper",
+    "lower"
+  ],
+  "maskChannels": {
+    "red": "hair",
+    "green": "upper",
+    "blue": "lower"
+  },
+  "notes": "Exact RGB membership supports recoloring. Mask files contain only material pixels; skin, mouth, eyes, shoes and outline are transparent. The female child has an entirely green one-piece dress and no blue lower material."
+}

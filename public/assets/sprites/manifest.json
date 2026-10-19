@@ -5860,6 +5860,726 @@
           "holdLast": true
         }
       }
+    },
+    {
+      "id": "base_m_child",
+      "name": "남자 아이",
+      "kind": "civilian",
+      "file": "base_m_child.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 96,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_m_child.png"
+      }
+    },
+    {
+      "id": "base_f_child",
+      "name": "여자 아이",
+      "kind": "civilian",
+      "file": "base_f_child.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 96,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_f_child.png"
+      }
+    },
+    {
+      "id": "base_m_young",
+      "name": "20대 남성",
+      "kind": "civilian",
+      "file": "base_m_young.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_m_young.png"
+      }
+    },
+    {
+      "id": "base_f_young",
+      "name": "20대 여성",
+      "kind": "civilian",
+      "file": "base_f_young.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_f_young.png"
+      }
+    },
+    {
+      "id": "base_m_adult",
+      "name": "40대 남성",
+      "kind": "civilian",
+      "file": "base_m_adult.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_m_adult.png"
+      }
+    },
+    {
+      "id": "base_f_adult",
+      "name": "40대 여성",
+      "kind": "civilian",
+      "file": "base_f_adult.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_f_adult.png"
+      }
+    },
+    {
+      "id": "base_m_elder",
+      "name": "70대 남성",
+      "kind": "civilian",
+      "file": "base_m_elder.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 140,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_m_elder.png"
+      }
+    },
+    {
+      "id": "base_f_elder",
+      "name": "70대 여성",
+      "kind": "civilian",
+      "file": "base_f_elder.png",
+      "width": 1536,
+      "height": 256,
+      "columns": 6,
+      "rows": 1,
+      "frames": 6,
+      "bodyPx": 130,
+      "revision": "block-pixel-recolor-civilian-01",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "surprise": {
+          "frames": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationMs": [
+            150,
+            350,
+            350,
+            300
+          ],
+          "holdLast": false
+        },
+        "raiseHand": {
+          "frames": [
+            0,
+            3,
+            3,
+            1
+          ],
+          "durationMs": [
+            160,
+            450,
+            450,
+            350
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            0,
+            4,
+            4,
+            1
+          ],
+          "durationMs": [
+            150,
+            250,
+            400,
+            350
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            4,
+            5
+          ],
+          "durationMs": [
+            250,
+            1200
+          ],
+          "holdLast": true
+        }
+      },
+      "recolor": {
+        "paletteFile": "civilian-palette.json",
+        "maskFile": "civilian-masks/base_f_elder.png"
+      }
     }
   ]
 }
