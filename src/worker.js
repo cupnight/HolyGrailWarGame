@@ -7,6 +7,8 @@
 //   POST /api/ghost   살아남은 조를 다른 겨울로 보낸다 (이름을 공개하기로 한 경우에만 이름 포함)
 //   GET  /api/ghost   ?year=&dev= — 1~40년 앞선 전쟁에서 살아남은 다른 기기의 조를 몇 개 받는다
 //   POST /api/ghost/shown · /withdraw · /report — 등장 횟수, 거두기, 신고(3번이면 숨김)
+//   POST /api/ghost/result  그 조가 끼어든 전쟁의 결과(받은 기기가 전쟁이 끝날 때 한 번 보냄)
+//   POST /api/ghost/news    보낸 기기가 자기 조들의 결과 소식을 받아 간다(받은 쪽 플레이어 정보는 담지 않음)
 //
 // 받는 것: 서번트·클래스, 엔딩 종류, 성배 상태, 도시, 출신, 회로 등급, 사망 나이, 언어,
 //          그 기기에서 지금까지 연 업적 목록, 기기마다 무작위로 만든 번호.
@@ -76,6 +78,11 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS ghost_seen (id TEXT NOT NULL, dev TEXT NOT NULL, ts INTEGER NOT NULL, PRIMARY KEY (id, dev))`,
   `CREATE TABLE IF NOT EXISTS ghost_flags (id TEXT NOT NULL, who TEXT NOT NULL, dev TEXT, ts INTEGER NOT NULL, PRIMARY KEY (id, who))`,
   `CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS ghost_results (
+     id TEXT NOT NULL, dev TEXT NOT NULL, owner TEXT NOT NULL, ts INTEGER NOT NULL,
+     year INTEGER NOT NULL, city TEXT, join_day INTEGER NOT NULL, ending TEXT NOT NULL, out_day INTEGER, tod TEXT, by_who TEXT, ally INTEGER NOT NULL DEFAULT 0,
+     name TEXT, hero TEXT, cls TEXT, sent_year INTEGER, sent_city TEXT, PRIMARY KEY (id, dev))`,
+  `CREATE INDEX IF NOT EXISTS ghost_results_owner ON ghost_results(owner, ts)`,
 ];
 let schemaReady = null;
 const ensureSchema = env => (schemaReady ??= env.DB.batch(SCHEMA.map(s => env.DB.prepare(s))).catch(e => { schemaReady = null; throw e; }));
@@ -242,6 +249,45 @@ async function reportGhost(request, env) {
   return json({ ok: true });
 }
 
+// 그 조가 끼어든 전쟁의 결과. 실제로 그 조를 만난 기기(ghost_seen)만, 조마다 한 번 보낼 수 있다.
+const RESULT_ENDS = new Set(['win', 'shared', 'alive', 'out']);
+async function ghostResult(request, env) {
+  if (await slowDown(env, request, 'x')) return SLOW();
+  const b = await readJson(request, 800);
+  const id = str(b && b.id, ID), dev = str(b && b.dev, ID);
+  if (!id || !dev || !RESULT_ENDS.has(b.end)) return json({ ok: false, error: 'bad_fields' }, 400);
+  const year = int(b.year, 1900, 2140), join = int(b.join, 1, 14);
+  const out = b.end === 'out', day = out ? int(b.day, 1, 14) : null;
+  if (!year || !join || (out && (!day || day < join))) return json({ ok: false, error: 'bad_fields' }, 400);
+  const tod = out && ['낮', '밤', '새벽'].includes(b.tod) ? b.tod : null;
+  const by = out && ['me', 'other', 'none'].includes(b.by) ? b.by : null;
+  const city = typeof b.city === 'string' && CITIES.has(b.city) ? b.city : '';
+  await ensureSchema(env);
+  const g = await env.DB.prepare(`SELECT g.dev AS owner, g.year AS year, g.data AS data FROM ghosts g JOIN ghost_seen s ON s.id = g.id AND s.dev = ? WHERE g.id = ?`).bind(dev, id).first();
+  if (!g) return json({ ok: false, error: 'not_seen' }, 404);
+  if (year <= g.year || year > g.year + 40) return json({ ok: false, error: 'bad_fields' }, 400);
+  const d = JSON.parse(g.data);
+  await env.DB.prepare(`INSERT OR IGNORE INTO ghost_results (id, dev, owner, ts, year, city, join_day, ending, out_day, tod, by_who, ally, name, hero, cls, sent_year, sent_city)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .bind(id, dev, g.owner, Date.now(), year, city, join, b.end, day, tod, by, b.ally ? 1 : 0, d.name, d.hero, d.cls, d.year, d.city || '').run();
+  return json({ ok: true });
+}
+
+// 보낸 기기가 자기 조들의 소식을 받아 간다. 기기 번호는 주소에 남지 않도록 본문으로 받는다.
+async function ghostNews(request, env) {
+  if (await slowDown(env, request, 'n')) return SLOW();
+  const b = await readJson(request, 300);
+  const dev = str(b && b.dev, ID);
+  if (!dev) return json({ ok: false, error: 'bad_fields' }, 400);
+  await ensureSchema(env);
+  const { results } = await env.DB.prepare(
+    `SELECT id, ts, year, city, join_day, ending, out_day, tod, by_who, ally, name, hero, cls, sent_year, sent_city
+       FROM ghost_results WHERE owner = ? ORDER BY ts DESC LIMIT 200`).bind(dev).all();
+  const list = results.map(r => ({ id: r.id, ts: r.ts, year: r.year, city: r.city || '', join: r.join_day, end: r.ending, day: r.out_day, tod: r.tod,
+    by: r.by_who, ally: !!r.ally, name: r.name, hero: r.hero, cls: r.cls, sentYear: r.sent_year, sentCity: r.sent_city || '' }));
+  return json({ ok: true, list });
+}
+
 async function getStats(request, env, ctx) {
   if (await slowDown(env, request, 't')) return SLOW();
   const cache = caches.default;
@@ -299,6 +345,8 @@ export default {
       if (request.method === 'POST' && url.pathname === '/api/ghost/shown') return await ghostShown(request, env);
       if (request.method === 'POST' && url.pathname === '/api/ghost/withdraw') return await withdrawGhost(request, env);
       if (request.method === 'POST' && url.pathname === '/api/ghost/report') return await reportGhost(request, env);
+      if (request.method === 'POST' && url.pathname === '/api/ghost/result') return await ghostResult(request, env);
+      if (request.method === 'POST' && url.pathname === '/api/ghost/news') return await ghostNews(request, env);
       if (url.pathname.startsWith('/api/')) return json({ ok: false, error: 'not_found' }, 404);
     } catch (e) {
       if (e instanceof TooBig) return json({ ok: false, error: 'too_big' }, 413);
