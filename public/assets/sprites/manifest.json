@@ -195,9 +195,13 @@
             0,
             5,
             6,
-            11
+            11,
+            6,
+            5
           ],
           "durationMs": [
+            400,
+            400,
             400,
             400,
             400,
@@ -304,7 +308,7 @@
           "holdLast": true
         }
       },
-      "revision": "block-pixel-animation-01",
+      "revision": "block-pixel-idle-breathing-01",
       "bodyPx": 148
     },
     {
@@ -323,9 +327,13 @@
             0,
             5,
             6,
-            11
+            11,
+            6,
+            5
           ],
           "durationMs": [
+            400,
+            400,
             400,
             400,
             400,
@@ -432,7 +440,7 @@
           "holdLast": true
         }
       },
-      "revision": "block-pixel-animation-01",
+      "revision": "block-pixel-idle-breathing-01",
       "bodyPx": 153
     }
   ]
