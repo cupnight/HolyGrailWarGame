@@ -90,7 +90,7 @@
           "holdLast": true
         }
       },
-      "revision": "hard-pixel-animation-01",
+      "revision": "block-pixel-animation-01",
       "bodyPx": 140
     },
     {
@@ -176,7 +176,7 @@
           "holdLast": true
         }
       },
-      "revision": "hard-pixel-animation-01",
+      "revision": "block-pixel-animation-01",
       "bodyPx": 130
     },
     {
@@ -304,7 +304,7 @@
           "holdLast": true
         }
       },
-      "revision": "hard-pixel-animation-01",
+      "revision": "block-pixel-animation-01",
       "bodyPx": 148
     },
     {
@@ -432,7 +432,7 @@
           "holdLast": true
         }
       },
-      "revision": "reference-pixel-animation-01",
+      "revision": "block-pixel-animation-01",
       "bodyPx": 153
     }
   ]
