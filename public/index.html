@@ -5687,11 +5687,11 @@ const Sim = (() => {
   };
   Object.assign(MASTER_EV,{
     ghost:[
-      {c:p=>true,f:p=>decide({title:'다른 겨울의 사람',body:`${p.mname}${J(p.mname,이)} 먼저 말을 걸어왔다. ${p.ghost.age}세쯤 되어 보인다. 손등에는 오래된 령주 자국 위로 새 령주가 겹쳐 있다. “${p.ghost.year}년 겨울, ${p.ghost.city}에서도 이 짓을 했지. 이번에도 살아서 나갈 생각이야.”`,war:true,choices:[
+      {c:p=>!!p.ghost,f:p=>decide({title:'다른 겨울의 사람',body:`${p.mname}${J(p.mname,이)} 먼저 말을 걸어왔다. ${p.ghost.age}세쯤 되어 보인다. 손등에는 오래된 령주 자국 위로 새 령주가 겹쳐 있다. “${p.ghost.year}년 겨울, ${p.ghost.city}에서도 이 짓을 했지. 이번에도 살아서 나갈 생각이야.”`,war:true,choices:[
         {t:'그 겨울 이야기를 청한다',auto:true,f:()=>{ghostIntro(p);addIntel(p,35,'talk');const q=W().pairs.find(q=>q!==p&&q.alive&&!q.revealed&&gKnow(p,q.hero)&&gKnow(p,q.hero).n);if(q){revealPair(q,`${p.mname}${J(p.mname,이)} 지난 겨울에 본 서번트라며 이름을 짚었다. `);return '그는 이야기를 마치고 한참 말이 없었다.'}return '그는 그 겨울의 밤들을 하나씩 짚었다. 이번 전쟁에 쓸 만한 이야기도 섞여 있었다.'}},
         {t:'동맹을 청한다',off:W().pairs.some(x=>x.ally&&x.alive),f:()=>{const k=gKnow(p,S.hero);if(chkp('관계',.35+S.st.bond/300+((p.ghost.bond||50)-50)/400+(k&&k.al?.2:0)-(k&&k.k?.15:0))){p.ally=true;p.known=true;S.flags.allyName=p.mname;allyConfide(p);wrec('ally',`${cn(p)} 조 ${p.mname}${J(p.mname,과)} 동맹`,{p:p.i});return '“한 번 살아남아 봤으니, 두 번째는 같이 해 보지.” 그가 손을 내밀었다.'}addIntel(p,25);return '“지난번에도 동맹은 믿지 않았어.” 그는 고개를 저었다.'}},
         {t:'경계한다',f:()=>{ghostIntro(p);return '그는 어깨를 으쓱했다. “현명하네. 나도 그랬어.”'}}]})},
-      {c:p=>W().day>=6,f:p=>{log(`${p.mname}${J(p.mname,은)} 밤마다 낡은 수첩을 펼쳐 본다고 한다. ${p.ghost.year}년 겨울의 기록이라고.`,'n');addIntel(p,15);}},
+      {c:p=>!!p.ghost&&W().day>=6,f:p=>{log(`${p.mname}${J(p.mname,은)} 밤마다 낡은 수첩을 펼쳐 본다고 한다. ${p.ghost.year}년 겨울의 기록이라고.`,'n');addIntel(p,15);}},
     ],
     veteran:[
       {c:p=>true,f:p=>decide({title:'지난 겨울의 사람',body:`공원 벤치에 노인 하나가 앉아 있었다. 손등에 낡은 령주 자국과 새 령주가 겹쳐 있다. “60년 전에도 여기 앉아 있었지. 그때 내 서번트는 이 벤치를 좋아했어.”`,war:true,choices:[
@@ -6539,7 +6539,7 @@ const Sim = (() => {
   // 서번트를 잃은 NPC 마스터가 물러나지 않고 버틸지: 대담한 성향일수록, 령주가 남아 있어야
   function npcStayAlone(p){ if(!(p.seals>0)) return false; const r=(STYLE[p.aid]||{retreat:30}).retreat; return ch(Math.max(.1,Math.min(.85,(55-r)/55))); }
   function npcRecontract(m,s){ const w=W();
-    s.master=true; s.stray=0; s.mname=m.mname; s.aid=m.aid; s.arche=m.arche; s.tac=m.tac; s.pw=m.pw; s.seals=Math.max(0,(m.seals||1)-1);
+    s.master=true; s.stray=0; s.mname=m.mname; s.aid=m.aid; s.arche=m.arche; s.tac=m.tac; s.pw=m.pw; s.seals=Math.max(0,(m.seals||1)-1); s.ghost=m.ghost||null; s.ghostIntro=!!m.ghostIntro;
     s.hp=Math.max(s.hp,55); s.known=false; s.ally=false; s.truce=false; s.wishKnown=false; s.recon=1; m.lone=false; if(w.stray===s) w.stray=null;
     log(`감독관의 통지: 주인을 잃었던 ${cn(s)}${J(cn(s),이)} 새 마스터와 계약했다.${m.known?` 탈락했던 ${cn(m)} 조의 ${m.mname}${J(m.mname,이)==='이'?'이다':'다'}.`:''}`,'notice');
     wrec('hint',`${cn(s)} 서번트가 ${m.known?m.mname:'다른 마스터'}${J(m.known?m.mname:'다른 마스터',과)} 다시 계약했다`); }
