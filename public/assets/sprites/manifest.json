@@ -1227,8 +1227,8 @@
       "columns": 6,
       "rows": 1,
       "frames": 6,
-      "bodyPx": 96,
-      "revision": "block-pixel-master-types-01",
+      "bodyPx": 120,
+      "revision": "block-pixel-prodigy-120px-01",
       "actions": {
         "idle": {
           "frames": [
