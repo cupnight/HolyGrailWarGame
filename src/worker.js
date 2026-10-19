@@ -11,12 +11,52 @@
 // 받는 것: 서번트·클래스, 엔딩 종류, 성배 상태, 도시, 출신, 회로 등급, 사망 나이, 언어,
 //          그 기기에서 지금까지 연 업적 목록, 기기마다 무작위로 만든 번호.
 // 받지 않는 것: 이름, 소원·유언처럼 직접 쓴 문장, IP 주소.
+//   (이름 신고만은 같은 사람이 여러 번 신고하지 못하도록, 접속 주소를 서버만 아는 값으로 섞어 되돌릴 수 없게 만든
+//    짧은 값을 신고 기록에 함께 남긴다. 접속 주소 자체는 저장하지 않는다.)
+//
+// 보안: 모든 요청은 누구나 스크립트로 보낼 수 있다고 보고 검사한다.
+//   - 본문 크기를 읽으면서 제한한다(content-length를 믿지 않는다)
+//   - 서번트·클래스·업적·출신·도시는 게임에 있는 값만 받는다(src/known.js, 빌드 때 자동 생성)
+//   - 모든 /api/ 요청에 접속 주소별 속도 제한을 건다
+//   - 한 기기가 하루에 보낼 수 있는 결과 수, 보낼 수 있는 조 수를 제한한다
+//   - 신고는 서로 다른 접속 주소 3곳에서 와야 숨김 처리된다
+import { KNOWN } from './known.js';
 
 const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...extra },
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', ...extra },
   });
+
+const HEROES = KNOWN.heroes, ACH = new Set(KNOWN.ach), ORIGINS = new Set(KNOWN.origins), CITIES = new Set(KNOWN.cities);
+const heroOk = h => (typeof h === 'string' && Object.prototype.hasOwnProperty.call(HEROES, h) ? h : null);
+
+// 본문을 읽으면서 크기를 센다. 넘으면 그 자리에서 멈춘다.
+async function readJson(request, max) {
+  if (!request.body) return null;
+  const reader = request.body.getReader();
+  const chunks = []; let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) { try { await reader.cancel(); } catch {} throw new TooBig(); }
+    chunks.push(value);
+  }
+  const buf = new Uint8Array(size); let o = 0;
+  for (const c of chunks) { buf.set(c, o); o += c.byteLength; }
+  try { return JSON.parse(new TextDecoder().decode(buf)); } catch { return null; }
+}
+class TooBig extends Error {}
+
+const ipOf = request => request.headers.get('cf-connecting-ip') || 'x';
+// 접속 주소별 속도 제한(분당 20번). 종류마다 따로 센다.
+async function slowDown(env, request, kind) {
+  if (!env.RL) return false;
+  const { success } = await env.RL.limit({ key: kind + ':' + ipOf(request) });
+  return !success;
+}
+const SLOW = () => json({ ok: false, error: 'slow_down' }, 429);
 
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS lives (
@@ -31,41 +71,44 @@ const SCHEMA = [
      shown INTEGER NOT NULL DEFAULT 0, reports INTEGER NOT NULL DEFAULT 0, hidden INTEGER NOT NULL DEFAULT 0)`,
   `CREATE INDEX IF NOT EXISTS ghosts_year ON ghosts(year)`,
   `CREATE TABLE IF NOT EXISTS ghost_reports (id TEXT NOT NULL, dev TEXT NOT NULL, ts INTEGER NOT NULL, PRIMARY KEY (id, dev))`,
+  `CREATE INDEX IF NOT EXISTS lives_dev ON lives(dev, ts)`,
+  `CREATE INDEX IF NOT EXISTS ghosts_dev ON ghosts(dev)`,
+  `CREATE TABLE IF NOT EXISTS ghost_seen (id TEXT NOT NULL, dev TEXT NOT NULL, ts INTEGER NOT NULL, PRIMARY KEY (id, dev))`,
+  `CREATE TABLE IF NOT EXISTS ghost_flags (id TEXT NOT NULL, who TEXT NOT NULL, dev TEXT, ts INTEGER NOT NULL, PRIMARY KEY (id, who))`,
+  `CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)`,
 ];
 let schemaReady = null;
 const ensureSchema = env => (schemaReady ??= env.DB.batch(SCHEMA.map(s => env.DB.prepare(s))).catch(e => { schemaReady = null; throw e; }));
 
 const ENDINGS = new Set(['shared', 'victor', 'lost', 'survived', 'collapsed', 'withdrew', 'refused', 'dead', 'none']);
 const ID = /^[A-Za-z0-9_-]{1,40}$/;               // 서번트·업적·클래스·출신 같은 내부 이름
-const WORD = /^[0-9A-Za-z가-힣ぁ-んァ-ヶ一-龯 ._-]{1,30}$/;  // 도시 이름
 const str = (v, re) => (typeof v === 'string' && re.test(v) ? v : null);
 const int = (v, lo, hi) => (Number.isInteger(v) && v >= lo && v <= hi ? v : null);
 
 async function postLife(request, env) {
-  if (env.RL) {
-    const ip = request.headers.get('cf-connecting-ip') || 'x';
-    const { success } = await env.RL.limit({ key: ip });
-    if (!success) return json({ ok: false, error: 'slow_down' }, 429);
-  }
-  const len = Number(request.headers.get('content-length') || 0);
-  if (len > 8000) return json({ ok: false, error: 'too_big' }, 413);
-  let b;
-  try { b = await request.json(); } catch { return json({ ok: false, error: 'bad_json' }, 400); }
-  if (!b || b.v !== 1) return json({ ok: false, error: 'bad_version' }, 400);
+  if (await slowDown(env, request, 'l')) return SLOW();
+  const b = await readJson(request, 8000);
+  if (!b) return json({ ok: false, error: 'bad_json' }, 400);
+  if (b.v !== 1) return json({ ok: false, error: 'bad_version' }, 400);
 
   const id = str(b.life, ID), dev = str(b.dev, ID), ending = ENDINGS.has(b.end) ? b.end : null;
   if (!id || !dev || !ending) return json({ ok: false, error: 'bad_fields' }, 400);
-  const hero = str(b.hero, ID), cls = str(b.cls, ID);
+  const hero = heroOk(b.hero), cls = hero && b.cls === HEROES[hero] ? b.cls : null;
   const cup = b.cup === 'pure' || b.cup === 'dark' ? b.cup : null;
   const lang = ['ko', 'en', 'ja'].includes(b.lang) ? b.lang : null;
-  const ach = Array.isArray(b.ach) ? [...new Set(b.ach.filter(a => str(a, ID)))].slice(0, 300) : [];
+  const ach = Array.isArray(b.ach) ? [...new Set(b.ach.filter(a => typeof a === 'string' && ACH.has(a)))] : [];
+  const city = typeof b.city === 'string' && CITIES.has(b.city) ? b.city : null;
+  const origin = typeof b.origin === 'string' && ORIGINS.has(b.origin) ? b.origin : null;
   const now = Date.now();
 
   await ensureSchema(env);
+  // 한 기기가 하루에 보낼 수 있는 결과는 150개까지
+  const day = await env.DB.prepare(`SELECT COUNT(*) AS n FROM lives WHERE dev = ? AND ts > ?`).bind(dev, now - 864e5).first();
+  if (day && day.n >= 150) return json({ ok: false, error: 'too_many' }, 429);
   const ins = await env.DB.prepare(
     `INSERT OR IGNORE INTO lives (id, ts, dev, lang, hero, cls, ending, cup, city, origin, circuit, age)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(id, now, dev, lang, hero, cls, ending, cup, str(b.city, WORD), str(b.origin, ID), int(b.circuit, 0, 9), int(b.age, 0, 150)).run();
+  ).bind(id, now, dev, lang, hero, hero ? cls : null, ending, cup, city, origin, int(b.circuit, 0, 9), int(b.age, 0, 150)).run();
   const fresh = ins.meta && ins.meta.changes > 0;
 
   const stmts = [
@@ -94,16 +137,16 @@ function cleanGhost(b) {
   const name = typeof b.name === 'string' ? b.name.trim().replace(/\s+/g, ' ') : '';
   if (!NAME_OK.test(name)) return [null, 'bad_name'];
   if (badName(name)) return [null, 'name_blocked'];
-  const hero = str(b.hero, ID), cls = str(b.cls, ID), year = int(b.year, 1800, 2200);
+  const hero = heroOk(b.hero), cls = hero && b.cls === HEROES[hero] ? b.cls : null, year = int(b.year, 1900, 2140);
   if (!hero || !cls || !year || !GHOST_ENDS.has(b.end)) return [null, 'bad_fields'];
-  const know = Array.isArray(b.know) ? b.know.slice(0, 8).map(k => k && str(k.h, ID) ? {
+  const know = Array.isArray(b.know) ? [...new Map(b.know.slice(0, 12).filter(k => k && heroOk(k.h) && k.h !== hero).map(k => [k.h, k])).values()].slice(0, 8).map(k => ({
     h: k.h, n: k.n ? 1 : 0, a: k.a ? 1 : 0, f: k.f ? 1 : 0, k: k.k ? 1 : 0, al: k.al ? 1 : 0,
-  } : null).filter(Boolean) : [];
+  })) : [];
   return [{
     name, hero, cls, year, end: b.end,
     sex: b.sex === 'f' ? 'f' : 'm',
     age: int(b.age, 10, 90) ?? 25,
-    city: str(b.city, WORD) || '',
+    city: typeof b.city === 'string' && CITIES.has(b.city) ? b.city : '',
     circuit: int(b.circuit, 0, 9) ?? 0,
     trust: int(b.trust, 0, 100) ?? 50,
     bond: int(b.bond, 0, 200) ?? 50,
@@ -116,14 +159,11 @@ function cleanGhost(b) {
 }
 
 async function postGhost(request, env) {
-  if (env.RL) {
-    const { success } = await env.RL.limit({ key: 'g:' + (request.headers.get('cf-connecting-ip') || 'x') });
-    if (!success) return json({ ok: false, error: 'slow_down' }, 429);
-  }
-  if (Number(request.headers.get('content-length') || 0) > 6000) return json({ ok: false, error: 'too_big' }, 413);
-  let b; try { b = await request.json(); } catch { return json({ ok: false, error: 'bad_json' }, 400); }
-  const dev = str(b && b.dev, ID);
-  if (!b || b.v !== 1 || !dev) return json({ ok: false, error: 'bad_fields' }, 400);
+  if (await slowDown(env, request, 'g')) return SLOW();
+  const b = await readJson(request, 6000);
+  if (!b) return json({ ok: false, error: 'bad_json' }, 400);
+  const dev = str(b.dev, ID);
+  if (b.v !== 1 || !dev) return json({ ok: false, error: 'bad_fields' }, 400);
   const [g, err] = cleanGhost(b);
   if (!g) return json({ ok: false, error: err }, 400);
   await ensureSchema(env);
@@ -136,8 +176,9 @@ async function postGhost(request, env) {
   return json({ ok: true, id });
 }
 
-async function getGhost(url, env) {
-  const year = int(Number(url.searchParams.get('year')), 1800, 2200);
+async function getGhost(request, url, env) {
+  if (await slowDown(env, request, 'q')) return SLOW();
+  const year = int(Number(url.searchParams.get('year')), 1900, 2140);
   const dev = str(url.searchParams.get('dev'), ID) || '-';
   if (!year) return json({ ok: false, error: 'bad_year' }, 400);
   await ensureSchema(env);
@@ -149,15 +190,20 @@ async function getGhost(url, env) {
 }
 
 async function ghostShown(request, env) {
-  let b; try { b = await request.json(); } catch { return json({ ok: false }, 400); }
-  const id = str(b && b.id, ID); if (!id) return json({ ok: false }, 400);
+  if (await slowDown(env, request, 's')) return SLOW();
+  const b = await readJson(request, 500);
+  const id = str(b && b.id, ID), dev = str(b && b.dev, ID);
+  if (!id || !dev) return json({ ok: false, error: 'bad_fields' }, 400);
   await ensureSchema(env);
-  await env.DB.prepare(`UPDATE ghosts SET shown = shown + 1 WHERE id = ?`).bind(id).run();
+  // 같은 기기에서 같은 조는 한 번만 센다
+  const r = await env.DB.prepare(`INSERT OR IGNORE INTO ghost_seen (id, dev, ts) SELECT id, ?, ? FROM ghosts WHERE id = ?`).bind(dev, Date.now(), id).run();
+  if (r.meta && r.meta.changes > 0) await env.DB.prepare(`UPDATE ghosts SET shown = shown + 1 WHERE id = ?`).bind(id).run();
   return json({ ok: true });
 }
 
 async function withdrawGhost(request, env) {
-  let b; try { b = await request.json(); } catch { return json({ ok: false }, 400); }
+  if (await slowDown(env, request, 'w')) return SLOW();
+  const b = await readJson(request, 500);
   const id = str(b && b.id, ID), dev = str(b && b.dev, ID);
   if (!id || !dev) return json({ ok: false, error: 'bad_fields' }, 400);
   await ensureSchema(env);
@@ -165,19 +211,39 @@ async function withdrawGhost(request, env) {
   return json({ ok: true, removed: (r.meta && r.meta.changes) || 0 });
 }
 
+// 접속 주소를 서버만 아는 무작위 값과 섞어 되돌릴 수 없는 짧은 값으로 바꾼다(신고 중복 확인용)
+let saltP = null;
+const salt = env => (saltP ??= (async () => {
+  const rnd = [...crypto.getRandomValues(new Uint8Array(24))].map(x => x.toString(16).padStart(2, '0')).join('');
+  await env.DB.prepare(`INSERT OR IGNORE INTO meta (k, v) VALUES ('salt', ?)`).bind(rnd).run();
+  const row = await env.DB.prepare(`SELECT v FROM meta WHERE k = 'salt'`).first();
+  return row.v;
+})().catch(e => { saltP = null; throw e; }));
+async function whoKey(env, request) {
+  const data = new TextEncoder().encode((await salt(env)) + '|' + ipOf(request));
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', data));
+  return [...h.slice(0, 8)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
 async function reportGhost(request, env) {
-  let b; try { b = await request.json(); } catch { return json({ ok: false }, 400); }
+  if (await slowDown(env, request, 'r')) return SLOW();
+  const b = await readJson(request, 500);
   const id = str(b && b.id, ID), dev = str(b && b.dev, ID);
   if (!id || !dev) return json({ ok: false, error: 'bad_fields' }, 400);
   await ensureSchema(env);
-  const r = await env.DB.prepare(`INSERT OR IGNORE INTO ghost_reports (id, dev, ts) VALUES (?, ?, ?)`).bind(id, dev, Date.now()).run();
+  const who = await whoKey(env, request);
+  const r = await env.DB.prepare(`INSERT OR IGNORE INTO ghost_flags (id, who, dev, ts) SELECT id, ?, ?, ? FROM ghosts WHERE id = ?`).bind(who, dev, Date.now(), id).run();
   if (r.meta && r.meta.changes > 0) {
-    await env.DB.prepare(`UPDATE ghosts SET reports = reports + 1, hidden = CASE WHEN reports + 1 >= 3 THEN 1 ELSE hidden END WHERE id = ?`).bind(id).run();
+    // 서로 다른 접속 주소 3곳에서 신고가 오면 숨긴다
+    await env.DB.prepare(`UPDATE ghosts SET reports = (SELECT COUNT(*) FROM ghost_flags WHERE ghost_flags.id = ghosts.id),
+                            hidden = CASE WHEN (SELECT COUNT(*) FROM ghost_flags WHERE ghost_flags.id = ghosts.id) >= 3 THEN 1 ELSE hidden END
+                          WHERE id = ?`).bind(id).run();
   }
   return json({ ok: true });
 }
 
 async function getStats(request, env, ctx) {
+  if (await slowDown(env, request, 't')) return SLOW();
   const cache = caches.default;
   const key = new Request(new URL('/api/stats', request.url).toString(), { method: 'GET' });
   const hit = await cache.match(key);
@@ -227,7 +293,7 @@ export default {
       }
       if (url.pathname === '/api/ghost') {
         if (request.method === 'POST') return await postGhost(request, env);
-        if (request.method === 'GET') return await getGhost(url, env);
+        if (request.method === 'GET') return await getGhost(request, url, env);
         return json({ ok: false, error: 'method' }, 405);
       }
       if (request.method === 'POST' && url.pathname === '/api/ghost/shown') return await ghostShown(request, env);
@@ -235,6 +301,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/api/ghost/report') return await reportGhost(request, env);
       if (url.pathname.startsWith('/api/')) return json({ ok: false, error: 'not_found' }, 404);
     } catch (e) {
+      if (e instanceof TooBig) return json({ ok: false, error: 'too_big' }, 413);
       console.error(e);
       return json({ ok: false, error: 'server' }, 500);
     }
