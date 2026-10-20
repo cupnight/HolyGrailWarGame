@@ -1,8 +1,8 @@
-# 마스터 65종·서번트 2종·일반인 8종 · 큰 도트 애니메이션
+# 마스터 65종·서번트 15종·일반인 8종 · 큰 도트 애니메이션
 
 작업 가이드: https://claude.ai/artifact/TFCPss31cF7vH5PSeZW9tN
 
-큰 사각 픽셀과 약 2등신 데포르메를 유지한 캐릭터 75종입니다. 마스터 65종·서번트 2종에 색 교체용 일반인 기본형 8종을 추가했습니다. 기존 마스터의 반대 성별 외형 수정과 여성 점술가의 수염 제거본도 포함합니다. 여성 캐릭터는 6개 동작 모두 수염·콧수염·턱수염 자국이 없는 얼굴로 제작했습니다.
+큰 사각 픽셀과 약 2등신 데포르메를 유지한 캐릭터 88종입니다. 마스터 65종·서번트 15종·색 교체용 일반인 기본형 8종을 포함합니다. 기존 마스터의 반대 성별 외형 수정과 여성 점술가의 수염 제거본도 포함합니다. 여성 캐릭터는 6개 동작 모두 수염·콧수염·턱수염 자국이 없는 얼굴로 제작했습니다.
 
 ## 공통 규격
 
@@ -88,3 +88,28 @@ manifest.json의 actions에는 0부터 시작하는 프레임 번호와 재생 �
 정확한 RGB 목록은 civilian-palette.json에 있으며 hair / upper / lower 세 그룹은 서로 겹치지 않습니다. 각 캐릭터 manifest 항목의 recolor.paletteFile과 recolor.maskFile은 이 자료의 위치를 가리킵니다. civilian-masks/의 같은 이름 PNG는 빨강=머리, 초록=상의, 파랑=하의를 표시하며 고정 색 부위는 투명합니다. 마스크는 캐릭터 그림을 대신하는 파일이 아닙니다. 색상 목록 또는 마스크 중 필요한 방식으로 색을 바꿀 수 있습니다.
 
 동작 정보는 manifest.json의 actions에 있습니다. 손 들기 이름은 raiseHand입니다. 이번 변경은 일반인 PNG 8장과 부위 구분 PNG 8장, 색상표, manifest.json, 이 문서만 추가·수정합니다. 게임 내 일반인 선택·동작 연결·색 교체 로직은 별도 적용이 필요합니다. 생성 원본·재생 미리보기·프롬프트는 전달 패키지에 포함됩니다.
+
+
+## 세이버 13종 추가 · 2026-10-20
+
+알트리아의 승인된 도트 스타일을 기준으로 맞춘 최신 세이버 13종입니다. 각 PNG는 1536×1024px, 256×256px 칸 6열×4행의 24칸이며 가장자리 여백 8px, 불투명/투명 픽셀만 사용합니다. 대기 첫 칸 몸 키는 아래와 같고, 서 있는 동작의 발 위치는 y240입니다. 동작 배치와 재생 시간은 manifest.json의 actions를 사용합니다.
+
+| 파일 | 대상 | bodyPx | revision |
+|---|---|---:|---|
+| artoria.png | 알트리아 펜드래곤 · 세이버 | 123 | artoria-dense-gold-effects-04 |
+| sigurd.png | 시구르드 · 세이버 | 142 | saber-artoria-style-match-06 |
+| siegfried.png | 지크프리트 · 세이버 | 152 | saber-artoria-style-match-06 |
+| nero.png | 네로 클라우디우스 · 세이버 | 120 | saber-artoria-style-match-06 |
+| gawain.png | 가웨인 · 세이버 | 144 | saber-artoria-style-match-06 |
+| mordred.png | 모드레드 · 세이버 | 123 | saber-artoria-style-match-06 |
+| altera.png | 알테라 · 세이버 | 128 | saber-artoria-style-match-06 |
+| charlemagne.png | 샤를마뉴 · 세이버 | 141 | saber-artoria-style-match-06 |
+| bedivere.png | 베디비어 · 세이버 | 150 | saber-artoria-style-match-06 |
+| okita.png | 오키타 소지 · 세이버 | 126 | saber-artoria-style-match-06 |
+| musashi.png | 미야모토 무사시 · 세이버 | 134 | musashi-anatomy-08 |
+| rama.png | 라마 · 세이버 | 134 | saber-artoria-style-match-06 |
+| richard.png | 리처드 1세 · 세이버 | 142 | richard-artoria-gold-effects-09 |
+
+무사시는 회피·방어·보구 2~5번째 동작의 팔·손·검 중복을 수정한 v8입니다. 리처드 1세는 일반 공격·보구의 6칸을 알트리아와 유사한 금빛/흰빛 곡선 궤적으로 교체한 v9입니다. 알트리아는 승인된 금빛 이펙트 v4를 그대로 사용했습니다. 베디비어의 팔·검 소유, 알테라의 검 세로 색 구분, 지크프리트·무사시·가웨인의 참고 외형 수정을 포함합니다.
+
+이번 추가는 이 폴더의 세이버 PNG 13장, 기존 75종 항목을 보존해 합친 manifest.json과 이 문서만 변경합니다. 게임 코드는 수정하지 않습니다.

@@ -6580,6 +6580,1749 @@
         "paletteFile": "civilian-palette.json",
         "maskFile": "civilian-masks/base_f_elder.png"
       }
+    },
+    {
+      "id": "artoria",
+      "name": "알트리아 펜드래곤 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "artoria.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 123,
+      "heightCm": 154,
+      "revision": "artoria-dense-gold-effects-04",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      },
+      "requestedApproxBodyPx": 123
+    },
+    {
+      "id": "sigurd",
+      "name": "시구르드 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "sigurd.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 142,
+      "heightCm": 178,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "siegfried",
+      "name": "지크프리트 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "siegfried.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 152,
+      "heightCm": 190,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "nero",
+      "name": "네로 클라우디우스 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "nero.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 120,
+      "heightCm": 150,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "gawain",
+      "name": "가웨인 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "gawain.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 144,
+      "heightCm": 180,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "mordred",
+      "name": "모드레드 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "mordred.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 123,
+      "heightCm": 154,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "altera",
+      "name": "알테라 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "altera.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 128,
+      "heightCm": 160,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "charlemagne",
+      "name": "샤를마뉴 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "charlemagne.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 141,
+      "heightCm": 176,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "bedivere",
+      "name": "베디비어 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "bedivere.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 150,
+      "heightCm": 187,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "okita",
+      "name": "오키타 소지 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "okita.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 126,
+      "heightCm": 158,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "musashi",
+      "name": "미야모토 무사시 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "musashi.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 134,
+      "heightCm": 167,
+      "revision": "musashi-anatomy-08",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "rama",
+      "name": "라마 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "rama.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 134,
+      "heightCm": 168,
+      "revision": "saber-artoria-style-match-06",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
+    },
+    {
+      "id": "richard",
+      "name": "리처드 1세 · 세이버",
+      "kind": "servant",
+      "classKey": "sword",
+      "file": "richard.png",
+      "width": 1536,
+      "height": 1024,
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "bodyPx": 142,
+      "heightCm": 178,
+      "revision": "richard-artoria-gold-effects-09",
+      "actions": {
+        "idle": {
+          "frames": [
+            0,
+            5,
+            6,
+            11,
+            6,
+            5
+          ],
+          "durationMs": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "holdLast": false
+        },
+        "attack": {
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "durationMs": [
+            140,
+            160,
+            140,
+            100,
+            180,
+            650
+          ],
+          "holdLast": false
+        },
+        "hit": {
+          "frames": [
+            6,
+            7,
+            8,
+            11
+          ],
+          "durationMs": [
+            160,
+            140,
+            240,
+            650
+          ],
+          "holdLast": false
+        },
+        "dodge": {
+          "frames": [
+            6,
+            9,
+            11
+          ],
+          "durationMs": [
+            160,
+            320,
+            500
+          ],
+          "holdLast": false
+        },
+        "guard": {
+          "frames": [
+            6,
+            10,
+            11
+          ],
+          "durationMs": [
+            160,
+            650,
+            500
+          ],
+          "holdLast": false
+        },
+        "ultimate": {
+          "frames": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "durationMs": [
+            220,
+            320,
+            450,
+            140,
+            220,
+            750
+          ],
+          "holdLast": false
+        },
+        "down": {
+          "frames": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "durationMs": [
+            220,
+            180,
+            140,
+            140,
+            180,
+            1100
+          ],
+          "holdLast": true
+        }
+      }
     }
   ]
 }
