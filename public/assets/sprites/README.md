@@ -1,3 +1,50 @@
+# 랜서17종·세이버13종 잘림 복원 및 카르나 방어 수정 · 2026-10-21
+
+30종의 최신 기본·공격·보구 시트90장을 반영했습니다. 몸 키·축척과 발 기준선(기본240px,공격·보구496px),동작 순서와 재생 시간은 유지합니다.
+
+- 주요8종(알테라·카르나·레오니다스·퍼시벌·로물루스·카이니스·엘리자베스·돈 키호테): 칸 경계에 잘린 무기·망토·머리카락·몸을 자세와 무기 각도 조정으로 복원했습니다.
+- 그 외 검·창끝 접촉은 칸 안쪽으로 옮겼습니다. 라마 보구의 검끝과 불꽃도 완성된 형태로 복원했습니다.
+- 카르나 방어2번째 동작(기본 시트0부터 세어7번)은 창대·태양 장식·칼날의 중심축을 한 직선으로 정렬했습니다.
+- 대기 수정은 공격·보구 첫/마지막 칸에도 연결했습니다. 무사시 이도류 공격v4 등 나머지 승인된 중간 동작은 유지합니다.
+- 기본1536×512(256px칸6×2),공격·보구각1536×1024(512px칸3×2). 알파0/255,칼·창·망토·이펙트는 칸 가장자리8px 안쪽입니다.
+- 게임 PNG90장의 크기·투명도·여백·동작 연결을 검사했습니다. 주요 잘림은 확대 비교로 형태도 확인했습니다.
+- 나머지74종의 캐릭터 정보와 게임 코드는 유지합니다. manifest.json에 최신 revision을 반영했습니다.
+
+| ID | 대상 | 최신 revision |
+|---|---|---|
+|scathach|스카사하 · 랜서|servants-uncropped-v5|
+|cuchulainn|쿠 훌린 · 랜서|servants-uncropped-v5|
+|hector|헥토르 · 랜서|servants-uncropped-v5|
+|leonidas|레오니다스 · 랜서|servants-uncropped-v5|
+|diarmuid|디어뮈드 · 랜서|servants-uncropped-v5|
+|karna|카르나 · 랜서|karna-straight-guard-v6|
+|vlad|블라드 3세 · 랜서|servants-uncropped-v5|
+|elizabeth|엘리자베스 · 랜서|servants-uncropped-v5|
+|enkidu|엘키두 · 랜서|servants-uncropped-v5|
+|romulus|로물루스 · 랜서|servants-uncropped-v5|
+|brynhild|브륀힐드 · 랜서|servants-uncropped-v5|
+|qinliangyu|진양옥 · 랜서|servants-uncropped-v5|
+|fionn|핀 막 쿨 · 랜서|servants-uncropped-v5|
+|caenis|카이니스 · 랜서|servants-uncropped-v5|
+|quixote|돈 키호테 · 랜서|servants-uncropped-v5|
+|percival|퍼시벌 · 랜서|servants-uncropped-v5|
+|kagetora|카게토라 · 랜서|servants-uncropped-v5|
+|artoria|알트리아 펜드래곤 · 세이버|servants-uncropped-v5|
+|sigurd|시구르드 · 세이버|servants-uncropped-v5|
+|siegfried|지크프리트 · 세이버|servants-uncropped-v5|
+|nero|네로 클라우디우스 · 세이버|servants-uncropped-v5|
+|gawain|가웨인 · 세이버|servants-uncropped-v5|
+|mordred|모드레드 · 세이버|servants-uncropped-v5|
+|altera|알테라 · 세이버|servants-uncropped-v5|
+|charlemagne|샤를마뉴 · 세이버|servants-uncropped-v5|
+|bedivere|베디비어 · 세이버|servants-uncropped-v5|
+|okita|오키타 소지 · 세이버|servants-uncropped-v5|
+|musashi|미야모토 무사시 · 세이버|servants-uncropped-v5|
+|rama|라마 · 세이버|servants-uncropped-v5|
+|richard|리처드 1세 · 세이버|servants-uncropped-v5|
+
+## 이전 구성과 작업 기록
+
 # 캐릭터 104종 · 마스터65종·서번트31종·일반인8종
 
 ## 랜서17종·세이버13종 최신 애니메이션 · 2026-10-21

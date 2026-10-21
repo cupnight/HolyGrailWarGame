@@ -318,7 +318,7 @@
           "holdLast": true
         }
       },
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "bodyPx": 148,
       "class": "랜서",
       "guideBodyPx": 148,
@@ -6645,7 +6645,7 @@
       "frames": 12,
       "bodyPx": 123,
       "heightCm": 154,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "artoria.png",
@@ -6840,7 +6840,7 @@
       "frames": 12,
       "bodyPx": 142,
       "heightCm": 178,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "sigurd.png",
@@ -7034,7 +7034,7 @@
       "frames": 12,
       "bodyPx": 152,
       "heightCm": 190,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "siegfried.png",
@@ -7228,7 +7228,7 @@
       "frames": 12,
       "bodyPx": 120,
       "heightCm": 150,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "nero.png",
@@ -7422,7 +7422,7 @@
       "frames": 12,
       "bodyPx": 144,
       "heightCm": 180,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "gawain.png",
@@ -7616,7 +7616,7 @@
       "frames": 12,
       "bodyPx": 123,
       "heightCm": 154,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "mordred.png",
@@ -7810,7 +7810,7 @@
       "frames": 12,
       "bodyPx": 128,
       "heightCm": 160,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "altera.png",
@@ -8004,7 +8004,7 @@
       "frames": 12,
       "bodyPx": 141,
       "heightCm": 176,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "charlemagne.png",
@@ -8198,7 +8198,7 @@
       "frames": 12,
       "bodyPx": 150,
       "heightCm": 187,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "bedivere.png",
@@ -8392,7 +8392,7 @@
       "frames": 12,
       "bodyPx": 126,
       "heightCm": 158,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "okita.png",
@@ -8586,7 +8586,7 @@
       "frames": 12,
       "bodyPx": 134,
       "heightCm": 167,
-      "revision": "musashi-two-sword-attack-v4",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "musashi.png",
@@ -8781,7 +8781,7 @@
       "frames": 12,
       "bodyPx": 134,
       "heightCm": 168,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "rama.png",
@@ -8975,7 +8975,7 @@
       "frames": 12,
       "bodyPx": 142,
       "heightCm": 178,
-      "revision": "sabers-three-sheet-v3",
+      "revision": "servants-uncropped-v5",
       "actions": {
         "idle": {
           "file": "richard.png",
@@ -9168,7 +9168,7 @@
       "cell": 256,
       "bodyPx": 136,
       "targetBodyPx": 134,
-      "revision": "scathach-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "groundY": 240,
       "actions": {
         "idle": {
@@ -9353,7 +9353,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "amber drilling spear",
       "actions": {
         "idle": {
@@ -9536,7 +9536,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "bronze crimson defensive thrust",
       "actions": {
         "idle": {
@@ -9719,7 +9719,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "paired crimson and gold spear trails",
       "actions": {
         "idle": {
@@ -9902,7 +9902,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "karna-straight-guard-v6",
       "effectTheme": "gold solar fire with magenta rim",
       "actions": {
         "idle": {
@@ -10085,7 +10085,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "icy silver spectral impalement",
       "actions": {
         "idle": {
@@ -10268,7 +10268,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "pink heart sound pulse",
       "actions": {
         "idle": {
@@ -10451,7 +10451,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "connected golden binding chains",
       "actions": {
         "idle": {
@@ -10634,7 +10634,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "crimson root and gold fire",
       "actions": {
         "idle": {
@@ -10817,7 +10817,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "violet cyan heart wings",
       "actions": {
         "idle": {
@@ -11000,7 +11000,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "green white cloud ribbons",
       "actions": {
         "idle": {
@@ -11183,7 +11183,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "blue white water lance",
       "actions": {
         "idle": {
@@ -11366,7 +11366,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "gold shield and sea wave thrust",
       "actions": {
         "idle": {
@@ -11549,7 +11549,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "heroic golden star lance",
       "actions": {
         "idle": {
@@ -11732,7 +11732,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "white gold sacred lance",
       "actions": {
         "idle": {
@@ -11915,7 +11915,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "lancers-three-sheet-v1",
+      "revision": "servants-uncropped-v5",
       "effectTheme": "silver cyan wind spear",
       "actions": {
         "idle": {
