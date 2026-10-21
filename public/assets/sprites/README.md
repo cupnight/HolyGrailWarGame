@@ -1,3 +1,61 @@
+# 캐릭터 104종 · 마스터65종·서번트31종·일반인8종
+
+## 랜서17종·세이버13종 최신 애니메이션 · 2026-10-21
+
+랜서와 세이버 30종을 새 작업서의 기본·공격·보구 3장 구성으로 갱신했습니다. PNG 총90장, 캐릭터당24칸, 총720칸입니다. 아래30종을 제외한 기존 캐릭터74종과 색 교체 자료는 그대로 유지했습니다.
+
+| 시트 | 크기 | 칸·배치 | 칸 수 | 발바닥 위치 |
+|---|---|---|---:|---:|
+| {id}.png |1536×512|256×256,6열×2행|12|240px|
+| {id}_attack.png |1536×1024|512×512,3열×2행|6|496px|
+| {id}_np.png |1536×1024|512×512,3열×2행|6|496px|
+
+- 인물은 세 장에서 같은 축척입니다. 배경은 투명, 알파0/255, 모든 그림과 무기·이펙트는 칸 가장자리8px 안쪽입니다. 최근접 보간으로 표시하세요.
+- 기본 칸: 대기4칸 / 피격2칸 / 회피 / 방어 / 휘청 / 넘어짐 / 접지 / 누움. 공격: 준비 / 무기 들기·조준 / 베기·찌르기 / 마무리 / 복귀 / 대기. 보구: 준비 / 충전 / 최대충전 / 해방 / 마무리 / 대기.
+- manifest.json에는 캐릭터당 항목 하나만 둡니다. 공격·보구는 해당 항목의 actions.attack 및 actions.ultimate에 file과cell:512를 지정합니다. 기본 동작도 file과cell:256을 명시했습니다. 별도 공격 캐릭터 ID를 만들지 않습니다.
+- 프레임 좌표: columns=1536/cell, x=(frame%columns)*cell, y=Math.floor(frame/columns)*cell. 게임에서 actions의file·cell·frames·durationMs를 읽어 재생합니다. down.holdLast:true는 마지막 칸을 유지합니다.
+- 대기는0→1→2→3→2→1, 각400ms이며 좌우로 늘리지 않습니다. 공격·보구의 첫/마지막 칸은 같은 대기입니다.
+- 세이버: 보구4번 검광을 잘림 없이 복원하고 발사광을 정면에 배치했습니다. 일반 공격의 중복 검광을 제거했으며, 가웨인·베디비어의 공격2번·5번 여분 팔·검을 수정했습니다. 무사시는 최신v4로 공격2번 양손 들기, 3·4번 두 칼 내리치기·뒤쪽 칼 제거·연속 검광을 반영했습니다.
+- 랜서: 승인된3장 구성과 찌르기 동작, 캐릭터별 무기·의상·방향 수정본입니다. 원본4px 격자의 몸 키 반올림은 유지합니다. 예: 스카사하 작업서 약134px/실측136px. bodyPx는 실제 기본 시트의 승인된 값입니다.
+- 기존 랜슬롯 등 다른 클래스는 이전 규격을 유지하므로 각 manifest 항목의 크기·동작을 사용하세요. 저장소 게임 코드 변경은 포함하지 않습니다.
+
+| ID | 대상 | 몸 키(px) | 기준(px) | 최신 revision |
+|---|---|---:|---:|---|
+|scathach|스카사하 · 랜서|136|134|scathach-three-sheet-v1|
+|cuchulainn|쿠 훌린 · 랜서|148|148|lancers-three-sheet-v1|
+|hector|헥토르 · 랜서|144|144|lancers-three-sheet-v1|
+|leonidas|레오니다스 · 랜서|150|150|lancers-three-sheet-v1|
+|diarmuid|디어뮈드 · 랜서|147|147|lancers-three-sheet-v1|
+|karna|카르나 · 랜서|142|142|lancers-three-sheet-v1|
+|vlad|블라드 3세 · 랜서|153|153|lancers-three-sheet-v1|
+|elizabeth|엘리자베스 · 랜서|123|123|lancers-three-sheet-v1|
+|enkidu|엘키두 · 랜서|136|136|lancers-three-sheet-v1|
+|romulus|로물루스 · 랜서|152|152|lancers-three-sheet-v1|
+|brynhild|브륀힐드 · 랜서|138|138|lancers-three-sheet-v1|
+|qinliangyu|진양옥 · 랜서|133|133|lancers-three-sheet-v1|
+|fionn|핀 막 쿨 · 랜서|145|145|lancers-three-sheet-v1|
+|caenis|카이니스 · 랜서|139|139|lancers-three-sheet-v1|
+|quixote|돈 키호테 · 랜서|118|118|lancers-three-sheet-v1|
+|percival|퍼시벌 · 랜서|156|156|lancers-three-sheet-v1|
+|kagetora|카게토라 · 랜서|134|134|lancers-three-sheet-v1|
+|artoria|알트리아 펜드래곤 · 세이버|123|123|sabers-three-sheet-v3|
+|sigurd|시구르드 · 세이버|142|142|sabers-three-sheet-v3|
+|siegfried|지크프리트 · 세이버|152|152|sabers-three-sheet-v3|
+|nero|네로 클라우디우스 · 세이버|120|120|sabers-three-sheet-v3|
+|gawain|가웨인 · 세이버|144|144|sabers-three-sheet-v3|
+|mordred|모드레드 · 세이버|123|123|sabers-three-sheet-v3|
+|altera|알테라 · 세이버|128|128|sabers-three-sheet-v3|
+|charlemagne|샤를마뉴 · 세이버|141|141|sabers-three-sheet-v3|
+|bedivere|베디비어 · 세이버|150|150|sabers-three-sheet-v3|
+|okita|오키타 소지 · 세이버|126|126|sabers-three-sheet-v3|
+|musashi|미야모토 무사시 · 세이버|134|134|musashi-two-sword-attack-v4|
+|rama|라마 · 세이버|134|134|sabers-three-sheet-v3|
+|richard|리처드 1세 · 세이버|142|142|sabers-three-sheet-v3|
+
+## 이전 작업 기록
+
+아래는 이전 업로드 당시의 구성과 변경 이력입니다. 위30종에는 현재의3장 규격과 manifest.json이 우선합니다.
+
 # 마스터 65종·서번트 15종·일반인 8종 · 큰 도트 애니메이션
 
 작업 가이드: https://claude.ai/artifact/TFCPss31cF7vH5PSeZW9tN
@@ -113,3 +171,4 @@ manifest.json의 actions에는 0부터 시작하는 프레임 번호와 재생 �
 무사시는 회피·방어·보구 2~5번째 동작의 팔·손·검 중복을 수정한 v8입니다. 리처드 1세는 일반 공격·보구의 6칸을 알트리아와 유사한 금빛/흰빛 곡선 궤적으로 교체한 v9입니다. 알트리아는 승인된 금빛 이펙트 v4를 그대로 사용했습니다. 베디비어의 팔·검 소유, 알테라의 검 세로 색 구분, 지크프리트·무사시·가웨인의 참고 외형 수정을 포함합니다.
 
 이번 추가는 이 폴더의 세이버 PNG 13장, 기존 75종 항목을 보존해 합친 manifest.json과 이 문서만 변경합니다. 게임 코드는 수정하지 않습니다.
+
