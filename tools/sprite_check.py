@@ -69,14 +69,35 @@ MASTER_ACTIONS = {
     'hit':      ([0, 4, 4, 1], [150, 250, 400, 350], False),
     'down':     ([4, 5], [250, 1200], True),
 }
-SERVANT_IDLE = [0, 5, 6, 11]
-SERVANT_STANDING = [0, 5, 6, 11, 17]      # 발바닥이 반드시 240에 있어야 하는 칸
 SERVANT_CELL_NAMES = ['대기①', '예비', '치켜듦', '베기', '마무리', '대기②', '대기③', '맞는 순간', '움찔', '피함', '방어', '대기④',
                       '자세', '힘 모으기', '해방 직전', '해방', '마무리', '복귀', '휘청', '균형 잃음', '넘어짐', '바닥에 닿음', '누움', '정지']
+BASIC_CELL_NAMES = ['대기①', '대기②', '대기③', '대기④', '맞는 순간', '움찔', '피함', '방어', '휘청', '넘어짐', '바닥에 닿음', '누움']
+ATTACK_CELL_NAMES = ['예비', '치켜듦', '베기', '마무리', '복귀', '대기']
+NP_CELL_NAMES = ['자세', '힘 모으기', '해방 직전', '해방', '마무리', '복귀']
 MASTER_CELL_NAMES = ['대기', '숨쉬기', '놀람', '령주', '다침', '쓰러짐']
+BIG_SUFFIX = {'attack': ATTACK_CELL_NAMES, 'np': NP_CELL_NAMES, 'special': [f'전용{k}' for k in range(1, 7)]}
+
+# 시트 형식: 칸 크기·열·행·발 기준·대기 칸·발이 기준선에 있어야 하는 칸
+LAYOUTS = {
+    'legacy': dict(cell=256, cols=6, rows=(4, 5), ground=240, idle=[0, 5, 6, 11], standing=[0, 5, 6, 11, 17],
+                   names=SERVANT_CELL_NAMES + [f'전용{k}' for k in range(1, 7)], desc='서번트 예전 24칸 1536×1024(5행 포함 시 1536×1280)'),
+    'basic': dict(cell=256, cols=6, rows=(2,), ground=240, idle=[0, 1, 2, 3], standing=[0, 1, 2, 3],
+                  names=BASIC_CELL_NAMES, desc='서번트 기본 시트 1536×512'),
+    'big': dict(cell=512, cols=3, rows=(2,), ground=496, idle=[], standing=[0, 5],
+                names=None, desc='공격·보구 시트 1536×1024(512px 칸 3×2)'),
+    'master': dict(cell=256, cols=6, rows=(1,), ground=240, idle=[0, 1], standing=[0, 1, 2, 3, 4],
+                   names=MASTER_CELL_NAMES, desc='마스터·일반인 1536×256'),
+}
+
+
+def split_stem(stem):
+    """'artoria_np' -> ('artoria', 'np'), 'artoria' -> ('artoria', None)"""
+    m = re.fullmatch(r'(.+)_(attack|np|special)', stem)
+    return (m.group(1), m.group(2)) if m else (stem, None)
 
 
 def kind_of(stem):
+    stem = split_stem(stem)[0]
     if stem in HEIGHT:
         return 'servant'
     if stem in BASE:
@@ -88,7 +109,7 @@ def kind_of(stem):
 
 
 def expected_body(stem, kind):
-    stem = stem.lower()
+    stem = split_stem(stem.lower())[0]
     if kind_of(stem) is None:  # 이름이 틀린 파일: 마스터·서번트 평균값으로
         return (135 if kind != 'servant' else 140), False
     if kind == 'servant':
@@ -102,9 +123,11 @@ def expected_body(stem, kind):
     return (140 if s == 'm' else 130), False
 
 
-def cell(a, i):
-    r, c = divmod(i, COLS)
-    return a[r * CELL:(r + 1) * CELL, c * CELL:(c + 1) * CELL]
+def cell(a, i, L=None):
+    L = L or LAYOUTS['legacy']
+    cs, cols = L['cell'], L['cols']
+    r, c = divmod(i, cols)
+    return a[r * cs:(r + 1) * cs, c * cs:(c + 1) * cs]
 
 
 def foot_y(alpha):
@@ -135,12 +158,24 @@ def check_file(path, manifest_entry):
     a = np.array(im)
     alpha = a[:, :, 3]
     H, Wd = alpha.shape
-    rows_expected = 4 if kind == 'servant' else 1
-    if Wd != CELL * COLS or H not in ((rows_expected * CELL,) if kind != 'servant' else (4 * CELL, 5 * CELL)):
-        E(f'크기가 {Wd}×{H}입니다. ' + ('서번트는 1536×1024(5행 포함 시 1536×1280)' if kind == 'servant' else '마스터·일반인은 1536×256') + '이어야 합니다')
+    suffix = split_stem(stem)[1]
+    if kind == 'servant' and suffix:
+        lay = 'big'
+    elif kind == 'servant':
+        lay = 'basic' if H in (512, 1024) and not (H == 1024 and (alpha[512:] > 0).sum() > 2000) else 'legacy'
+        if H == 1024 and lay == 'basic':
+            W('기본 시트인데 1536×1024입니다. 아래 절반이 비어 있으니 위 1536×512만 잘라 올려 주세요')
+            a = a[:512]; alpha = a[:, :, 3]; H = 512
+    else:
+        lay = 'master'
+    L = LAYOUTS[lay]
+    cs, cols, ground = L['cell'], L['cols'], L['ground']
+    res['layout'] = lay
+    if Wd != cs * cols or H not in tuple(r * cs for r in L['rows']):
+        E(f'크기가 {Wd}×{H}입니다. {L["desc"]}이어야 합니다')
         return res, a
-    n = (H // CELL) * COLS
-    names = SERVANT_CELL_NAMES + [f'전용{k}' for k in range(1, 7)] if kind == 'servant' else MASTER_CELL_NAMES
+    n = (H // cs) * cols
+    names = L['names'] or BIG_SUFFIX.get(suffix, [])
 
     # 투명도
     # 투명도 240 이상은 눈으로 불투명과 같아서 허용, 16 이하는 '거의 안 보이는 점'
@@ -158,18 +193,18 @@ def check_file(path, manifest_entry):
 
     # 칸별 검사
     for i in range(n):
-        al = cell(alpha, i)
+        al = cell(alpha, i, L)
         info = {}
         solid = al >= 128
         if not solid.any():
-            if kind == 'servant' and i >= 24:
+            if lay == 'legacy' and i >= 24:
                 continue
             E(f'{label(i)} 칸이 비어 있습니다')
             continue
         ys, xs = np.where(solid)
         info['bbox'] = [int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())]
         # 가장자리
-        d = {'왼쪽': int(xs.min()), '오른쪽': int(CELL - 1 - xs.max()), '위': int(ys.min()), '아래': int(CELL - 1 - ys.max())}
+        d = {'왼쪽': int(xs.min()), '오른쪽': int(cs - 1 - xs.max()), '위': int(ys.min()), '아래': int(cs - 1 - ys.max())}
         cut = [s for s, v in d.items() if v == 0]
         near = [f'{s} {v}px' for s, v in d.items() if 0 < v < MARGIN]
         if cut:
@@ -177,19 +212,23 @@ def check_file(path, manifest_entry):
             info['cut'] = cut
         elif near:
             W(f'{label(i)}: 가장자리 여백 8px보다 가깝습니다 ({", ".join(near)})')
+        # 여백선에서 칼로 자른 듯 끊긴 그림(규칙을 맞추려고 잘라 낸 경우)
+        lines = {'왼쪽': solid[:, MARGIN], '오른쪽': solid[:, cs - 1 - MARGIN], '위': solid[MARGIN, :], '아래': solid[cs - 1 - MARGIN, :]}
+        clipped = [f'{s} {int(v.sum())}px' for s, v in lines.items() if d[s] == MARGIN and v.sum() >= 6]
+        if clipped:
+            W(f'{label(i)}: 그림이 8px 여백선에서 곧게 잘린 것 같습니다 ({", ".join(clipped)}). 잘린 부분이 없도록 칸 안으로 옮겨 그려야 합니다')
+            info['clipped'] = clipped
             info['near'] = near
         # 발바닥
         fy = foot_y(al)
         info['foot'] = fy
-        standing = (i in SERVANT_STANDING) if kind == 'servant' else (i < 5)
-        if standing and fy is not None and abs(fy - GROUND) > 4:
-            (E if abs(fy - GROUND) > 8 else W)(f'{label(i)}: 발바닥이 y{fy}에 있습니다 (기준 y{GROUND})')
+        if i in L['standing'] and fy is not None and abs(fy - ground) > 4:
+            (E if abs(fy - ground) > 8 else W)(f'{label(i)}: 발바닥이 y{fy}에 있습니다 (기준 y{ground})')
         res['cells'][i] = info
 
     # 대기 칸이 서로 다른지
-    idle = SERVANT_IDLE if kind == 'servant' else [0, 1]
-    for p, q in combinations(idle, 2):
-        diff = int((np.abs(cell(a, p).astype(int) - cell(a, q).astype(int)).sum(-1) > 30).sum())
+    for p, q in combinations(L['idle'], 2):
+        diff = int((np.abs(cell(a, p, L).astype(int) - cell(a, q, L).astype(int)).sum(-1) > 30).sum())
         if diff == 0:
             E(f'대기 칸 {p}번과 {q}번이 픽셀까지 똑같습니다. 숨쉬기·흔들림으로 조금씩 달라야 대기 동작이 살아납니다')
         elif diff < 40:
@@ -201,34 +240,48 @@ def check_file(path, manifest_entry):
     top = res['cells'].get(0, {}).get('bbox', [0, 0])[1]
     if fy is not None:
         raw = fy - top + 1
-        I(f'대기 첫 칸 높이(장식·무기 포함) {raw}px, 가이드 몸 키 {exp}px' + (' (거대 서번트: 칸 안 최대)' if giant else ''))
-        if raw < exp * 0.85:
+        res['raw0'] = raw
+        what = '첫 칸' if lay == 'big' else '대기 첫 칸'
+        I(f'{what} 높이(장식·무기 포함) {raw}px, 가이드 몸 키 {exp}px' + (' (거대 서번트: 칸 안 최대)' if giant else ''))
+        if lay != 'big' and raw < exp * 0.85:
             W(f'그림이 가이드 몸 키({exp}px)보다 작아 보입니다 (장식 포함 {raw}px)')
-    bp = (manifest_entry or {}).get('bodyPx')
-    if manifest_entry is None:
-        W('manifest.json에 이 그림 항목이 없습니다 → --manifest로 기본 항목을 추가할 수 있습니다')
+    me = manifest_entry or {}
+    fname = os.path.basename(path)
+    bp = me.get('bodyPx')
+    if not manifest_entry:
+        W('manifest.json에 이 그림 항목이 없습니다' + ('' if lay == 'big' else ' → --manifest로 기본 항목을 추가할 수 있습니다'))
     elif bp is None:
         W(f'manifest.json에 bodyPx가 없습니다 (가이드 기준 {exp}px)')
-    else:
+    elif lay != 'big':
         if not giant and abs(bp - exp) > max(6, exp * 0.06):
             W(f'manifest bodyPx {bp}가 가이드 몸 키 {exp}px와 다릅니다')
         if giant and bp > MAX_BODY:
             E(f'거대 서번트 bodyPx {bp}가 칸 최대 {MAX_BODY}px을 넘습니다. 그린 그림의 실제 몸 키를 적어 주세요')
-    # manifest 형식
     if manifest_entry:
-        me = manifest_entry
-        if me.get('file') != os.path.basename(path):
-            E(f'manifest의 file이 {me.get("file")}입니다')
-        if (me.get('width'), me.get('height')) != (Wd, H):
-            E(f'manifest 크기 {me.get("width")}×{me.get("height")}가 실제 {Wd}×{H}와 다릅니다')
-        for act, v in (me.get('actions') or {}).items():
+        acts = me.get('actions') or {}
+        if lay == 'big':
+            mine = {k: v for k, v in acts.items() if v.get('file') == fname}
+            if not mine:
+                W(f'manifest의 어떤 동작도 {fname}을 쓰지 않습니다 (actions.attack/ultimate의 file·cell 확인)')
+            for k, v in mine.items():
+                if v.get('cell') != 512:
+                    E(f'manifest {k}: cell이 {v.get("cell")}입니다 (512여야 함)')
+        else:
+            if me.get('file') != fname:
+                E(f'manifest의 file이 {me.get("file")}입니다')
+            if (me.get('width'), me.get('height')) != (Wd, H):
+                E(f'manifest 크기 {me.get("width")}×{me.get("height")}가 실제 {Wd}×{H}와 다릅니다')
+            mine = {k: v for k, v in acts.items() if v.get('file', fname) == fname}
+            if not me.get('revision'):
+                W('manifest에 revision(그림 버전 이름)이 없습니다')
+        for act, v in mine.items():
             fr, du = v.get('frames', []), v.get('durationMs', [])
-            if len(fr) != len(du):
+            if isinstance(du, list) and len(fr) != len(du):
                 E(f'manifest {act}: frames와 durationMs 개수가 다릅니다')
             if any(f >= n or f < 0 for f in fr):
                 E(f'manifest {act}: 없는 칸 번호가 있습니다 ({fr})')
-        if not me.get('revision'):
-            W('manifest에 revision(그림 버전 이름)이 없습니다')
+        if lay == 'basic' and 'idle' in acts and acts['idle'].get('frames', [])[:4] != [0, 1, 2, 3]:
+            W(f'manifest idle 프레임이 {acts["idle"].get("frames")}입니다 (기본 시트는 0·1·2·3·2·1)')
 
     # 픽셀 격자(권장)
     sm = a[::8, ::8]
@@ -239,21 +292,23 @@ def check_file(path, manifest_entry):
 
 
 def draw_sheet(res, a, out):
-    """문제를 표시한 확인용 그림: 기준선(y240), 여백선(8px), 문제 칸 테두리."""
+    """문제를 표시한 확인용 그림: 발 기준선, 여백선(8px), 문제 칸 테두리."""
+    L = LAYOUTS[res.get('layout', 'legacy')]
+    cs, cols, ground = L['cell'], L['cols'], L['ground']
     H, Wd = a.shape[:2]
     bg = Image.new('RGBA', (Wd, H), (38, 36, 48, 255))
     bg.alpha_composite(Image.fromarray(a))
     d = ImageDraw.Draw(bg)
-    for r in range(H // CELL):
-        for c in range(COLS):
-            x0, y0 = c * CELL, r * CELL
-            i = r * COLS + c
-            d.rectangle([x0 + MARGIN, y0 + MARGIN, x0 + CELL - MARGIN - 1, y0 + CELL - MARGIN - 1], outline=(110, 110, 140, 255))
-            d.line([x0, y0 + GROUND, x0 + CELL - 1, y0 + GROUND], fill=(90, 200, 140, 255))
+    for r in range(H // cs):
+        for c in range(cols):
+            x0, y0 = c * cs, r * cs
+            i = r * cols + c
+            d.rectangle([x0 + MARGIN, y0 + MARGIN, x0 + cs - MARGIN - 1, y0 + cs - MARGIN - 1], outline=(110, 110, 140, 255))
+            d.line([x0, y0 + ground, x0 + cs - 1, y0 + ground], fill=(90, 200, 140, 255))
             ci = res['cells'].get(i, {})
-            col = (230, 60, 70, 255) if ci.get('cut') else (240, 180, 60, 255) if ci.get('near') else None
+            col = (230, 60, 70, 255) if ci.get('cut') else (240, 180, 60, 255) if ci.get('near') or ci.get('clipped') else None
             if col:
-                d.rectangle([x0, y0, x0 + CELL - 1, y0 + CELL - 1], outline=col, width=4)
+                d.rectangle([x0, y0, x0 + cs - 1, y0 + cs - 1], outline=col, width=4)
             d.text((x0 + 6, y0 + 4), str(i), fill=(200, 200, 220, 255))
     bg.save(out)
 
@@ -288,14 +343,24 @@ def main():
     mpath = os.path.join(args.dir, 'manifest.json')
     manifest = json.load(open(mpath, encoding='utf-8')) if os.path.exists(mpath) else {'assets': []}
     by_file = {e.get('file'): e for e in manifest.get('assets', [])}
-    files = args.files or sorted(f for f in os.listdir(args.dir) if f.lower().endswith('.png'))
+    by_id = {os.path.splitext(e.get('file', ''))[0]: e for e in manifest.get('assets', [])}
+    files = args.files or sorted((f for f in os.listdir(args.dir) if f.lower().endswith('.png')),
+                                 key=lambda f: (split_stem(os.path.splitext(f)[0])[0], f.count('_attack') + f.count('_np')))
     paths = [f if os.path.isabs(f) or os.path.exists(f) and os.sep in f else os.path.join(args.dir, f) for f in files]
 
     report, added, total_e, total_w = [], [], 0, 0
+    raw_basic = {}
     for p in paths:
         if not os.path.exists(p):
             print(f'✕ {p}: 파일이 없습니다'); total_e += 1; continue
-        res, a = check_file(p, by_file.get(os.path.basename(p)))
+        stem0, suf = split_stem(os.path.splitext(os.path.basename(p))[0])
+        res, a = check_file(p, by_file.get(os.path.basename(p)) if not suf else by_id.get(stem0))
+        if suf and res.get('raw0') and raw_basic.get(stem0):
+            rb = raw_basic[stem0]
+            if abs(res['raw0'] - rb) > max(10, rb * 0.12):
+                res['warnings'].append(f'첫 칸 인물 높이 {res["raw0"]}px가 기본 시트 대기 칸({rb}px)과 다릅니다. 큰 칸에서도 인물은 같은 크기여야 합니다(무기·이펙트 포함 값이라 참고용)')
+        elif not suf and res.get('raw0'):
+            raw_basic[stem0] = res['raw0']
         report.append(res)
         total_e += len(res['errors']); total_w += len(res['warnings'])
         mark = '✕' if res['errors'] else '△' if res['warnings'] else '○'
@@ -310,7 +375,7 @@ def main():
         if args.fix:
             os.makedirs(args.fix, exist_ok=True)
             fix_copy(a, os.path.join(args.fix, res['file']))
-        if args.manifest and res['file'] not in by_file and res['kind']:
+        if args.manifest and res['file'] not in by_file and res['kind'] and not suf:
             exp, _ = expected_body(stem, res['kind'])
             e = default_entry(stem, res['kind'], a.shape[1], a.shape[0], exp)
             manifest.setdefault('assets', []).append(e); by_file[res['file']] = e; added.append(res['file'])
