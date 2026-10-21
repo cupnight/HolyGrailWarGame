@@ -83,6 +83,8 @@ LAYOUTS = {
                    names=SERVANT_CELL_NAMES + [f'전용{k}' for k in range(1, 7)], desc='서번트 예전 24칸 1536×1024(5행 포함 시 1536×1280)'),
     'basic': dict(cell=256, cols=6, rows=(2,), ground=240, idle=[0, 1, 2, 3], standing=[0, 1, 2, 3],
                   names=BASIC_CELL_NAMES, desc='서번트 기본 시트 1536×512'),
+    'wide': dict(cell=384, cw=384, ch=256, cols=4, rows=(3,), ground=240, idle=[0, 1, 2, 3], standing=[0, 1, 2, 3],
+                 names=BASIC_CELL_NAMES, desc='서번트 기본 시트 1536×768(384×256px 칸 4×3)'),
     'big': dict(cell=512, cols=3, rows=(2,), ground=496, idle=[], standing=[0, 5],
                 names=None, desc='공격·보구 시트 1536×1024(512px 칸 3×2)'),
     'master': dict(cell=256, cols=6, rows=(1,), ground=240, idle=[0, 1], standing=[0, 1, 2, 3, 4],
@@ -125,9 +127,9 @@ def expected_body(stem, kind):
 
 def cell(a, i, L=None):
     L = L or LAYOUTS['legacy']
-    cs, cols = L['cell'], L['cols']
+    cw, ch, cols = L.get('cw', L['cell']), L.get('ch', L['cell']), L['cols']
     r, c = divmod(i, cols)
-    return a[r * cs:(r + 1) * cs, c * cs:(c + 1) * cs]
+    return a[r * ch:(r + 1) * ch, c * cw:(c + 1) * cw]
 
 
 def foot_y(alpha):
@@ -162,19 +164,27 @@ def check_file(path, manifest_entry):
     if kind == 'servant' and suffix:
         lay = 'big'
     elif kind == 'servant':
-        lay = 'basic' if H in (512, 1024) and not (H == 1024 and (alpha[512:] > 0).sum() > 2000) else 'legacy'
-        if H == 1024 and lay == 'basic':
-            W('기본 시트인데 1536×1024입니다. 아래 절반이 비어 있으니 위 1536×512만 잘라 올려 주세요')
-            a = a[:512]; alpha = a[:, :, 3]; H = 512
+        if H == 768 or (H == 1024 and (alpha[768:] > 0).sum() <= 2000 and (alpha[512:768] > 0).sum() > 2000
+                        and abs(int((alpha[:256, :384] > 0).sum()) - int((alpha[:256, 384:768] > 0).sum())) < 3000):
+            lay = 'wide'
+            if H == 1024:
+                W('기본 시트인데 1536×1024입니다. 아래 256px가 비어 있으니 위 1536×768만 잘라 올려 주세요')
+                a = a[:768]; alpha = a[:, :, 3]; H = 768
+        else:
+            lay = 'basic' if H in (512, 1024) and not (H == 1024 and (alpha[512:] > 0).sum() > 2000) else 'legacy'
+            if H == 1024 and lay == 'basic':
+                W('기본 시트인데 1536×1024입니다. 아래 절반이 비어 있으니 위 1536×512만 잘라 올려 주세요')
+                a = a[:512]; alpha = a[:, :, 3]; H = 512
     else:
         lay = 'master'
     L = LAYOUTS[lay]
     cs, cols, ground = L['cell'], L['cols'], L['ground']
+    cw, ch = L.get('cw', cs), L.get('ch', cs)
     res['layout'] = lay
-    if Wd != cs * cols or H not in tuple(r * cs for r in L['rows']):
+    if Wd != cw * cols or H not in tuple(r * ch for r in L['rows']):
         E(f'크기가 {Wd}×{H}입니다. {L["desc"]}이어야 합니다')
         return res, a
-    n = (H // cs) * cols
+    n = (H // ch) * cols
     names = L['names'] or BIG_SUFFIX.get(suffix, [])
 
     # 투명도
@@ -204,7 +214,7 @@ def check_file(path, manifest_entry):
         ys, xs = np.where(solid)
         info['bbox'] = [int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())]
         # 가장자리
-        d = {'왼쪽': int(xs.min()), '오른쪽': int(cs - 1 - xs.max()), '위': int(ys.min()), '아래': int(cs - 1 - ys.max())}
+        d = {'왼쪽': int(xs.min()), '오른쪽': int(cw - 1 - xs.max()), '위': int(ys.min()), '아래': int(ch - 1 - ys.max())}
         cut = [s for s, v in d.items() if v == 0]
         near = [f'{s} {v}px' for s, v in d.items() if 0 < v < MARGIN]
         if cut:
@@ -213,7 +223,7 @@ def check_file(path, manifest_entry):
         elif near:
             W(f'{label(i)}: 가장자리 여백 8px보다 가깝습니다 ({", ".join(near)})')
         # 여백선에서 칼로 자른 듯 끊긴 그림(규칙을 맞추려고 잘라 낸 경우)
-        lines = {'왼쪽': solid[:, MARGIN], '오른쪽': solid[:, cs - 1 - MARGIN], '위': solid[MARGIN, :], '아래': solid[cs - 1 - MARGIN, :]}
+        lines = {'왼쪽': solid[:, MARGIN], '오른쪽': solid[:, cw - 1 - MARGIN], '위': solid[MARGIN, :], '아래': solid[ch - 1 - MARGIN, :]}
         clipped = [f'{s} {int(v.sum())}px' for s, v in lines.items() if d[s] == MARGIN and v.sum() >= 6]
         if clipped:
             W(f'{label(i)}: 그림이 8px 여백선에서 곧게 잘린 것 같습니다 ({", ".join(clipped)}). 잘린 부분이 없도록 칸 안으로 옮겨 그려야 합니다')
@@ -280,7 +290,11 @@ def check_file(path, manifest_entry):
                 E(f'manifest {act}: frames와 durationMs 개수가 다릅니다')
             if any(f >= n or f < 0 for f in fr):
                 E(f'manifest {act}: 없는 칸 번호가 있습니다 ({fr})')
-        if lay == 'basic' and 'idle' in acts and acts['idle'].get('frames', [])[:4] != [0, 1, 2, 3]:
+        if lay == 'wide':
+            for k, v in mine.items():
+                if list(v.get('cell') or []) != [384, 256]:
+                    E(f'manifest {k}: cell이 {v.get("cell")}입니다 ([384, 256]이어야 함)')
+        if lay in ('basic', 'wide') and 'idle' in acts and acts['idle'].get('frames', [])[:4] != [0, 1, 2, 3]:
             W(f'manifest idle 프레임이 {acts["idle"].get("frames")}입니다 (기본 시트는 0·1·2·3·2·1)')
 
     # 픽셀 격자(권장)
@@ -295,20 +309,21 @@ def draw_sheet(res, a, out):
     """문제를 표시한 확인용 그림: 발 기준선, 여백선(8px), 문제 칸 테두리."""
     L = LAYOUTS[res.get('layout', 'legacy')]
     cs, cols, ground = L['cell'], L['cols'], L['ground']
+    cw, ch = L.get('cw', cs), L.get('ch', cs)
     H, Wd = a.shape[:2]
     bg = Image.new('RGBA', (Wd, H), (38, 36, 48, 255))
     bg.alpha_composite(Image.fromarray(a))
     d = ImageDraw.Draw(bg)
-    for r in range(H // cs):
+    for r in range(H // ch):
         for c in range(cols):
-            x0, y0 = c * cs, r * cs
+            x0, y0 = c * cw, r * ch
             i = r * cols + c
-            d.rectangle([x0 + MARGIN, y0 + MARGIN, x0 + cs - MARGIN - 1, y0 + cs - MARGIN - 1], outline=(110, 110, 140, 255))
-            d.line([x0, y0 + ground, x0 + cs - 1, y0 + ground], fill=(90, 200, 140, 255))
+            d.rectangle([x0 + MARGIN, y0 + MARGIN, x0 + cw - MARGIN - 1, y0 + ch - MARGIN - 1], outline=(110, 110, 140, 255))
+            d.line([x0, y0 + ground, x0 + cw - 1, y0 + ground], fill=(90, 200, 140, 255))
             ci = res['cells'].get(i, {})
             col = (230, 60, 70, 255) if ci.get('cut') else (240, 180, 60, 255) if ci.get('near') or ci.get('clipped') else None
             if col:
-                d.rectangle([x0, y0, x0 + cs - 1, y0 + cs - 1], outline=col, width=4)
+                d.rectangle([x0, y0, x0 + cw - 1, y0 + ch - 1], outline=col, width=4)
             d.text((x0 + 6, y0 + 4), str(i), fill=(200, 200, 220, 255))
     bg.save(out)
 
