@@ -9531,17 +9531,23 @@
       "bodyPx": 150,
       "guideBodyPx": 150,
       "width": 1536,
-      "height": 512,
-      "columns": 6,
-      "rows": 2,
-      "cell": 256,
+      "height": 768,
+      "columns": 4,
+      "rows": 3,
+      "cell": [
+        384,
+        256
+      ],
       "groundY": 240,
-      "revision": "servants-uncropped-v5",
+      "revision": "lancers-wide-basic-v7",
       "effectTheme": "bronze crimson defensive thrust",
       "actions": {
         "idle": {
           "file": "leonidas.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             1,
@@ -9583,7 +9589,10 @@
         },
         "hit": {
           "file": "leonidas.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             4,
@@ -9600,7 +9609,10 @@
         },
         "dodge": {
           "file": "leonidas.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             6,
@@ -9615,7 +9627,10 @@
         },
         "guard": {
           "file": "leonidas.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             7,
@@ -9651,7 +9666,10 @@
         },
         "down": {
           "file": "leonidas.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             8,
             9,
@@ -9670,17 +9688,20 @@
       "kind": "servant",
       "frames": 12,
       "cellSize": [
-        256,
+        384,
         256
       ],
       "sheets": {
         "basic": {
           "file": "leonidas.png",
           "width": 1536,
-          "height": 512,
-          "cell": 256,
-          "columns": 6,
-          "rows": 2,
+          "height": 768,
+          "cell": [
+            384,
+            256
+          ],
+          "columns": 4,
+          "rows": 3,
           "frames": 12,
           "groundY": 240
         },
@@ -9704,7 +9725,8 @@
           "frames": 6,
           "groundY": 496
         }
-      }
+      },
+      "sourceRevision": "servants-uncropped-v5"
     },
     {
       "id": "diarmuid",
@@ -9897,17 +9919,23 @@
       "bodyPx": 142,
       "guideBodyPx": 142,
       "width": 1536,
-      "height": 512,
-      "columns": 6,
-      "rows": 2,
-      "cell": 256,
+      "height": 768,
+      "columns": 4,
+      "rows": 3,
+      "cell": [
+        384,
+        256
+      ],
       "groundY": 240,
-      "revision": "karna-straight-guard-v6",
+      "revision": "lancers-wide-basic-v7",
       "effectTheme": "gold solar fire with magenta rim",
       "actions": {
         "idle": {
           "file": "karna.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             1,
@@ -9949,7 +9977,10 @@
         },
         "hit": {
           "file": "karna.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             4,
@@ -9966,7 +9997,10 @@
         },
         "dodge": {
           "file": "karna.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             6,
@@ -9981,7 +10015,10 @@
         },
         "guard": {
           "file": "karna.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             7,
@@ -10017,7 +10054,10 @@
         },
         "down": {
           "file": "karna.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             8,
             9,
@@ -10036,17 +10076,20 @@
       "kind": "servant",
       "frames": 12,
       "cellSize": [
-        256,
+        384,
         256
       ],
       "sheets": {
         "basic": {
           "file": "karna.png",
           "width": 1536,
-          "height": 512,
-          "cell": 256,
-          "columns": 6,
-          "rows": 2,
+          "height": 768,
+          "cell": [
+            384,
+            256
+          ],
+          "columns": 4,
+          "rows": 3,
           "frames": 12,
           "groundY": 240
         },
@@ -10070,7 +10113,8 @@
           "frames": 6,
           "groundY": 496
         }
-      }
+      },
+      "sourceRevision": "karna-straight-guard-v6"
     },
     {
       "id": "vlad",
@@ -10080,17 +10124,23 @@
       "bodyPx": 153,
       "guideBodyPx": 153,
       "width": 1536,
-      "height": 512,
-      "columns": 6,
-      "rows": 2,
-      "cell": 256,
+      "height": 768,
+      "columns": 4,
+      "rows": 3,
+      "cell": [
+        384,
+        256
+      ],
       "groundY": 240,
-      "revision": "servants-uncropped-v5",
+      "revision": "lancers-wide-basic-v7",
       "effectTheme": "icy silver spectral impalement",
       "actions": {
         "idle": {
           "file": "vlad.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             1,
@@ -10132,7 +10182,10 @@
         },
         "hit": {
           "file": "vlad.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             4,
@@ -10149,7 +10202,10 @@
         },
         "dodge": {
           "file": "vlad.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             6,
@@ -10164,7 +10220,10 @@
         },
         "guard": {
           "file": "vlad.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             7,
@@ -10200,7 +10259,10 @@
         },
         "down": {
           "file": "vlad.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             8,
             9,
@@ -10219,17 +10281,20 @@
       "kind": "servant",
       "frames": 12,
       "cellSize": [
-        256,
+        384,
         256
       ],
       "sheets": {
         "basic": {
           "file": "vlad.png",
           "width": 1536,
-          "height": 512,
-          "cell": 256,
-          "columns": 6,
-          "rows": 2,
+          "height": 768,
+          "cell": [
+            384,
+            256
+          ],
+          "columns": 4,
+          "rows": 3,
           "frames": 12,
           "groundY": 240
         },
@@ -10253,7 +10318,8 @@
           "frames": 6,
           "groundY": 496
         }
-      }
+      },
+      "sourceRevision": "servants-uncropped-v5"
     },
     {
       "id": "elizabeth",
@@ -10629,17 +10695,23 @@
       "bodyPx": 152,
       "guideBodyPx": 152,
       "width": 1536,
-      "height": 512,
-      "columns": 6,
-      "rows": 2,
-      "cell": 256,
+      "height": 768,
+      "columns": 4,
+      "rows": 3,
+      "cell": [
+        384,
+        256
+      ],
       "groundY": 240,
-      "revision": "servants-uncropped-v5",
+      "revision": "lancers-wide-basic-v7",
       "effectTheme": "crimson root and gold fire",
       "actions": {
         "idle": {
           "file": "romulus.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             1,
@@ -10681,7 +10753,10 @@
         },
         "hit": {
           "file": "romulus.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             4,
@@ -10698,7 +10773,10 @@
         },
         "dodge": {
           "file": "romulus.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             6,
@@ -10713,7 +10791,10 @@
         },
         "guard": {
           "file": "romulus.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             7,
@@ -10749,7 +10830,10 @@
         },
         "down": {
           "file": "romulus.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             8,
             9,
@@ -10768,17 +10852,20 @@
       "kind": "servant",
       "frames": 12,
       "cellSize": [
-        256,
+        384,
         256
       ],
       "sheets": {
         "basic": {
           "file": "romulus.png",
           "width": 1536,
-          "height": 512,
-          "cell": 256,
-          "columns": 6,
-          "rows": 2,
+          "height": 768,
+          "cell": [
+            384,
+            256
+          ],
+          "columns": 4,
+          "rows": 3,
           "frames": 12,
           "groundY": 240
         },
@@ -10802,7 +10889,8 @@
           "frames": 6,
           "groundY": 496
         }
-      }
+      },
+      "sourceRevision": "servants-uncropped-v5"
     },
     {
       "id": "brynhild",
@@ -10995,17 +11083,23 @@
       "bodyPx": 133,
       "guideBodyPx": 133,
       "width": 1536,
-      "height": 512,
-      "columns": 6,
-      "rows": 2,
-      "cell": 256,
+      "height": 768,
+      "columns": 4,
+      "rows": 3,
+      "cell": [
+        384,
+        256
+      ],
       "groundY": 240,
-      "revision": "servants-uncropped-v5",
+      "revision": "lancers-wide-basic-v7",
       "effectTheme": "green white cloud ribbons",
       "actions": {
         "idle": {
           "file": "qinliangyu.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             1,
@@ -11047,7 +11141,10 @@
         },
         "hit": {
           "file": "qinliangyu.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             4,
@@ -11064,7 +11161,10 @@
         },
         "dodge": {
           "file": "qinliangyu.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             6,
@@ -11079,7 +11179,10 @@
         },
         "guard": {
           "file": "qinliangyu.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             7,
@@ -11115,7 +11218,10 @@
         },
         "down": {
           "file": "qinliangyu.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             8,
             9,
@@ -11134,17 +11240,20 @@
       "kind": "servant",
       "frames": 12,
       "cellSize": [
-        256,
+        384,
         256
       ],
       "sheets": {
         "basic": {
           "file": "qinliangyu.png",
           "width": 1536,
-          "height": 512,
-          "cell": 256,
-          "columns": 6,
-          "rows": 2,
+          "height": 768,
+          "cell": [
+            384,
+            256
+          ],
+          "columns": 4,
+          "rows": 3,
           "frames": 12,
           "groundY": 240
         },
@@ -11168,7 +11277,8 @@
           "frames": 6,
           "groundY": 496
         }
-      }
+      },
+      "sourceRevision": "servants-uncropped-v5"
     },
     {
       "id": "fionn",
@@ -11727,17 +11837,23 @@
       "bodyPx": 156,
       "guideBodyPx": 156,
       "width": 1536,
-      "height": 512,
-      "columns": 6,
-      "rows": 2,
-      "cell": 256,
+      "height": 768,
+      "columns": 4,
+      "rows": 3,
+      "cell": [
+        384,
+        256
+      ],
       "groundY": 240,
-      "revision": "servants-uncropped-v5",
+      "revision": "lancers-wide-basic-v7",
       "effectTheme": "white gold sacred lance",
       "actions": {
         "idle": {
           "file": "percival.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             1,
@@ -11779,7 +11895,10 @@
         },
         "hit": {
           "file": "percival.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             4,
@@ -11796,7 +11915,10 @@
         },
         "dodge": {
           "file": "percival.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             6,
@@ -11811,7 +11933,10 @@
         },
         "guard": {
           "file": "percival.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             0,
             7,
@@ -11847,7 +11972,10 @@
         },
         "down": {
           "file": "percival.png",
-          "cell": 256,
+          "cell": [
+            384,
+            256
+          ],
           "frames": [
             8,
             9,
@@ -11866,17 +11994,20 @@
       "kind": "servant",
       "frames": 12,
       "cellSize": [
-        256,
+        384,
         256
       ],
       "sheets": {
         "basic": {
           "file": "percival.png",
           "width": 1536,
-          "height": 512,
-          "cell": 256,
-          "columns": 6,
-          "rows": 2,
+          "height": 768,
+          "cell": [
+            384,
+            256
+          ],
+          "columns": 4,
+          "rows": 3,
           "frames": 12,
           "groundY": 240
         },
@@ -11900,7 +12031,8 @@
           "frames": 6,
           "groundY": 496
         }
-      }
+      },
+      "sourceRevision": "servants-uncropped-v5"
     },
     {
       "id": "kagetora",
