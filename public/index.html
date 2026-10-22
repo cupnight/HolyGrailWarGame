@@ -7968,7 +7968,7 @@ function showPatch(){ const seen=store.get(K_PATCH);
   $('#infoBody').innerHTML=html; infoHeld=false; $('#info').classList.remove('hidden'); store.set(K_PATCH,PATCH[0].v); patchSync(); }
 $('#patchBtn').onclick=()=>showPatch();
 // 앱으로 설치: 크롬·엣지·안드로이드는 설치 창, 아이폰·아이패드는 홈 화면 추가 안내
-(function(){ const live=/github\.io$/.test(location.hostname)||location.hostname==='localhost', btn=$('#installBtn');
+(function(){ const live=/(github\.io|workers\.dev)$/.test(location.hostname)||location.hostname==='localhost', btn=$('#installBtn');
   const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   let bip=null;
