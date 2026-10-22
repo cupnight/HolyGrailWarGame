@@ -9353,7 +9353,7 @@
       "rows": 2,
       "cell": 256,
       "groundY": 240,
-      "revision": "servants-uncropped-v5",
+      "revision": "hector-face-cleanup-v1",
       "effectTheme": "amber drilling spear",
       "actions": {
         "idle": {
