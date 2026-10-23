@@ -12659,11 +12659,21 @@
         256
       ],
       "groundY": 240,
-      "bodyPx": 134,
+      "bodyPx": 136,
       "guideBodyPx": 133,
+      "heightCm": 166,
       "pixelBlock": 2,
       "revision": "atalanta-2px-v4",
       "sourceRevision": "atalanta-new-2px-art-20261024",
+      "effectTheme": "turquoise gold arrow rain",
+      "effectName": "청록·금빛 화살비",
+      "bodyMeasurement": {
+        "mainCrownY": 105,
+        "soleY": 240,
+        "bodyPx": 136,
+        "method": "top of the blond hair between the ears (ears and isolated hair tips excluded) to sole, inclusive",
+        "referenceOriginalSHA256": "032e91bff58b0c6537613fc7eefc4beeba14cbad61e00f1755b3ffeeb7216e8d"
+      },
       "actions": {
         "idle": {
           "file": "atalanta.png",
