@@ -12237,7 +12237,7 @@
       "bodyPx": 144,
       "guideBodyPx": 142,
       "pixelBlock": 2,
-      "revision": "arjuna-fresh-animation-v3",
+      "revision": "arjuna-idle-breath-v4",
       "sourceRevision": "arjuna-2px-fresh-v2",
       "actions": {
         "idle": {
@@ -12250,13 +12250,9 @@
             0,
             1,
             2,
-            3,
-            2,
-            1
+            3
           ],
           "durationMs": [
-            400,
-            400,
             400,
             400,
             400,
@@ -12421,7 +12417,8 @@
           "frames": 6,
           "groundY": 496
         }
-      }
+      },
+      "idleSourceRevision": "arjuna-idle-breath-v1"
     }
   ]
 }
