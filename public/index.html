@@ -3763,7 +3763,20 @@ const Sim = (() => {
     {n:'빈',loc:'de'},{n:'뮌헨',loc:'de'},{n:'베를린',loc:'de'},{n:'프라하',loc:'cs'},{n:'이스탄불',loc:'tr'},{n:'상하이',loc:'zh'},{n:'시안',loc:'zh'},
   ];
   const CITY_W = {}; // 도시마다 균등
-  function genPerson(sex,loc){ const L=NAMES[loc||(S&&S.city?S.city.loc:'ko')]; const sur=pick(L.sur), g=pick(sex==='m'?L.m:L.f); return {sur, full: L.order==='sg'? sur+L.sp+g : g+L.sp+sur}; }
+  function genPerson(sex,loc){ const L=NAMES[loc||(S&&S.city?S.city.loc:'ko')]; const sur=pick(L.sur), g=pick(sex==='m'?L.m:L.f); return {sur, g, full: L.order==='sg'? sur+L.sp+g : g+L.sp+sur}; }
+  // 한 성배전쟁 안에서 이름이 겹치지 않게: 이미 쓰인 성·이름·전체 이름을 피한다 (이름 풀이 작은 도시는 성 → 이름 순으로 양보)
+  function nameParts(full){ let best=null, sc=-1; // 여러 나라 이름 풀에 걸치면 이름 풀에 실제로 있는 이름 > 띄어쓰기 일치 > 긴 성 순으로 고른다
+    for(const k in NAMES){ const L=NAMES[k]; for(const s of L.sur){ let g=null;
+      if(L.order==='sg'&&full.startsWith(s+L.sp)&&full.length>s.length+L.sp.length) g=full.slice(s.length+L.sp.length);
+      else if(L.order==='gs'&&full.endsWith(L.sp+s)&&full.length>s.length+L.sp.length) g=full.slice(0,-(s.length+L.sp.length));
+      if(g==null) continue; const v=(L.m.includes(g)||L.f.includes(g)?100:0)+((full.includes(' '))===(L.sp===' ')?10:0)+s.length;
+      if(v>sc){ sc=v; best=[s,g]; } } }
+    return best?['f:'+full,'s:'+best[0],'g:'+best[1]]:['f:'+full]; }
+  function uniqName(sex,loc,taken){ let best=null, lv=-1;
+    for(let t=0;t<60&&lv<3;t++){ const p=genPerson(sex,loc); if(taken.has('f:'+p.full)) continue;
+      const l=1+(!taken.has('g:'+p.g)?1:0)+(!taken.has('g:'+p.g)&&!taken.has('s:'+p.sur)?1:0); if(l>lv){ best=p; lv=l; } }
+    if(!best) best=genPerson(sex,loc);
+    taken.add('f:'+best.full); taken.add('s:'+best.sur); taken.add('g:'+best.g); return best.full; }
   function genName(sex,loc){ return genPerson(sex,loc).full; }
   function kidName(sex){ const L=NAMES[S.city.loc], F=S.fam||{}; const mk=g=>L.order==='sg'? S.sur+L.sp+g : g+L.sp+S.sur;
     const used=[S.name,F.sibName,F.spouse&&F.spouse.name,...(F.kids||[]).map(k=>k.name)].filter(Boolean);
@@ -4708,12 +4721,15 @@ const Sim = (() => {
     const used=new Set([h.id]);
     const pairs = others.map((c,i)=>{
       const hs=HEROES.filter(x=>x.cls===c&&!used.has(x.id)); const hh=pick(hs); used.add(hh.id);
-      const a=archs[i]; const sx=({mother:'f',burial:'f',priest:'m'})[a.id]||(ch(.5)?'m':'f'); const nm=a.id==='sibling'? (S.fam.sibName||(S.fam.sibName=kidName(sx))) : a.foreign? genName(sx,pick(Object.keys(NAMES).filter(l=>l!==S.city.loc))) : genName(sx);
-      return {i:i+1,seals:3,aid:a.id,cls:c,hero:hh.id,mname:nm,arche:a.n,tac:a.tac,pw:ri(a.pw[0],a.pw[1]),hp:100,alive:true,master:true,stray:0,intel:0,ally:false,revealed:false,foe:0,known:false,usedRevive:false};
+      const a=archs[i]; const sx=({mother:'f',burial:'f',priest:'m'})[a.id]||(ch(.5)?'m':'f'); const loc=a.foreign? pick(Object.keys(NAMES).filter(l=>l!==S.city.loc)) : null;
+      return {i:i+1,seals:3,aid:a.id,cls:c,hero:hh.id,mname:'',_sx:sx,_loc:loc,arche:a.n,tac:a.tac,pw:ri(a.pw[0],a.pw[1]),hp:100,alive:true,master:true,stray:0,intel:0,ally:false,revealed:false,foe:0,known:false,usedRevive:false};
     });
     const gq=ghostSeat(h,pairs);
-    // 외국 이름 중복 방지
-    const seen=new Set(); if(gq) seen.add(gq.mname); pairs.filter(p=>!p.ghost).forEach(p=>{while(seen.has(p.mname)) p.mname=genName(ch(.5)?'m':'f'); seen.add(p.mname)});
+    // 마스터 이름: 나와 가족, 다른 플레이어의 조, 다른 마스터들과 성이나 이름이 겹치지 않게
+    { const F=S.fam||{}, taken=new Set();
+      [S.name,F.sibName,F.spouse&&F.spouse.name,...(F.kids||[]).map(k=>k.name),gq&&gq.mname].filter(Boolean).forEach(n=>nameParts(n).forEach(x=>taken.add(x)));
+      const sib=pairs.find(p=>p.aid==='sibling'); if(sib){ sib.mname=F.sibName||(S.fam.sibName=kidName(sib._sx)); nameParts(sib.mname).forEach(x=>taken.add(x)); }
+      pairs.forEach(p=>{ if(p!==sib) p.mname=uniqName(p._sx,p._loc||undefined,taken); delete p._sx; delete p._loc; }); }
     S.war={fit:fitScore(h,match),sm:100,night:0,day:0,tod:'낮',pairs,hp:100,trust:clamp(Math.round(20+match*.4-(fitScore(h,match)<50?5:0))),exposure:0,fort:S.origin==='noble'||S.origin==='noble2'?25:10,seals:3,heroAlive:true,out:false,hid:false,usedRevive:false,
       cupPure:ch(.4),cupKnown:!!S.flags.knowsCup&&ch(.5),frag:0,queue:[],qt:0,prog:0,rest:0,phaseN:'dusk',kills:0,civ:0,ended:false,stray:null,recontract:false,drain:0};
     S.war.fort=clamp(S.war.fort+SV(h,'fort')*3);
