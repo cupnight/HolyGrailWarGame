@@ -12236,9 +12236,19 @@
       "groundY": 240,
       "bodyPx": 144,
       "guideBodyPx": 142,
+      "heightCm": 177,
       "pixelBlock": 2,
       "revision": "arjuna-idle-breath-v4",
       "sourceRevision": "arjuna-2px-fresh-v2",
+      "effectTheme": "blue white Pashupata divine arrow",
+      "effectName": "푸른빛·흰빛 파슈파타 신궁",
+      "bodyMeasurement": {
+        "mainCrownY": 97,
+        "soleY": 240,
+        "bodyPx": 144,
+        "method": "main hair mass (first row at least 30px wide in the head columns), excluding isolated hair tips and bow",
+        "referenceOriginalSHA256": "3c922b61f5bb4be9eb0d9e5ce7e2e9a83bf841a40c3969aab5ffd1f859d04cc8"
+      },
       "actions": {
         "idle": {
           "file": "arjuna.png",
@@ -12439,9 +12449,19 @@
       "groundY": 240,
       "bodyPx": 140,
       "guideBodyPx": 140,
+      "heightCm": 175,
       "pixelBlock": 2,
       "revision": "robin-2px-v3",
       "sourceRevision": "robin-new-2px-art-20261024",
+      "effectTheme": "green leaf and poison vine arrow",
+      "effectName": "초록 잎과 독 덩굴 화살",
+      "bodyMeasurement": {
+        "mainCrownY": 101,
+        "soleY": 240,
+        "bodyPx": 140,
+        "method": "main hair mass (first row at least 30px wide in the head columns), excluding isolated hair tips and bow",
+        "referenceOriginalSHA256": "bfe1fe5ec08897cf7d7f8e06ab5bb88867844b2ba28337adbd76ef71f46638c1"
+      },
       "actions": {
         "idle": {
           "file": "robin.png",
